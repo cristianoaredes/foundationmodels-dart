@@ -1,0 +1,14 @@
+name: foundationmodels_dart_workspace
+description: >-
+  Pub workspace root for the foundationmodels-dart repository.
+  Run `dart pub get` here to resolve all packages at once (Dart 3.12+
+  pub workspaces).
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/foundationmodels
+  - packages/foundationmodels_platform_interface
+  - packages/foundationmodels_apple

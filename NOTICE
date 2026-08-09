@@ -1,0 +1,20 @@
+foundationmodels-dart
+Copyright (C) 2026 Cristiano Aredes
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, version 3 of the License only (AGPL-3.0-only).
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+details (see the LICENSE file, or <https://www.gnu.org/licenses/agpl-3.0.txt>).
+
+Network clause: consistent with AGPL-3.0 §13, if you modify this software and
+make it available to users over a computer network, you must offer those users
+the complete corresponding source of your modified version.
+
+Trademarks: Apple, Apple Intelligence, Foundation Models, iOS, macOS, Xcode,
+and Swift are trademarks of Apple Inc., registered in the U.S. and other
+countries and regions. This project is an independent open-source adapter and
+is not affiliated with, sponsored by, or endorsed by Apple Inc.
