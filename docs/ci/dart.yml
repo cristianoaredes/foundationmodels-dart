@@ -1,0 +1,50 @@
+name: Dart CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**']
+  pull_request:
+    paths-ignore: ['**.md', 'docs/**']
+
+# Pure-Dart checks — no Mac required (mock-first philosophy, ADR-0001 §14.1).
+# Native (Swift/on-device) verification is intentionally NOT here; see
+# apple.yml (local-first verification, upstream ADR-0012).
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Flutter SDK is required to resolve the pub workspace: the workspace
+      # includes foundationmodels_apple, which declares the Flutter SDK in its
+      # environment. The pure-Dart packages are still analyzed/tested with the
+      # bundled `dart` — no iOS/macOS build happens here.
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Resolve workspace dependencies
+        run: flutter pub get
+
+      - name: Analyze foundationmodels_platform_interface
+        working-directory: packages/foundationmodels_platform_interface
+        run: dart analyze --fatal-infos
+
+      - name: Analyze foundationmodels
+        working-directory: packages/foundationmodels
+        run: dart analyze --fatal-infos
+
+      - name: Analyze foundationmodels_apple (Dart side only — no Swift build)
+        working-directory: packages/foundationmodels_apple
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Test foundationmodels_platform_interface
+        working-directory: packages/foundationmodels_platform_interface
+        run: dart test
+
+      - name: Test foundationmodels
+        working-directory: packages/foundationmodels
+        run: dart test
