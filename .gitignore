@@ -1,0 +1,38 @@
+# --- Dart / Flutter ---
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+pubspec.lock  # apps lock their deps; packages in this repo resolve via the pub workspace
+*.iml
+.idea/
+.vscode/
+*.code-workspace
+coverage/
+
+# --- macOS ---
+.DS_Store
+
+# --- Xcode / SPM ---
+*.xcodeproj/
+xcuserdata/
+*.xcuserstate
+.build/
+DerivedData/
+.swiftpm/
+Package.resolved
+ios/Pods/
+macos/Pods/
+ios/.symlinks/
+macos/.symlinks/
+**/Flutter/ephemeral/
+**/Flutter/Generated.xcconfig
+**/Flutter/flutter_export_environment.sh
+
+# --- Tooling / misc ---
+.env
+*.log
+.melos_*
