@@ -1,0 +1,21 @@
+name: foundationmodels
+description: >-
+  Dart API for Apple Foundation Models (via the foundationmodels-js Swift
+  core): classify, extract, rank, summarize, respond, streaming sessions,
+  guided generation schemas and a deterministic offline mock provider.
+  Pure Dart, testable on the VM without a Mac.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+resolution: workspace
+
+dependencies:
+  foundationmodels_platform_interface:
+    path: ../foundationmodels_platform_interface
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^5.0.0
