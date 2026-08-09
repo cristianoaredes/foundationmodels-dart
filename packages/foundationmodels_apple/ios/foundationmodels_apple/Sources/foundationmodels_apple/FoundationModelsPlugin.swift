@@ -283,10 +283,17 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
                     handler.emit(enriched)
                 }
             } catch {
+                // Flat canonical shape — `StreamError.fromMap` on the Dart
+                // side reads top-level `code` (stable machine code),
+                // `message` and `data` (daemon error.data dictionary).
+                let payload = Self.errorPayload(from: error)
+                let data = payload["data"] as? [String: Any] ?? ["code": "UNKNOWN_MODEL_ERROR"]
                 handler.emit([
                     "type": "error",
                     "requestId": generationId,
-                    "error": Self.errorPayload(from: error),
+                    "code": data["code"] as? String ?? "UNKNOWN_MODEL_ERROR",
+                    "message": payload["message"] as? String ?? error.localizedDescription,
+                    "data": data,
                 ])
             }
         }
