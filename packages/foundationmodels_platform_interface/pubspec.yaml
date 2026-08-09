@@ -1,0 +1,16 @@
+name: foundationmodels_platform_interface
+description: >-
+  Platform interface contracts for the FoundationModels Dart/Flutter adapter:
+  transport envelope, stream events, typed errors and models mirroring the
+  upstream foundationmodels-js protocol (v2). Pure Dart, no Flutter.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+resolution: workspace
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^5.0.0
