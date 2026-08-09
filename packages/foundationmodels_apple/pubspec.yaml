@@ -1,0 +1,35 @@
+name: foundationmodels_apple
+description: >-
+  Apple platform implementation (iOS + macOS) of the foundationmodels plugin.
+  Bridges Flutter platform channels to the shared Swift core
+  (FoundationModelsCore + FoundationModelsIOSBridge) that wraps the Apple
+  Foundation Models framework.
+version: 0.0.1
+homepage: https://github.com/cristianoaredes/foundationmodels-dart
+# Pre-release: path dependencies are replaced by hosted versions at publish time.
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.27.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  foundationmodels_platform_interface:
+    path: ../foundationmodels_platform_interface
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  plugin:
+    platforms:
+      ios:
+        pluginClass: FoundationModelsPlugin
+      macos:
+        pluginClass: FoundationModelsPlugin
