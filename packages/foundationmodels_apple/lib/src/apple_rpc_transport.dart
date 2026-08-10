@@ -60,11 +60,13 @@ class MethodChannelFoundationModels extends FoundationModelsTransport {
 
   /// Global stream of raw daemon-shaped events.
   ///
-  /// Intentionally a *single-subscription* stream: cancelling the
-  /// subscription triggers `onCancel` on the native side, which implicitly
-  /// cancels every active native generation (the analogue of the daemon's
-  /// client-EOF semantics, ADR-0001 §10). The API package keeps exactly one
-  /// subscription and fans events out to per-request `StreamController`s.
+  /// Backed by `EventChannel.receiveBroadcastStream()`; this getter caches a
+  /// single mapped instance, so all consumers share one underlying native
+  /// subscription. Cancelling it triggers `onCancel` on the native side,
+  /// which implicitly cancels every active native generation (the analogue
+  /// of the daemon's client-EOF semantics, ADR-0001 §10). The API package
+  /// keeps exactly one listener and fans events out to per-request
+  /// `StreamController`s.
   @override
   Stream<Map<String, Object?>> get streamEvents {
     return _streamEvents ??= _eventChannel.receiveBroadcastStream().map(
@@ -72,10 +74,8 @@ class MethodChannelFoundationModels extends FoundationModelsTransport {
           ? _deepCastMap(event)
           : const <String, Object?>{
               'type': 'error',
-              'error': <String, Object?>{
-                'code': 'UNKNOWN_MODEL_ERROR',
-                'message': 'Malformed stream event payload',
-              },
+              'code': 'UNKNOWN_MODEL_ERROR',
+              'message': 'Malformed stream event payload',
             },
     );
   }
