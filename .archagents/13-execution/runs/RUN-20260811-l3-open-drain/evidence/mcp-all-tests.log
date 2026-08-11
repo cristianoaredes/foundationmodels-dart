@@ -1,0 +1,24 @@
+Analyzing foundationmodels_mcp...
+No issues found!
+00:00 +0: loading test/mcp_live_env_test.dart
+00:00 +0: test/mcp_live_env_test.dart: live MCP dual-run (env-gated TCK-0059)
+SMOKE mcp_live skip=no_url env_limit=true reason=FM_MCP_SSE_URL_or_UAB_MCP_URL_unset reaffirmed=2026-08-11 (TCK-0059)
+00:00 +1: test/mcp_client_test.dart: dual-run client loopback to server mock FM
+SMOKE mcp_client run=1 init_ok list_ok call_ok fm_tools=1
+SMOKE mcp_client dual_run_ok=true
+00:00 +2: test/mcp_server_test.dart: dual-run mock initialize + tools/list + tools/call fm_respond
+SMOKE mcp run=1 tools_list_ok call_ok text_len=67
+SMOKE mcp run=2 tools_list_ok call_ok text_len=67
+SMOKE mcp dual_run_ok=true
+00:00 +3: test/mcp_client_test.dart: unknown tool surfaces error
+00:00 +4: test/mcp_server_test.dart: unknown method fail-closed METHOD_NOT_FOUND
+SMOKE mcp unknown_method failclosed_ok=true
+00:00 +5: test/mcp_client_test.dart: parseSseDataFrames extracts JSON data lines
+00:00 +6: test/mcp_client_test.dart: parseSseDataFrames extracts JSON data lines
+SMOKE sse_parse_ok=true frames=2
+00:00 +7: test/mcp_server_test.dart: serve NDJSON line protocol end-to-end
+00:00 +7: test/mcp_client_test.dart: McpSseTransport POST path with injectable httpPost
+SMOKE sse_transport_post_ok=true
+00:00 +8: test/mcp_server_test.dart: serve NDJSON line protocol end-to-end
+SMOKE mcp ndjson_serve_ok=true
+00:00 +9: All tests passed!

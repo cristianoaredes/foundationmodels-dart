@@ -1,7 +1,7 @@
 # Stage 2 — MCP **client** + SSE (repo package)
 
 **Created / drained (code):** 2026-08-11  
-**Status:** **code complete · ship pending** (formalized codebase-ops)  
+**Status:** **drained** (code on main + TCK-0059 harness; L3 2026-08-11)  
 **Epic:** [TCK-0056](tickets/TCK-0056-epic-mcp-client-sse-uab.md)  
 **Design:** [DES-0005](../16-designs/DES-0005-mcp-client-sse-uab.md)  
 **Complements:** Stage 1 MCP **server** stdio ([DES-0004](../16-designs/DES-0004-mcp-package.md))
@@ -34,8 +34,8 @@ Extend `foundationmodels_mcp` so this package can **consume** remote MCP tools (
 - [x] DES-0005 frozen  
 - [x] Client + transports implemented  
 - [x] `dart test` / analyze green in package  
-- [ ] Artifacts on `main` (PR merge)  
-- [ ] TCK-0059 done **or** remains blocked with dated note  
+- [x] Artifacts on `main`  
+- [x] TCK-0059 done (env-gated harness + reaffirm when no URL)  
 
 ## Evidence (local)
 

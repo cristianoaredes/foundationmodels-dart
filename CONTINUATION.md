@@ -81,13 +81,12 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Open backlog formalized** (repo-only). Mirror: `from: "1.0.4"`. Source: `OPEN-BACKLOG.md`.
+**L3 open drain complete** (2026-08-11). Mirror: `from: "1.0.4"`. Source: `OPEN-BACKLOG.md`.
 
 | Bucket | Tickets | Status |
 |--------|---------|--------|
-| v1 / Stage 1 | server MCP, daemon/CoreAI honest close | done on main |
-| Stage 2 MCP client | 0056–0058 | code done — **ship to main** |
-| Blocked | **0059** live UAB · **0049** MLX · **0028** PCC | gates |
+| v1 / Stage 1 / Stage 2 MCP | … · 0056–0059 | **done** |
+| Blocked only | **0049** MLX · **0028** PCC | external gates |
 | Human | pub.dev Phase 2 | SAFETY |
 
 
@@ -109,6 +108,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — L3 open drain: TCK-0059 env-gated live MCP test + reaffirm no URL; TCK-0049/0028 reaffirmed blocked; zero todo. RUN-20260811-l3-open-drain (9 MCP tests).
 - **2026-08-11** — Open backlog formalized (codebase-ops): `OPEN-BACKLOG.md`; Stage 2 MCP client tickets 0056–0058 + blocked 0059 live UAB; reaffirm 0049/0028. Package tests 8 pass.
 - **2026-08-11** — Stage 1 drain: TCK-0051 daemon env_limit reaffirm; TCK-0050 CoreAI content not measured; DES-0004 + **foundationmodels_mcp** mock dual-run; epic TCK-0054 done. RUN-20260811-stage1.
 - **2026-08-11** — Stage 1 backlog formalized: epic TCK-0054 (daemon 0051 → CoreAI 0050 → MCP 0055/0053); MLX TCK-0049 → Stage 2. Program `STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003.

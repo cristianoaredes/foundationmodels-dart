@@ -7,6 +7,7 @@
 library;
 
 export 'src/mcp_client.dart';
+export 'src/mcp_http.dart';
 export 'src/mcp_server.dart';
 export 'src/mcp_transport.dart';
 export 'src/mcp_types.dart';

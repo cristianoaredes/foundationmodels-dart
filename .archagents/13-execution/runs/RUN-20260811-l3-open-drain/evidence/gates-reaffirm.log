@@ -1,0 +1,4 @@
+SMOKE mlx env_limit=true reason=no_registered_weights reaffirmed=2026-08-11 (TCK-0049)
+SMOKE mlx content_dual_run=false
+SMOKE pcc blocked=true reason=no_entitlement reaffirmed=2026-08-11 (TCK-0028)
+SMOKE mcp_live see mcp-all-tests.log for env_limit when URL unset
