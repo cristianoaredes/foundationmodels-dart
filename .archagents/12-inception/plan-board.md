@@ -7,27 +7,38 @@
 | TCK-0029 | Finish parity closeout | **done** |
 | TCK-0045 | Post-closeout consumer readiness | **done** 2026-08-11 |
 | residual-optin | TCK-0038/39/41 + 0028 reaffirm | **drained** 2026-08-11 |
+| **TCK-0046** | Next-wave (consumer + content + gated) | **todo** — ready |
 
 ## Program status
 
-**Post-closeout:** [POST-CLOSEOUT.md](../15-backlog/POST-CLOSEOUT.md) — drained  
-**Residual opt-in:** [RESIDUAL-OPTIN.md](../15-backlog/RESIDUAL-OPTIN.md) — drained  
-**Mirror:** foundationmodels-swift **v1.0.4** (`from: "1.0.4"`)
+**Post-closeout:** drained · **Residual opt-in:** drained · **Mirror:** `from: "1.0.4"`  
+**Next-wave:** [NEXT-WAVE.md](../15-backlog/NEXT-WAVE.md) · [DES-0002](../16-designs/DES-0002-next-wave-program.md)
 
-| Ticket | Status |
-|--------|--------|
-| TCK-0043 VER/ship | done |
-| TCK-0042 iOS sim guards | done |
-| TCK-0044 mirror 1.0.3+ | done (pin 1.0.4) |
-| TCK-0040 chat-on-device | done (package unblock; Runner lipo residual) |
-| TCK-0038 daemon E2E | **done** (fake peer + live env limit) |
-| TCK-0039 MCP/agent | **done** (won't ship MCP; agent green) |
-| TCK-0041 pub.dev | **done** (ADR-0002 stay-private) |
-| TCK-0028 PCC | **blocked** (reaffirmed 2026-08-11) |
+### Wave A — pull now
 
-## Next
+| Order | Ticket | Status | Notes |
+|------:|--------|--------|-------|
+| 1 | **TCK-0047** path contract docs (FND-0010) | todo | First `/ops-work` |
+| 2 | **TCK-0048** chat-on-device Runner lipo | todo | Sibling consumer |
+| 3 | **TCK-0052** pub.dev prep (no publish) | todo | SAFETY on real publish |
 
-- PCC if entitlement (TCK-0028)  
-- chat-on-device Runner Flutter.framework lipo fix (consumer tooling)  
-- MLX/CoreAI content when weights registered  
-- pub.dev only if product reopens ADR-0002  
+### Wave B — blocked (playbook ready)
+
+| Ticket | Gate |
+|--------|------|
+| TCK-0049 MLX content | weights registered |
+| TCK-0050 CoreAI content | monorepo + model |
+| TCK-0051 live daemon binary | dyld/CoreAI fixed |
+
+### Wave C — product / entitlement
+
+| Ticket | Gate |
+|--------|------|
+| TCK-0053 MCP package | product opt-in |
+| TCK-0028 PCC | entitlement U9 |
+
+## Next command
+
+```text
+/ops-work TCK-0047
+```
