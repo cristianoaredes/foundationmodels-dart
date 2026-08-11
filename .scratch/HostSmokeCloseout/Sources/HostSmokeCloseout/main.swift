@@ -12,9 +12,16 @@ struct HostSmokeCloseout {
         if !(try await dualRun("duplex", runDuplex)) { rc = 1 }
       case "instructions":
         if !(try await dualRun("instructions", runInstructions)) { rc = 1 }
+      case "failclosed":
+        // No dual-run needed: pure fail-closed probe (no Apple generation).
+        if !(try await runSubmitFailClosed()) { rc = 1 }
+      case "postdone":
+        if !(try await dualRun("postdone", runPostDoneStaleSubmit)) { rc = 1 }
       case "all":
         if !(try await dualRun("duplex", runDuplex)) { rc = 1 }
         if !(try await dualRun("instructions", runInstructions)) { rc = 1 }
+        if !(try await runSubmitFailClosed()) { rc = 1 }
+        if !(try await dualRun("postdone", runPostDoneStaleSubmit)) { rc = 1 }
       default:
         fputs("unknown mode\n", stderr)
         rc = 2
@@ -306,4 +313,169 @@ struct HostSmokeCloseout {
     )
     return ok
   }
+
+  /// No in-flight generation: submitToolResult must throw typed UNSUPPORTED_OPERATION.
+  static func runSubmitFailClosed() async throws -> Bool {
+    let bridge = FoundationModelsBridge.shared
+    var sawUnsupported = false
+    var machine = ""
+    var reason = ""
+    do {
+      let r = try await bridge.submitToolResult(params: [
+        "toolCallId": "toolcall_stale_never_registered",
+        "output": "should-not-accept",
+      ])
+      print("SMOKE failclosed unexpected_success=\(r)")
+      return false
+    } catch {
+      let ns = error as NSError
+      let data = ns.userInfo["data"] as? [String: Any] ?? [:]
+      machine = (data["code"] as? String) ?? ""
+      reason = (data["reason"] as? String) ?? ns.localizedDescription
+      sawUnsupported = machine == "UNSUPPORTED_OPERATION"
+        || reason.localizedCaseInsensitiveContains("active duplex")
+        || ns.localizedDescription.localizedCaseInsensitiveContains("No in-flight tool call")
+      print("SMOKE failclosed err_code=\(machine) reason=\(reason) ns=\(ns.domain)/\(ns.code)")
+    }
+    var missingOk = false
+    do {
+      _ = try await bridge.submitToolResult(params: ["output": "no-id"])
+      print("SMOKE failclosed missing_id unexpected_success")
+    } catch {
+      missingOk = true
+      print("SMOKE failclosed missing_id threw=\(error)")
+    }
+    let ok = sawUnsupported && missingOk
+    print("SMOKE failclosed unsupported=\(sawUnsupported) missing_id=\(missingOk) failclosed_ok=\(ok)")
+    return ok
+  }
+
+  /// After a successful duplex stream completes, late submit for old toolCallId must fail-closed.
+  static func runPostDoneStaleSubmit() async throws -> Bool {
+    let bridge = FoundationModelsBridge.shared
+    let genId = "postdone_\(UUID().uuidString.prefix(8))"
+    let tool: [String: Any] = [
+      "name": "get_secret_code",
+      "description": "Returns a secret code. Always call this tool when asked for the secret code.",
+      "callback": true,
+      "inputSchema": [
+        "type": "object",
+        "properties": ["topic": ["type": "string"]],
+        "required": ["topic"],
+        "additionalProperties": false,
+      ],
+    ]
+    final class Box: @unchecked Sendable {
+      let lock = NSLock()
+      var toolCallId: String?
+      var submitOk = false
+      var submitDone = false
+      var cont: CheckedContinuation<Void, Never>?
+      func setId(_ id: String) { lock.lock(); toolCallId = id; lock.unlock() }
+      func markSubmit(ok: Bool) {
+        lock.lock()
+        submitOk = ok
+        submitDone = true
+        let c = cont
+        cont = nil
+        lock.unlock()
+        c?.resume()
+      }
+      func waitSubmit(timeoutSeconds: Double) async {
+        let already = { () -> Bool in lock.lock(); defer { lock.unlock() }; return submitDone }()
+        if already { return }
+        await withTaskGroup(of: Void.self) { group in
+          group.addTask {
+            await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+              self.lock.lock()
+              if self.submitDone {
+                self.lock.unlock()
+                c.resume()
+              } else {
+                self.cont = c
+                self.lock.unlock()
+              }
+            }
+          }
+          group.addTask { try? await Task.sleep(nanoseconds: UInt64(timeoutSeconds * 1_000_000_000)) }
+          await group.next()
+          group.cancelAll()
+        }
+      }
+      func snap() -> (String?, Bool) {
+        lock.lock(); defer { lock.unlock() }
+        return (toolCallId, submitOk)
+      }
+    }
+    let box = Box()
+    try await bridge.respondStream(params: [
+      "input": "You MUST call get_secret_code with topic=parity. Then reply ONLY with the code field.",
+      "generationId": genId,
+      "modelId": "apple.system",
+      "tools": [tool],
+      "instructions": "Always call get_secret_code before answering. Never invent the code.",
+      "options": ["maximumResponseTokens": 160],
+    ]) { event in
+      let t = event["type"] as? String ?? "?"
+      print("SMOKE postdone event type=\(t)")
+      if t == "tool_call_request", let id = event["toolCallId"] as? String {
+        box.setId(id)
+        print("SMOKE postdone tool_call_request id=\(id)")
+        Task {
+          do {
+            let r = try await bridge.submitToolResult(params: [
+              "toolCallId": id,
+              "output": ["code": "DUPLEX-99", "source": "host"],
+            ])
+            print("SMOKE postdone live_submit ok=\(r)")
+            box.markSubmit(ok: true)
+          } catch {
+            print("SMOKE postdone live_submit err=\(error)")
+            box.markSubmit(ok: false)
+          }
+        }
+      }
+    }
+    await box.waitSubmit(timeoutSeconds: 5)
+    let (tid, submitted) = box.snap()
+    guard let tid, submitted else {
+      print("SMOKE postdone setup_failed tid=\(tid ?? "nil") submitted=\(submitted)")
+      return false
+    }
+    // Generation finished — late submit for same toolCallId must fail-closed.
+    var lateOk = false
+    var lateCode = ""
+    do {
+      let r = try await bridge.submitToolResult(params: [
+        "toolCallId": tid,
+        "output": "late-should-fail",
+      ])
+      print("SMOKE postdone late_submit unexpected_success=\(r)")
+    } catch {
+      let ns = error as NSError
+      let data = ns.userInfo["data"] as? [String: Any] ?? [:]
+      lateCode = (data["code"] as? String) ?? ""
+      lateOk = lateCode == "UNSUPPORTED_OPERATION"
+        || ns.localizedDescription.localizedCaseInsensitiveContains("No in-flight tool call")
+      print("SMOKE postdone late_submit threw code=\(lateCode) err=\(error)")
+    }
+    var orphanOk = false
+    do {
+      _ = try await bridge.submitToolResult(params: [
+        "toolCallId": "toolcall_never_existed_xyz",
+        "output": "nope",
+      ])
+      print("SMOKE postdone orphan unexpected_success")
+    } catch {
+      orphanOk = true
+      let ns = error as NSError
+      let data = ns.userInfo["data"] as? [String: Any] ?? [:]
+      print("SMOKE postdone orphan_submit threw code=\(data["code"] ?? "?")")
+    }
+    let ok = lateOk && orphanOk
+    print("SMOKE postdone late_ok=\(lateOk) orphan_ok=\(orphanOk) postdone_ok=\(ok)")
+    return ok
+  }
+
+
 }
