@@ -2,39 +2,32 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| SPC-0001 | Phase 0 → streaming MVP | delivered |
-| TCK-0045 | Post-closeout consumer readiness | done |
-| residual-optin | TCK-0038/39/41 | drained |
-| **TCK-0046** | Next-wave epic | **in progress** (Wave A done) |
+| Package v1 | Adapter + tools + agent + consumer sim | **shippable** |
+| TCK-0046 | Next-wave (Wave A) | Wave A done; superseded focus → Stage 1 |
+| **TCK-0054** | **Stage 1: Daemon · CoreAI · MCP** | **todo — pull now** |
+| Stage 2 | MLX (TCK-0049) | deferred |
 
-## NEXT-WAVE
+## Active program: Stage 1
 
-Program: [NEXT-WAVE.md](../15-backlog/NEXT-WAVE.md) · Run: RUN-20260811-wave-a
+**Doc:** [STAGE-1-DAEMON-COREAI-MCP.md](../15-backlog/STAGE-1-DAEMON-COREAI-MCP.md) · **DES-0003**
 
-### Wave A — **done** 2026-08-11
+| Order | Ticket | Priority | Status | Notes |
+|------:|--------|----------|--------|-------|
+| 1 | **TCK-0051** daemon live E2E | high | todo | probe always; dual-run gated |
+| 2 | **TCK-0050** CoreAI content | high | todo | monorepo probe always |
+| 3 | **TCK-0055** MCP mini-spec | high | todo | DES-0004; no code |
+| 4 | **TCK-0053** MCP package | high | todo | after 0055 only |
+
+### Stage 2 (parked)
 
 | Ticket | Status |
 |--------|--------|
-| TCK-0047 path docs / FND-0010 | **done** |
-| TCK-0048 chat-on-device Runner lipo | **done** (sim build green) |
-| TCK-0052 pub.dev prep Phase 1 | **done** (no publish) |
-
-### Wave B — blocked (playbook ready)
-
-| Ticket | Gate |
-|--------|------|
-| TCK-0049 MLX content | weights |
-| TCK-0050 CoreAI content | monorepo + model |
-| TCK-0051 live daemon | dyld fixed |
-
-### Wave C — product / entitlement
-
-| Ticket | Gate |
-|--------|------|
-| TCK-0053 MCP | product opt-in |
-| TCK-0028 PCC | entitlement |
+| TCK-0049 MLX content | blocked · stage 2 · low |
+| TCK-0028 PCC | blocked · entitlement |
 | TCK-0052 Phase 2 publish | human SAFETY |
 
-## Next
+## Next command
 
-Wait for Wave B/C gates, or product call on MCP/pub.dev.
+```text
+/ops-work TCK-0051
+```

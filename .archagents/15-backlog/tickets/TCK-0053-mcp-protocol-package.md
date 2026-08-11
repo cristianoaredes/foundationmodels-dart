@@ -1,79 +1,69 @@
 ---
 id: TCK-0053
 slug: mcp-protocol-package
-title: "Optional — MCP protocol client package over FoundationModels"
+title: "MCP protocol package over FoundationModels (Stage 1 implement)"
 source: next-wave-intake
 created_at: 2026-08-11T21:00:00-03:00
 status: todo
-priority: low
+priority: high
 category: feature
 effort: L
-related: [TCK-0046, TCK-0039, foundationmodels_agent]
-program: NEXT-WAVE
-order: 7
-wave: C
+related: [TCK-0054, TCK-0055, TCK-0039, foundationmodels_agent]
+program: STAGE-1
+stage: 1
+order: 4
+wave: stage1
 executable_now: false
+depends_on: [TCK-0055]
 product_opt_in: true
-unblock_when: "Explicit product request to ship MCP (not just agent tools)"
+product_approved_stage1: true
+unblock_when: "TCK-0055 mini-spec done"
 ---
 
-# TCK-0053 — MCP protocol package
+# TCK-0053 — MCP package implement (Stage 1 #4)
 
 ## Gap
 
-TCK-0039 closed: **won't ship MCP** in residual-optin; `foundationmodels_agent` is AG-UI-shaped tool loop, not MCP. This ticket is the **design-ready reopen** if product wants real MCP.
-
-## Product opt-in gate
-
-Do **not** start implementation until operator says e.g. “implement MCP” / “ship TCK-0053”.  
-Default: leave `todo` low priority.
+TCK-0039 closed won't-ship MCP for residual-optin. **Stage 1 product-approved:** ship a real MCP surface as a **new package**, mock-first. Spec frozen in **TCK-0055** / DES-0004.
 
 ## Depends on
 
+- **TCK-0055 done** (mini-spec freeze) — hard gate  
 - Stable `foundationmodels` stream + tools duplex (already)  
-- Spec choice: which MCP transport (stdio / SSE) and SDK  
 
-## Work (when product opts in)
+## Work (after 0055)
 
-1. **Spec spike (half-day):** MCP server vs client role; map tools ↔ FM tools; security (instructions channel).  
-2. New package e.g. `foundationmodels_mcp` with `publish_to: none`.  
-3. Mock FM path: list tools, call tool, stream text.  
-4. Optional live Apple path smoke.  
-5. Tests dual-run; docs: “not matrix parity”.  
-6. Do not rename agent package as MCP.
+1. Scaffold `packages/foundationmodels_mcp` + workspace `pubspec.yaml`; `publish_to: none`.  
+2. Implement per DES-0004 (default expectation: **MCP server**, **stdio**, tools → `FmTool` / stream).  
+3. Mock FM path tests: tools/list, tools/call, text generation dual-run.  
+4. README: not matrix parity; not a replacement for `FmAgent`.  
+5. Optional: live Apple smoke if machine has FM (do not block DoD).  
 
 ## AC
 
-- [ ] Written mini-spec in ticket or DES-NNNN  
-- [ ] Package + tests green on mock  
-- [ ] Explicit non-claim: not Apple matrix `supported`  
-- [ ] Or: product declines → status `cancelled` with note  
+- [ ] Package builds; analyze/tests green on mock  
+- [ ] Dual-run mock evidence  
+- [ ] Docs: non-claims (parity, agent replace, pub.dev)  
+- [ ] Security note: no untrusted content into `instructions`  
 
 ## Evidence template
 
 ```text
-SMOKE mcp mock tools_list_ok call_ok
-SMOKE mcp dual_run_ok=true
+SMOKE mcp mock tools_list_ok call_ok dual_run_ok=true
 ```
 
 ## Files likely to touch
 
 - `packages/foundationmodels_mcp/**` (new)  
-- workspace `pubspec.yaml`  
+- root workspace pubspec  
 - README ecosystem section  
 
 ## Out of scope
 
-- Replacing `foundationmodels_agent`  
-- Cloud MCP gateways  
+- MLX / CoreAI / daemon  
+- pub.dev publish  
+- Full SSE multi-transport unless 0055 already locked it  
 
-## Design sketch (ready)
+## Effort
 
-```
-MCP host/client
-    → foundationmodels_mcp
-        → FoundationModels (mock | apple transport)
-            → tools duplex / stream
-```
-
-Security: never paste untrusted MCP tool output into `instructions`.
+**M–L** after 0055; mock-only DoD keeps it bounded.
