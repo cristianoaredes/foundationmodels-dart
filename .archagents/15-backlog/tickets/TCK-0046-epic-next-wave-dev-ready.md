@@ -4,8 +4,10 @@ slug: epic-next-wave-dev-ready
 title: "Épico: next-wave — consumer polish + content backends + gated paths"
 source: next-wave-intake
 created_at: 2026-08-11T21:00:00-03:00
-status: todo
+status: done
 priority: medium
+done_at: 2026-08-11T23:30:00-03:00
+run: RUN-20260811-stage1
 category: feature
 effort: L
 related: [TCK-0045, TCK-0054, TCK-0028, TCK-0033, TCK-0034, TCK-0038, TCK-0039, TCK-0041]

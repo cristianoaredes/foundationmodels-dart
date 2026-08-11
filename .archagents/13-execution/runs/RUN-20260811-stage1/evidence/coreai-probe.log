@@ -1,0 +1,10 @@
+SMOKE coreai probe path=monorepo
+FOUNDATIONMODELS_SWIFT_PATH=/Users/cristiano/workspace/ai-workflow/foundationmodels-js/swift
+layout_has_FoundationModelsCore=true
+layout_has_ios_bridge=true
+coreai_swiftmodule_in_build=true
+content_dual_run=false
+reason=no_registered_aimodel_and_daemon_dyld_blocks_live_path
+mirror_stub=true (from:1.0.4 CoreAI excluded by design)
+SMOKE coreai env_limit=true reaffirmed=2026-08-11
+parity: monorepo content not measured; mirror fail-closed/stub

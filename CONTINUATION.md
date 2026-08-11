@@ -38,7 +38,8 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Residual opt-in run | `.archagents/13-execution/runs/RUN-20260811-residual-optin/` |
 | Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
 | Next-wave program | `.archagents/15-backlog/NEXT-WAVE.md` · DES-0002 |
-| **Stage 1 (active)** | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003 · epic TCK-0054 |
+| **Stage 1 (drained)** | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003/0004 · RUN-20260811-stage1 |
+| MCP package | `packages/foundationmodels_mcp` (stdio server, mock dual-run) |
 
 ## 3. How to validate
 
@@ -55,7 +56,9 @@ flutter pub get
 (cd packages/foundationmodels && dart test && dart analyze --fatal-infos)
 (cd packages/foundationmodels_apple && flutter analyze --fatal-infos)
 (cd packages/foundationmodels_agent && dart test)
+(cd packages/foundationmodels_mcp && dart test)
 (cd packages/foundationmodels && dart test test/tools_e2e_test.dart)
+(cd packages/foundationmodels_daemon && dart test)
 
 # Remote SPM version resolve (mirror):
 # see README in github.com/cristianoaredes/foundationmodels-swift
@@ -75,12 +78,12 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Stage 1 formalized** (daemon · CoreAI · MCP). Mirror pin: `from: "1.0.4"`. Pull: `/ops-work TCK-0051`.
+**Stage 1 drained** (2026-08-11). Mirror pin: `from: "1.0.4"`. MCP: `foundationmodels_mcp`.
 
 | Stage | Tickets | Status |
 |-------|---------|--------|
-| Wave A (done) | 0047 · 0048 · 0052 prep | done |
-| **Stage 1** | **0051 daemon → 0050 CoreAI → 0055 MCP spec → 0053 MCP pkg** | **active** |
+| Wave A | 0047 · 0048 · 0052 prep | done |
+| **Stage 1** | 0051 · 0050 · 0055 · 0053 | **done** (daemon/CoreAI env limits honest) |
 | Stage 2 | 0049 MLX | deferred |
 | Parked | 0028 PCC · 0052 publish | entitlement / human |
 
@@ -103,6 +106,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Stage 1 drain: TCK-0051 daemon env_limit reaffirm; TCK-0050 CoreAI content not measured; DES-0004 + **foundationmodels_mcp** mock dual-run; epic TCK-0054 done. RUN-20260811-stage1.
 - **2026-08-11** — Stage 1 backlog formalized: epic TCK-0054 (daemon 0051 → CoreAI 0050 → MCP 0055/0053); MLX TCK-0049 → Stage 2. Program `STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003.
 - **2026-08-11** — Wave A L3 drain: TCK-0047 FND-0010 closed; TCK-0048 chat-on-device iOS sim **built** (Xcode 27 lipo multi-arch → ARCHS=arm64); TCK-0052 Phase 1 pub prep (no publish). RUN-20260811-wave-a.
 - **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002.

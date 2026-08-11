@@ -1,0 +1,11 @@
+00:00 +0: loading test/mcp_server_test.dart
+00:00 +0: test/mcp_server_test.dart: dual-run mock initialize + tools/list + tools/call fm_respond
+SMOKE mcp run=1 tools_list_ok call_ok text_len=67
+SMOKE mcp run=2 tools_list_ok call_ok text_len=67
+SMOKE mcp dual_run_ok=true
+00:00 +1: test/mcp_server_test.dart: unknown method fail-closed METHOD_NOT_FOUND
+SMOKE mcp unknown_method failclosed_ok=true
+00:00 +2: test/mcp_server_test.dart: extra callback tool via tools/call
+00:00 +3: test/mcp_server_test.dart: serve NDJSON line protocol end-to-end
+SMOKE mcp ndjson_serve_ok=true
+00:00 +4: All tests passed!
