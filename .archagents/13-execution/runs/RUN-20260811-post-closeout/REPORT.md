@@ -36,3 +36,11 @@ L3 drain of post-closeout program (TCK-0045 children).
 ## Opt-in
 - TCK-0038/39/41 deferred (not product-requested this drain)
 - TCK-0028 remains blocked
+
+## Skeptic gap fix — submitToolResult fail-closed
+
+- Bridge: early-buffer only while generation tasks registered; else `UNSUPPORTED_OPERATION`
+- HostSmoke `failclosed`: stale + missing toolCallId → UNSUPPORTED_OPERATION (`evidence/submit-failclosed.log`)
+- HostSmoke `postdone` dual-run: live duplex then late submit same id → UNSUPPORTED_OPERATION (`evidence/submit-postdone.log`)
+- Duplex happy path still dual-run green after change
+- Mirror tag **v1.0.4** published with fix

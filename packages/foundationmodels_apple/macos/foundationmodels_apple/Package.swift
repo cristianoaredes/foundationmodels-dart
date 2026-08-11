@@ -28,7 +28,7 @@ enum SwiftCoreDeps {
         return [
             .package(
                 url: "https://github.com/cristianoaredes/foundationmodels-swift.git",
-                from: "1.0.3"
+                from: "1.0.4"
             )
         ]
     }

@@ -516,17 +516,23 @@ final class BridgeGenerationRegistry: @unchecked Sendable {
   @discardableResult
   func completeToolResult(toolCallId: String, params: [String: Any]) -> Bool {
     let box = ToolParamsBox(value: params)
-    let cont = state.withLock { s -> CheckedContinuation<ToolParamsBox, Error>? in
+    // Returns: (continuation?, acceptedEarlyBuffer)
+    // Early buffer only while a generation task is still registered — otherwise
+    // stale/orphan submitToolResult is fail-closed (UNSUPPORTED_OPERATION).
+    let (cont, acceptedEarly) = state.withLock { s -> (CheckedContinuation<ToolParamsBox, Error>?, Bool) in
       if let c = s.toolCompleters.removeValue(forKey: toolCallId) {
-        return c
+        return (c, false)
       }
-      s.earlyResults[toolCallId] = box
-      return nil
+      if !s.tasks.isEmpty {
+        s.earlyResults[toolCallId] = box
+        return (nil, true)
+      }
+      return (nil, false)
     }
     if let cont {
       cont.resume(returning: box)
       return true
     }
-    return true
+    return acceptedEarly
   }
 }
