@@ -2,30 +2,44 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| Package v1 | Adapter + tools + agent + consumer sim | shippable |
-| Stage 1 | Daemon · CoreAI · MCP (TCK-0054) | **done** 2026-08-11 |
-| Stage 2 | MLX (TCK-0049) | deferred / blocked |
+| Package v1 | Adapter + tools + agent + server MCP | **shippable on main** |
+| Stage 1 | Daemon · CoreAI · MCP server | **done** |
+| Stage 2 MCP client | Client + SSE in package | **code done · ship PR** |
+| Content backends | MLX / PCC | **blocked** |
 
-## Stage 1 (closed)
+## Active formalization
 
-| Ticket | Result |
-|--------|--------|
-| TCK-0051 daemon live | env_limit reaffirm; fake peer OK |
-| TCK-0050 CoreAI | probe only; content not measured |
-| TCK-0055 MCP spec | DES-0004 |
-| TCK-0053 MCP package | `foundationmodels_mcp` |
+**Source of truth for open work:** [OPEN-BACKLOG.md](../15-backlog/OPEN-BACKLOG.md)
 
-## Remaining open
+### Ship next (no external gate)
 
-| Ticket | Status | Gate |
-|--------|--------|------|
-| TCK-0049 MLX | blocked | weights + Stage 2 pull |
-| TCK-0028 PCC | blocked | entitlement |
-| TCK-0052 Phase 2 | — | human publish |
+| Ticket | Status | Notes |
+|--------|--------|-------|
+| TCK-0056 epic MCP client | done | Needs merge to main if not yet |
+| TCK-0057 FmMcpClient | done | |
+| TCK-0058 SSE transport | done | |
 
-## Next
+### Blocked (repo-scoped gates)
+
+| Ticket | Gate |
+|--------|------|
+| **TCK-0059** live UAB MCP dual-run | env URL |
+| **TCK-0049** MLX content | weights |
+| **TCK-0028** PCC | entitlement |
+
+### Human SAFETY
+
+| Item | Notes |
+|------|--------|
+| pub.dev Phase 2 | ADR-0002 |
+
+## Next commands
 
 ```text
-# Only if product wants Stage 2:
+# 1) Ship Stage 2 MCP client package to main (if uncommitted)
+# 2) When UAB available:
+/ops-work TCK-0059
+# 3) Content backends when gates open:
 /ops-work TCK-0049
+/ops-work TCK-0028
 ```

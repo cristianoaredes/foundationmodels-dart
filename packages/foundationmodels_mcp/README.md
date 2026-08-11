@@ -15,3 +15,24 @@ await mcp.serve(input: stdin, output: stdout.add);
 ```
 
 `publish_to: none` (ADR-0002).
+
+
+## Client (DES-0005 / UAB)
+
+```dart
+// Loopback CI:
+final server = FmMcpServer(fm: fm);
+final client = FmMcpClient(transport: McpLoopbackTransport(server.handleMessage));
+await client.initialize();
+final tools = await client.listToolsAsFmTools(); // → List<FmTool>
+
+// Remote UAB (SSE/JSON-RPC):
+final transport = McpSseTransport(
+  rpcUrl: Uri.parse('https://uab.example/mcp'),
+  sseUrl: Uri.parse('https://uab.example/sse'), // optional
+  headers: {'Authorization': 'Bearer …'},
+  httpPost: yourPost,
+);
+```
+
+**Security:** never paste tool results into session `instructions`.
