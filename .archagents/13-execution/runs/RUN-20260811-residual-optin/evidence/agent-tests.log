@@ -1,0 +1,9 @@
+00:00 +0: loading test/agent_test.dart
+00:00 +0: test/agent_test.dart: intent router classifies into routes via mock
+00:00 +1: test/agent_test.dart: HITL registry is consume-once and rejects pollution
+00:00 +2: test/agent_test.dart: agent run emits RUN_STARTED and RUN_FINISHED on mock stream
+00:00 +3: test/agent_test.dart: prototype pollution detector
+00:00 +4: test/agent_test.dart: tool loop (shipped path) FmAgent(tools:) produces tool events and exactly one tools.result
+00:00 +5: test/agent_test.dart: tool loop (shipped path) requireHitl: interrupt then approve → still exactly one tools.result
+00:00 +6: test/agent_test.dart: tool loop (shipped path) autoExecuteTools true alone submits once; agent does not double
+00:00 +7: All tests passed!
