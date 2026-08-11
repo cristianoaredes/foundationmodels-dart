@@ -44,10 +44,10 @@ TCK-0043,closeout-verify-ship-hygiene,Closeout — VER adversarial + ship hygien
 TCK-0044,mirror-1-0-3-publish,Publish foundationmodels-swift ≥1.0.3 (duplex + iOS sim guards),done,high,feature,M,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
 TCK-0045,epic-post-closeout-consumer-readiness,Épico: post-closeout consumer readiness (ship + iOS sim + mirror + chat-on-device),done,high,feature,L,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
 TCK-0046,epic-next-wave-dev-ready,Épico: next-wave — consumer polish + content backends + gated paths,todo,high,feature,L,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
-TCK-0047,fnd-0010-path-contract-docs,Docs — FOUNDATIONMODELS_SWIFT_PATH monorepo vs mirror contract (FND-0010),todo,high,chore,S,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
-TCK-0048,chat-on-device-runner-lipo,chat-on-device — fix Runner Flutter.framework lipo / full iOS sim build,todo,high,bug,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
+TCK-0047,fnd-0010-path-contract-docs,Docs — FOUNDATIONMODELS_SWIFT_PATH monorepo vs mirror contract (FND-0010),done,high,chore,S,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
+TCK-0048,chat-on-device-runner-lipo,chat-on-device — fix Runner Flutter.framework lipo / full iOS sim build,done,high,bug,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
 TCK-0049,mlx-content-when-weights,MLX — content dual-run when model weights registered,blocked,medium,feature,L,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
 TCK-0050,coreai-content-when-registered,CoreAI — content dual-run on monorepo tip when model registered,blocked,medium,feature,L,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
 TCK-0051,daemon-live-binary-e2e,Daemon — live foundationmodels-daemon binary Unix-socket E2E,blocked,low,feature,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
-TCK-0052,pubdev-prep-and-optional-publish,pub.dev — package prep (and optional human-gated publish),todo,medium,feature,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,
+TCK-0052,pubdev-prep-and-optional-publish,pub.dev — package prep (and optional human-gated publish),done,medium,feature,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
 TCK-0053,mcp-protocol-package,Optional — MCP protocol client package over FoundationModels,todo,low,feature,L,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,

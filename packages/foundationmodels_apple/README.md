@@ -43,26 +43,43 @@ enabled on the device.
 The plugin consumes the Swift core as SPM products (`FoundationModelsCore`,
 `FoundationModelsIOSBridge`) from the distribution mirror
 [`foundationmodels-swift`](https://github.com/cristianoaredes/foundationmodels-swift)
-(pinned, semver-tagged). For local development against a monorepo checkout, set
-the environment variable **before** resolving packages (the manifest reads it):
+(pinned, semver-tagged). Optional local override via **`FOUNDATIONMODELS_SWIFT_PATH`**
+(read by `ios/` and `macos/` `Package.swift` **before** package resolve).
 
-```sh
-# Preferred local layout: distribution-mirror tree (CoreAI sources excluded).
-export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-swift
-# Monorepo tip (full CoreAI): point at foundationmodels-js/swift ONLY if CoreAI
-# package deps resolve; otherwise SPM fails with CoreAILanguageModels missing
-# (FND-0010). Mirror layout is the safe default for iOS consumers.
-# then: flutter build ios / flutter build macos (or xcodebuild / swift build)
+### Path contract (TCK-0047 / FND-0010) — decision table
+
+| Intent | Set `FOUNDATIONMODELS_SWIFT_PATH`? | Path must be | CoreAI | Use when |
+|--------|-------------------------------------|--------------|--------|----------|
+| **CI / consumers / iOS sim (default)** | **unset** | n/a — GitHub `from: "1.0.4"` | stub / excluded | Always safe |
+| **Local mirror clone** | **set** | root of [foundationmodels-swift](https://github.com/cristianoaredes/foundationmodels-swift) layout (`…/FoundationModelsCore` + `…/ios-bridge` present; CoreAI excluded) | stub / excluded | Offline pin / patch mirror |
+| **Full Apple tip on Mac** | **set** | monorepo `foundationmodels-js/swift` (same subdirs + CoreAI package graph resolves) | full deps | Local CoreAI/MLX tip only |
+| **Forbidden** | set | monorepo **Core alone**, random subfolder, or path without both `FoundationModelsCore` and `ios-bridge` | **breaks** | — |
+
+When the env var is set, manifests resolve:
+
+```text
+$FOUNDATIONMODELS_SWIFT_PATH/FoundationModelsCore
+$FOUNDATIONMODELS_SWIFT_PATH/ios-bridge
 ```
 
-**Layout contract (TCK-0042 / FND-0010):**
+**Recovery if SPM fails with `CoreAILanguageModels` / missing module:**
 
-| Path shape | Products | Use when |
-|------------|----------|----------|
-| GitHub mirror `from: "1.0.4"`+ / local mirror clone | Core + ios-bridge (CoreAI stubbed/excluded) | Consumers, CI, iOS sim |
-| Monorepo `foundationmodels-js/swift` | Core + ios-bridge + CoreAI deps | Local Apple full tip on Mac |
+1. `unset FOUNDATIONMODELS_SWIFT_PATH` and rebuild (uses mirror `from: "1.0.4"`), **or**
+2. Point the env at a **full** monorepo `swift/` tree where CoreAI deps resolve, **or**
+3. Point at a **mirror-layout** clone (CoreAI sources excluded by design).
 
-Do **not** point `FOUNDATIONMODELS_SWIFT_PATH` at monorepo Core alone without the monorepo Package graph.
+```sh
+# Default (recommended for consumers / iOS sim): leave unset
+unset FOUNDATIONMODELS_SWIFT_PATH
+
+# Optional local mirror layout:
+# export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-swift
+
+# Optional monorepo full tip (Mac only; CoreAI deps must resolve):
+# export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
+
+flutter build ios   # or macos / xcodebuild
+```
 
 Default pin: `from: "1.0.4"` (duplex + iOS guards; Package.swift iOS/macOS).
 

@@ -5,15 +5,14 @@ import Foundation
 // The Swift core (FoundationModelsCore + FoundationModelsIOSBridge) is the
 // single source of truth (ADR-0002 upstream).
 //
-// Local development:
-//   export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
-// which resolves:
-//   $FOUNDATIONMODELS_SWIFT_PATH/FoundationModelsCore
-//   $FOUNDATIONMODELS_SWIFT_PATH/ios-bridge
-//
-// Distribution (mirror, TCK-0015):
-//   unset FOUNDATIONMODELS_SWIFT_PATH → consumes foundationmodels-swift
-//   from GitHub (single package exporting both products).
+// Path contract (TCK-0047 / FND-0010):
+//   unset FOUNDATIONMODELS_SWIFT_PATH
+//     → GitHub foundationmodels-swift from: "1.0.4" (CoreAI stub/excluded)
+//   set = mirror-layout clone OR monorepo foundationmodels-js/swift
+//     → path: $ROOT/FoundationModelsCore + $ROOT/ios-bridge
+//   FORBIDDEN: monorepo Core alone / path without both packages
+//     → SPM fails (e.g. CoreAILanguageModels missing)
+// Recovery: unset env (mirror) or point at full monorepo swift/ with CoreAI deps.
 
 enum SwiftCoreDeps {
     static let useLocal = ProcessInfo.processInfo.environment["FOUNDATIONMODELS_SWIFT_PATH"] != nil
