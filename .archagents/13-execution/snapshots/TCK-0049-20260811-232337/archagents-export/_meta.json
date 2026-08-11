@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "bootstrapped_at": "2026-08-10T21:45:00-03:00",
+  "generated_at": "2026-08-10T21:45:00-03:00",
+  "generator": "codebase-ops-bootstrap",
+  "project_name": "foundationmodels-dart",
+  "stack": "Dart 3.12+ pub workspace · Flutter ≥3.27 plugin · foundationmodels + platform_interface + foundationmodels_apple (SPM) · AGPL-3.0 · phase 0 spike",
+  "autonomy_level": "L2",
+  "greenfield": false,
+  "upstream": {
+    "swift_core": "github.com/cristianoaredes/foundationmodels-js",
+    "consumer_example": "../chat-on-device"
+  },
+  "pinned_consumer_sha_note": "chat-on-device pins this repo at 016ebba104cc9ca36a858020f324e6d94d7d4f39",
+  "sources": {
+    ".archagents/00-overview.md": [
+      { "path": "README.md", "lines_cited": "L1-L80" },
+      { "path": "CONTINUATION.md", "lines_cited": "L1-L80" }
+    ],
+    ".archagents/02-architecture.md": [
+      { "path": "packages/foundationmodels/lib/src/runtime.dart", "lines_cited": "L1-L80" },
+      { "path": "packages/foundationmodels_apple/lib/src/foundationmodels_apple.dart", "lines_cited": "L1-L40" }
+    ]
+  }
+}

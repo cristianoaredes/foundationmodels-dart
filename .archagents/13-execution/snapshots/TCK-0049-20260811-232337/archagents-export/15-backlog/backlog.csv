@@ -1,0 +1,59 @@
+id,slug,title,status,priority,type,effort,source,reopened_count,rollback_commit,hotfix_for,escaped_defect,created_at,done_at
+TCK-0001,compile-foundationmodels-apple,Compile foundationmodels_apple (Swift + SPM + Swift core path),done,high,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0002,upstream-u1-respond-stream,U1 — respondStream no ios-bridge (foundationmodels-js) + wiring plugin,done,high,feature,L,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0003,upstream-u6-cancel,U6 — cancel in-process da geração + CancelToken no plugin,done,high,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0004,phase2-streaming-smoke-device,Phase 2 — smoke streaming on-device + parity evidence,done,high,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-11T02:20:00-03:00
+TCK-0005,unary-first-degrade-path,Path unary-first documentado até U1 (respond only),done,medium,feature,S,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0006,example-host-app,Example host app mínimo (iOS/macOS) para smoke,done,medium,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0007,sync-continuation-archagents,Sincronizar CONTINUATION.md com .archagents (P7),done,low,feature,S,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0008,install-github-ci-workflows,Instalar CI: docs/ci → .github/workflows,done,medium,feature,S,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0009,epic-phase0-streaming-mvp,Épico: Phase 0 → streaming on-device (SPC-0001),done,high,feature,L,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0010,epic-phase3-full-surface,"Épico: Phase 3 full surface (U2–U5, schema, multimodal)",done,medium,feature,L,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0011,epic-phase4-tools,Épico: Phase 4 tool calling (U7),done,medium,feature,L,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0012,epic-phases-5-to-8,"Épico: Phases 5–8 (RAG, eval, MLX, ecosystem)",done,low,feature,L,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0013,upstream-u2-count-tokens,U2 — countTokens / context overflow no bridge,done,medium,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0014,upstream-u5-session-prewarm-transition,U5 — session transition / prewarm / history,done,medium,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0015,foundationmodels-swift-mirror,Criar/publicar mirror foundationmodels-swift para distribuição,done,medium,feature,M,bootstrap,,,,,2026-08-10T21:45:00-03:00,2026-08-10T23:55:00-03:00
+TCK-0016,on-device-parity-smokes,On-device Apple Intelligence smokes + parity supported cells,done,high,feature,M,skeptic-gap-fix,,,,,2026-08-10T23:55:00-03:00,2026-08-11T02:20:00-03:00
+TCK-0017,publish-foundationmodels-swift,Publish foundationmodels-swift GitHub mirror (vendored sources),done,medium,feature,M,skeptic-gap-fix,,,,,2026-08-10T23:55:00-03:00,2026-08-11T02:20:00-03:00
+TCK-0018,epic-full-parity-residual,Épico: full parity residual (honest matrix close),done,high,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0019,tools-static-duplex-host,Tools — static application + duplex ToolCallbackBridge on host,done,high,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0020,multimodal-native-path,Multimodal — native image path + EXIF honesty,done,medium,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0021,mlx-backend-registered-smoke,MLX backend — register model + measured respond path,done,medium,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0022,coreai-backend-registered-smoke,CoreAI backend — monorepo tip + registered model smoke,done,medium,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0023,vision-barcode-content,Vision barcode — content smoke with real barcode image,done,low,feature,S,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0024,instructions-first-request-wins-host,Instructions first-request-wins — host-native proof,done,medium,feature,M,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0025,sessions-ttl-lru,Sessions TTL 30m / LRU 256 — observe or document Core-owned,done,low,feature,M,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0026,ios-device-smoke-matrix,iOS device smoke matrix (respond / stream+cancel / key residuals),done,high,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0027,flutter-plugin-transport-e2e,Flutter plugin transport E2E — public Dart API → channels → Core,done,high,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,2026-08-11T09:00:00-03:00
+TCK-0028,pcc-u9-entitlement,PCC inference — U9 entitlement gate (blocked),blocked,low,feature,L,full-parity-backlog,,,,,2026-08-11T04:00:00-03:00,
+TCK-0029,epic-finish-parity-closeout,Épico: finish parity closeout (post-drain residuals),done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0030,tools-duplex-toolcallbackbridge,Tools duplex — wire ToolCallbackBridge on ios-bridge + host/plugin smoke,done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0031,instructions-transition-content-b,Instructions — post-transition content B (underB) host-native,done,high,feature,M,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0032,multimodal-when-capable,Multimodal — image path when model reports image support,done,medium,feature,M,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0033,mlx-registered-content,MLX — register model weights + content respond dual-run,done,medium,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0034,coreai-registered-content,CoreAI — monorepo registered model + content dual-run,done,medium,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0035,ios-device-fm-smokes-attempt,iOS device — attempt FM smokes (respond / stream+cancel),done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0036,flutter-plugin-live-macos-e2e,Flutter plugin live macOS E2E — public Dart API → channels → Core,done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
+TCK-0038,daemon-unix-socket-e2e,Optional — live Unix-socket daemon E2E,done,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
+TCK-0039,mcp-agent-client,Optional — MCP agent client wiring,done,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
+TCK-0040,chat-on-device-integration,Sibling chat-on-device consumer integration,done,medium,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T19:00:00-03:00
+TCK-0041,pubdev-publish-closeout,Optional — pub.dev publish / remove publish_to none,done,low,feature,M,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
+TCK-0042,ios-sim-consumer-build-unblocked,iOS Simulator — unblock consumer build (upstream Core iOS guards + plugin docs),done,high,bug,M,consumer-chat-on-device-report,,,,,2026-08-11T15:00:00-03:00,2026-08-11T19:00:00-03:00
+TCK-0043,closeout-verify-ship-hygiene,Closeout — VER adversarial + ship hygiene (git materialization),done,high,chore,S,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
+TCK-0044,mirror-1-0-3-publish,Publish foundationmodels-swift ≥1.0.3 (duplex + iOS sim guards),done,high,feature,M,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
+TCK-0045,epic-post-closeout-consumer-readiness,Épico: post-closeout consumer readiness (ship + iOS sim + mirror + chat-on-device),done,high,feature,L,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
+TCK-0046,epic-next-wave-dev-ready,Épico: next-wave (Wave A done; Stage 1 → TCK-0054),done,medium,feature,L,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0047,fnd-0010-path-contract-docs,Docs — FOUNDATIONMODELS_SWIFT_PATH monorepo vs mirror contract (FND-0010),done,high,chore,S,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
+TCK-0048,chat-on-device-runner-lipo,chat-on-device — fix Runner Flutter.framework lipo / full iOS sim build,done,high,bug,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
+TCK-0049,mlx-content-when-weights,MLX — content dual-run when model weights registered,blocked,low,feature,L,open-backlog-formalization,,,,,2026-08-11T21:00:00-03:00,
+TCK-0050,coreai-content-when-registered,CoreAI — content dual-run on monorepo tip when model registered,done,high,feature,L,stage1-backlog-formalization,,,,,2026-08-11T21:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0051,daemon-live-binary-e2e,Daemon — live foundationmodels-daemon binary Unix-socket E2E,done,high,feature,M,stage1-backlog-formalization,,,,,2026-08-11T21:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0052,pubdev-prep-and-optional-publish,pub.dev — package prep (and optional human-gated publish),done,medium,feature,M,next-wave-intake,,,,,2026-08-11T21:00:00-03:00,2026-08-11T22:00:00-03:00
+TCK-0053,mcp-protocol-package,MCP protocol package over FoundationModels (Stage 1 implement),done,high,feature,L,stage1-backlog-formalization,,,,,2026-08-11T21:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0054,epic-stage1-daemon-coreai-mcp,Épico Stage 1 — live daemon E2E + CoreAI content + MCP package,done,high,feature,L,stage1-backlog-formalization,,,,,2026-08-11T23:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0055,mcp-mini-spec,"MCP — mini-spec freeze (role, transport, tool map, security)",done,high,chore,S,stage1-backlog-formalization,,,,,2026-08-11T23:00:00-03:00,2026-08-11T23:30:00-03:00
+TCK-0056,epic-mcp-client-sse-uab,Épico — MCP client + SSE transport (package foundationmodels_mcp),done,high,feature,L,stage2-mcp-client,,,,,2026-08-11T20:00:00-03:00,2026-08-11T20:30:00-03:00
+TCK-0057,mcp-client-api,MCP client API — FmMcpClient + listToolsAsFmTools,done,high,feature,M,stage2-mcp-client,,,,,2026-08-11T20:00:00-03:00,2026-08-11T20:30:00-03:00
+TCK-0058,mcp-sse-transport,MCP SSE transport + loopback + parseSseDataFrames,done,high,feature,M,stage2-mcp-client,,,,,2026-08-11T20:00:00-03:00,2026-08-11T20:30:00-03:00
+TCK-0059,mcp-live-uab-dual-run,MCP client — live dual-run against UAB/SSE endpoint (env-gated),done,medium,feature,M,open-backlog-formalization,,,,,2026-08-11T24:00:00-03:00,2026-08-11T22:00:00-03:00
