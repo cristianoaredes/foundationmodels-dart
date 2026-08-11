@@ -49,7 +49,7 @@ Path root: `.archagents/13-execution/runs/RUN-20260811-closeout/evidence/`
 | Option | Decision |
 |--------|----------|
 | Local hold only | — |
-| **PR prepared** | **Yes** — branch + PR for closeout + post-closeout work when TCK-0043/0042 land (see RUN post-closeout / git) |
+| **PR opened** | **Yes** — https://github.com/cristianoaredes/foundationmodels-dart/pull/1 · mirror tag https://github.com/cristianoaredes/foundationmodels-swift/releases/tag/v1.0.3 |
 
 Criterion: code and ops artifacts must be on a reviewable branch; force-push forbidden.
 
