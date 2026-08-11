@@ -187,8 +187,15 @@ final class McpSseTransport implements McpTransport {
     );
 
     // Response may be plain JSON or SSE-wrapped JSON.
+    // Streamable-HTTP (UAB/FastMCP) often returns:
+    //   event: message\ndata: {...}\n\n
+    // so detection must not require `data:` as the first line.
     final trimmed = raw.trim();
-    if (trimmed.startsWith('data:')) {
+    final looksLikeSse = trimmed.startsWith('data:') ||
+        trimmed.startsWith('event:') ||
+        trimmed.contains('\ndata:') ||
+        trimmed.contains('\r\ndata:');
+    if (looksLikeSse) {
       final frames = parseSseDataFrames(raw);
       if (frames.isEmpty) {
         throw StateError('SSE response contained no JSON frames');
