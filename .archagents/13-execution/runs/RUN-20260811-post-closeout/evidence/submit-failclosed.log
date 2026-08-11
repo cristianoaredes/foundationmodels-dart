@@ -1,0 +1,7 @@
+SMOKE failclosed err_code=UNSUPPORTED_OPERATION reason=submitToolResult requires an active duplex tool bridge registration ns=FoundationModelsIOSBridge/-32020
+SMOKE failclosed missing_id threw=Error Domain=FoundationModelsIOSBridge Code=-32020 "No in-flight tool call is waiting for this result on the in-process bridge." UserInfo={jsonRpcCode=-32020, NSLocalizedDescription=No in-flight tool call is waiting for this result on the in-process bridge., data={
+    code = "UNSUPPORTED_OPERATION";
+    reason = "submitToolResult requires an active duplex tool bridge registration";
+}}
+SMOKE failclosed unsupported=true missing_id=true failclosed_ok=true
+SMOKE_RC:0

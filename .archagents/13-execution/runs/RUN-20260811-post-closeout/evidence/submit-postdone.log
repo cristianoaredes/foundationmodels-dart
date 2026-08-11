@@ -1,0 +1,57 @@
+SMOKE postdone run=1 start
+SMOKE postdone event type=tool_call_delta
+SMOKE postdone event type=tool_call_request
+SMOKE postdone tool_call_request id=toolcall_swift_fc316e8bbfdc4b22bbcb5c89fd699a29
+SMOKE postdone event type=tool_call_result
+SMOKE postdone live_submit ok=["ok": true, "toolCallId": "toolcall_swift_fc316e8bbfdc4b22bbcb5c89fd699a29", "accepted": true]
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=result
+SMOKE postdone event type=done
+SMOKE postdone late_submit threw code=UNSUPPORTED_OPERATION err=Error Domain=FoundationModelsIOSBridge Code=-32020 "No in-flight tool call is waiting for this result on the in-process bridge." UserInfo={NSLocalizedDescription=No in-flight tool call is waiting for this result on the in-process bridge., data={
+    code = "UNSUPPORTED_OPERATION";
+    reason = "submitToolResult requires an active duplex tool bridge registration";
+}, jsonRpcCode=-32020}
+SMOKE postdone orphan_submit threw code=UNSUPPORTED_OPERATION
+SMOKE postdone late_ok=true orphan_ok=true postdone_ok=true
+SMOKE postdone run=1 ok=true
+SMOKE postdone run=2 start
+SMOKE postdone event type=tool_call_delta
+SMOKE postdone event type=tool_call_request
+SMOKE postdone tool_call_request id=toolcall_swift_2afa83dd944d4a6dbc27c4c0f696e9ce
+SMOKE postdone live_submit ok=["ok": true, "toolCallId": "toolcall_swift_2afa83dd944d4a6dbc27c4c0f696e9ce", "accepted": true]
+SMOKE postdone event type=tool_call_result
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=delta
+SMOKE postdone event type=result
+SMOKE postdone event type=done
+SMOKE postdone late_submit threw code=UNSUPPORTED_OPERATION err=Error Domain=FoundationModelsIOSBridge Code=-32020 "No in-flight tool call is waiting for this result on the in-process bridge." UserInfo={NSLocalizedDescription=No in-flight tool call is waiting for this result on the in-process bridge., data={
+    code = "UNSUPPORTED_OPERATION";
+    reason = "submitToolResult requires an active duplex tool bridge registration";
+}, jsonRpcCode=-32020}
+SMOKE postdone orphan_submit threw code=UNSUPPORTED_OPERATION
+SMOKE postdone late_ok=true orphan_ok=true postdone_ok=true
+SMOKE postdone run=2 ok=true
+SMOKE postdone dual_run_ok=true results=[true, true]
+SMOKE_RC:0
