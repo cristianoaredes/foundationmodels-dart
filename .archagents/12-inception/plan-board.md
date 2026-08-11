@@ -2,10 +2,10 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| Package v1 | Adapter + tools + agent + MCP s/c | **shippable** |
-| Stage 1 | Daemon · CoreAI · MCP server | **done** |
-| Stage 2 MCP client | Client + SSE + live harness | **done** |
-| L3 open drain | 0059 done; 0049/0028 reaffirm | **done** 2026-08-11 |
+| Package v1 | Adapter + tools + agent + MCP s/c | **shippable on main** |
+| Closeout → Stage 1 → Stage 2 MCP | Programs | **all drained** |
+| L3 open drain | Zero todo | **done** 2026-08-11 |
+| Documentation | PROJECT-STATUS + DELIVERY-LOG | **current** |
 
 ## Remaining (external gates only)
 
@@ -15,7 +15,16 @@
 | TCK-0028 PCC | blocked | entitlement |
 | pub.dev Phase 2 | human | SAFETY |
 
+## Docs SoT
+
+| Doc | Path |
+|-----|------|
+| Open backlog | [OPEN-BACKLOG.md](../15-backlog/OPEN-BACKLOG.md) |
+| Project status | [docs/PROJECT-STATUS.md](../../docs/PROJECT-STATUS.md) |
+| Delivery log | [docs/DELIVERY-LOG.md](../../docs/DELIVERY-LOG.md) |
+| Handoff | [CONTINUATION.md](../../CONTINUATION.md) |
+
 ## Next
 
-Nothing executable without external gate.  
+Nothing L3-executable without gate.  
 Live MCP: `export FM_MCP_SSE_URL=… && dart test -C packages/foundationmodels_mcp`

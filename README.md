@@ -48,15 +48,16 @@ No model weights and no silent cloud fallback live in Dart.
 | Apple plugin | ✅ Live macOS E2E + host-native smokes measured |
 | Tools duplex | ✅ **supported** (host + Flutter live dual-run) |
 | Agent kit | ✅ `FmAgent` tool loop + HITL + AG-UI-shaped events |
-| MCP server | ✅ `foundationmodels_mcp` (stdio, mock dual-run) |
+| MCP server + client | ✅ `foundationmodels_mcp` — stdio server, client, SSE, live env harness |
 | Daemon client | ✅ Fake-peer E2E; live binary often env-limited (dyld/CoreAI) |
 | SPM mirror | ✅ [foundationmodels-swift](https://github.com/cristianoaredes/foundationmodels-swift) **`from: "1.0.4"`** |
 | pub.dev | ⏸ Git-only — **ADR-0002** stay-private (`publish_to: none`) |
 | CoreAI content | ⏸ Fail-closed / not measured without registered model |
-| MLX content | ⏸ Stage 2 — needs weights (TCK-0049) |
-| PCC | ⛔ Blocked — Apple entitlement (TCK-0028) |
+| MLX content | ⛔ Blocked — needs weights (**TCK-0049**) |
+| PCC | ⛔ Blocked — Apple entitlement (**TCK-0028**) |
+| Open `todo` | **None** — L3 executable work exhausted |
 
-**Handoff for agents/humans:** [`CONTINUATION.md`](CONTINUATION.md) · **Parity matrix:** [`docs/parity.md`](docs/parity.md) · **Ops:** [`.archagents/`](.archagents/) · **Agent contract:** [`AGENTS.md`](AGENTS.md)
+**Handoff:** [`CONTINUATION.md`](CONTINUATION.md) · **Status narrative:** [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md) · **Delivery log:** [`docs/DELIVERY-LOG.md`](docs/DELIVERY-LOG.md) · **Parity:** [`docs/parity.md`](docs/parity.md) · **Ops:** [`.archagents/15-backlog/OPEN-BACKLOG.md`](.archagents/15-backlog/OPEN-BACKLOG.md) · **Agents:** [`AGENTS.md`](AGENTS.md)
 
 ---
 
@@ -117,7 +118,7 @@ Pub **workspace** (Dart 3.12+). Resolve from the **repository root**.
 |---------|------|
 | [`foundationmodels_tools`](packages/foundationmodels_tools) | `FmToolRouter` — duplex `tool_call_*` → `submitToolResult` |
 | [`foundationmodels_agent`](packages/foundationmodels_agent) | `FmAgent` — tool loop, HITL interrupts, AG-UI-shaped events, intent router |
-| [`foundationmodels_mcp`](packages/foundationmodels_mcp) | Minimal **MCP server** (stdio NDJSON): `initialize`, `tools/list`, `tools/call`, `fm_respond` |
+| [`foundationmodels_mcp`](packages/foundationmodels_mcp) | **MCP server** (stdio) + **client** + SSE transport + env-gated live test |
 
 ### Transport & ecosystem
 
@@ -225,9 +226,14 @@ await for (final e in agent.run(input: '…')) {
 
 ### MCP (`foundationmodels_mcp`)
 
-- **MCP server** subset: `initialize`, `tools/list`, `tools/call`, fail-closed unknown methods.  
-- Transport v1: **stdio** NDJSON JSON-RPC (DES-0004).  
-- Does **not** replace `FmAgent`. Does **not** claim Apple matrix cells.
+| Piece | Spec | Notes |
+|-------|------|--------|
+| Server | DES-0004 | stdio NDJSON: `initialize`, `tools/list`, `tools/call`, `fm_respond` |
+| Client | DES-0005 | `FmMcpClient` + loopback / SSE; tools → `FmTool.callback` |
+| Live | TCK-0059 | `FM_MCP_SSE_URL` or `UAB_MCP_URL` (optional `FM_MCP_BEARER`) |
+
+Does **not** replace `FmAgent`. Does **not** claim Apple matrix cells.  
+Package README: [`packages/foundationmodels_mcp/README.md`](packages/foundationmodels_mcp/README.md).
 
 ---
 
@@ -295,18 +301,20 @@ Real `dart pub publish` requires human SAFETY approval.
 
 ## Governance & backlog
 
-This repo is operated with **codebase-ops** (tickets, runs, verify, ADRs).
+Operated with **codebase-ops** (tickets, runs, verify, ADRs).
 
 | Resource | Path |
 |----------|------|
 | Agent contract | [`AGENTS.md`](AGENTS.md) |
 | Session handoff | [`CONTINUATION.md`](CONTINUATION.md) |
+| Project status (full) | [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md) |
+| Delivery log (PRs/runs) | [`docs/DELIVERY-LOG.md`](docs/DELIVERY-LOG.md) |
 | Plan board | [`.archagents/12-inception/plan-board.md`](.archagents/12-inception/plan-board.md) |
-| Backlog | [`.archagents/15-backlog/backlog.csv`](.archagents/15-backlog/backlog.csv) + `tickets/` |
-| Stage 1 (daemon / CoreAI / MCP) | [STAGE-1-DAEMON-COREAI-MCP.md](.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md) **drained** |
-| Open gates | **TCK-0049** MLX (Stage 2) · **TCK-0028** PCC |
+| Open backlog SoT | [`.archagents/15-backlog/OPEN-BACKLOG.md`](.archagents/15-backlog/OPEN-BACKLOG.md) |
+| CSV + tickets | [`.archagents/15-backlog/`](.archagents/15-backlog/) |
+| Handoff snapshot | `.archagents/13-execution/snapshots/TCK-0049-20260811-232337/` |
 
-Recent program runs: `RUN-20260811-closeout`, `post-closeout`, `residual-optin`, `wave-a`, `stage1` under [`.archagents/13-execution/runs/`](.archagents/13-execution/runs/).
+**Open:** TCK-0049 (MLX) · TCK-0028 (PCC) — both **blocked**. Zero `todo`.
 
 ---
 
@@ -323,9 +331,9 @@ Original phase plan (ADR-0001) is largely **implemented** in-repo:
 | 6 | Eval + traces | ✅ Package present |
 | 7 | Agent + MLX/CoreAI exposure | ✅ Agent; MLX/CoreAI **fail-closed / Stage 2** |
 | 8 | Server + LangChain adapter | ✅ Packages present |
-| + | MCP stdio server | ✅ Stage 1 (`foundationmodels_mcp`) |
+| + | MCP server + client + SSE | ✅ Stage 1–2 (`foundationmodels_mcp`) |
 
-Remaining product gates: **MLX weights**, **PCC entitlement**, optional **pub.dev**, optional **live daemon binary** when OS/CoreAI dyld allows.
+Remaining gates (this repo): **MLX weights (TCK-0049)**, **PCC entitlement (TCK-0028)**, optional **pub.dev** (human), optional **live daemon** when OS/CoreAI dyld allows.
 
 ---
 
