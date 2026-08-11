@@ -23,7 +23,7 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
 | Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
 | `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.4"`** (stable SPM graph; CoreAI fail-closed stub) |
-| Backlog | ✅ Stage 1 drained | Open: TCK-0049 MLX (Stage 2), TCK-0028 PCC; see `STAGE-1-DAEMON-COREAI-MCP.md` |
+| Backlog | 📋 Formalized open set | See `.archagents/15-backlog/OPEN-BACKLOG.md` |
 | README | ✅ Current | Root `README.md` — full package map, path contract, MCP/agent, status |
 
 ### codebase-ops
@@ -40,7 +40,9 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
 | Next-wave program | `.archagents/15-backlog/NEXT-WAVE.md` · DES-0002 |
 | **Stage 1 (drained)** | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003/0004 · RUN-20260811-stage1 |
-| MCP package | `packages/foundationmodels_mcp` (stdio server, mock dual-run) |
+| **Open backlog** | `.archagents/15-backlog/OPEN-BACKLOG.md` |
+| Stage 2 MCP client | `.archagents/15-backlog/STAGE-2-MCP-CLIENT-SSE.md` · DES-0005 · TCK-0056…0059 |
+| MCP package | `packages/foundationmodels_mcp` (server DES-0004 + client DES-0005) |
 
 ## 3. How to validate
 
@@ -79,14 +81,14 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Stage 1 drained** (2026-08-11). Mirror pin: `from: "1.0.4"`. MCP: `foundationmodels_mcp`.
+**Open backlog formalized** (repo-only). Mirror: `from: "1.0.4"`. Source: `OPEN-BACKLOG.md`.
 
-| Stage | Tickets | Status |
-|-------|---------|--------|
-| Wave A | 0047 · 0048 · 0052 prep | done |
-| **Stage 1** | 0051 · 0050 · 0055 · 0053 | **done** (daemon/CoreAI env limits honest) |
-| Stage 2 | 0049 MLX | deferred |
-| Parked | 0028 PCC · 0052 publish | entitlement / human |
+| Bucket | Tickets | Status |
+|--------|---------|--------|
+| v1 / Stage 1 | server MCP, daemon/CoreAI honest close | done on main |
+| Stage 2 MCP client | 0056–0058 | code done — **ship to main** |
+| Blocked | **0059** live UAB · **0049** MLX · **0028** PCC | gates |
+| Human | pub.dev Phase 2 | SAFETY |
 
 
 ## 6. Known quirks
@@ -107,6 +109,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Open backlog formalized (codebase-ops): `OPEN-BACKLOG.md`; Stage 2 MCP client tickets 0056–0058 + blocked 0059 live UAB; reaffirm 0049/0028. Package tests 8 pass.
 - **2026-08-11** — Stage 1 drain: TCK-0051 daemon env_limit reaffirm; TCK-0050 CoreAI content not measured; DES-0004 + **foundationmodels_mcp** mock dual-run; epic TCK-0054 done. RUN-20260811-stage1.
 - **2026-08-11** — Stage 1 backlog formalized: epic TCK-0054 (daemon 0051 → CoreAI 0050 → MCP 0055/0053); MLX TCK-0049 → Stage 2. Program `STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003.
 - **2026-08-11** — Wave A L3 drain: TCK-0047 FND-0010 closed; TCK-0048 chat-on-device iOS sim **built** (Xcode 27 lipo multi-arch → ARCHS=arm64); TCK-0052 Phase 1 pub prep (no publish). RUN-20260811-wave-a.
@@ -125,3 +128,5 @@ See `example/lib/main.dart`.
 |--------|------------|
 | TCK-0004 / TCK-0016 | Host-native Apple Intelligence smokes on MacBook Pro M5 Pro |
 | TCK-0017 | Published foundationmodels-swift; use **v1.0.3** for SPM `from:` |
+
+- **2026-08-11** — Stage 2 MCP **client** + SSE (DES-0005, TCK-0056–0058): `FmMcpClient`, loopback dual-run, SSE parse/POST injectable; UAB consumer path for chat-on-device.
