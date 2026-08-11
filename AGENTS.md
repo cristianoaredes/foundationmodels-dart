@@ -58,7 +58,7 @@ Governado por **codebase-ops**. Fonte operacional: [`.archagents/README.md`](.ar
 - Validar: ver `.archagents/10-runbooks.md`.
 - Specs de fase: `docs/specs/phase-*.md` e `upstream-ios-bridge-extensions.md`.
 - Consumidor de referência: sibling `../chat-on-device`.
-- Mirror **v1.0.4**. Open set: `.archagents/15-backlog/OPEN-BACKLOG.md` (MCP client ship · 0059/0049/0028 blocked).
+- Mirror **v1.0.4**. L3 drained: only **TCK-0049 MLX** + **TCK-0028 PCC** blocked. See `OPEN-BACKLOG.md`.
 
 ## Docs
 

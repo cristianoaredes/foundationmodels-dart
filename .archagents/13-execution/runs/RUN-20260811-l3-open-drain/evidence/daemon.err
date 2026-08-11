@@ -1,0 +1,3 @@
+dyld[22393]: Symbol not found: _$s13CoreAIRuntime17NDArrayDescriptorV5shapeSaySiGvM
+  Referenced from: <AB504407-4AA2-30FE-858A-EC77B8B7EDCB> /Users/cristiano/workspace/ai-workflow/foundationmodels-js/swift/.build/out/Products/Release/foundationmodels-daemon
+  Expected in:     <54044EB4-A021-36BD-9327-83282DD25E27> /System/Library/Frameworks/CoreAI.framework/Versions/A/CoreAI
