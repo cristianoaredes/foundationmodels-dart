@@ -104,4 +104,23 @@ data: {"jsonrpc":"2.0","method":"notifications/progress"}
     await c.close();
     print('SMOKE sse_transport_post_ok=true');
   });
+
+  test('McpSseTransport parses streamable-http SSE event: message body', () async {
+    final transport = McpSseTransport(
+      rpcUrl: Uri.parse('https://uab.example/mcp/'),
+      httpPost: (url, headers, body) async {
+        // Real UAB/FastMCP shape: event line before data (not data-first).
+        return '''
+event: message
+data: {"jsonrpc":"2.0","id":"c_1","result":{"protocolVersion":"2024-11-05","serverInfo":{"name":"uab"},"capabilities":{"tools":{}}}}
+
+''';
+      },
+    );
+    final c = FmMcpClient(transport: transport);
+    final init = await c.initialize();
+    expect((init['serverInfo'] as Map)['name'], 'uab');
+    await c.close();
+    print('SMOKE sse_event_message_body_ok=true');
+  });
 }
