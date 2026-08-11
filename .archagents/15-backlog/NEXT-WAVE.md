@@ -1,7 +1,7 @@
 # Next-wave backlog — development readiness
 
 **Created:** 2026-08-11  
-**Status:** ready for execute (not drained)  
+**Status:** Wave A **drained** (2026-08-11) · Wave B/C gated  
 **Epic:** [TCK-0046](tickets/TCK-0046-epic-next-wave-dev-ready.md)  
 **Predecessor:** residual-optin drained · PR #2 merged · [RESIDUAL-OPTIN.md](RESIDUAL-OPTIN.md)  
 **Design:** [DES-0002](../16-designs/DES-0002-next-wave-program.md)
@@ -42,28 +42,29 @@ work so an L2/L3 agent can `/ops-work TCK-NNNN` without re-discovery.
 
 | ID | Status | Notes |
 |----|--------|-------|
-| TCK-0046 | todo | Epic parent |
-| TCK-0047 | todo | First pull |
-| TCK-0048 | todo | Consumer-owned + package support docs |
+| TCK-0046 | todo | Epic parent (Wave A children done) |
+| TCK-0047 | **done** | FND-0010 closed |
+| TCK-0048 | **done** | iOS sim Runner.app built |
 | TCK-0049 | blocked | Weights gate |
 | TCK-0050 | blocked | Monorepo+model gate |
 | TCK-0051 | blocked | Daemon binary env gate |
-| TCK-0052 | todo | Prep executable; publish human-gated |
+| TCK-0052 | **done** (Phase 1) | Phase 2 = human publish |
 | TCK-0053 | todo | Design-ready; product opt-in |
 | TCK-0028 | blocked | Playbook enriched 2026-08-11 |
 
 ## Program DoD
 
-- [ ] Wave A done (0047, 0048, 0052-prep)
+- [x] Wave A done (0047, 0048, 0052-prep) — RUN-20260811-wave-a
 - [ ] Wave B either done or reaffirmed blocked with dated evidence
 - [ ] Wave C only advanced when gates open
-- [ ] plan-board + CONTINUATION synced (P7)
-- [ ] No silent cloud; parity honesty preserved
+- [x] plan-board + CONTINUATION synced (P7)
+- [x] No silent cloud; parity honesty preserved
 
 ## Pull command
 
 ```text
-/ops-work TCK-0047    # first executable
-/ops-work             # next by priority among todo
+# Wave A drained. Remaining:
+/ops-work TCK-0049    # when MLX weights available
+/ops-work TCK-0053    # only if product wants MCP
 /ops-work TCK-0028    # only after entitlement
 ```

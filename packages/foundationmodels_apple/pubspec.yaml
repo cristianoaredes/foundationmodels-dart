@@ -6,7 +6,10 @@ description: >-
   Foundation Models framework.
 version: 0.0.1
 homepage: https://github.com/cristianoaredes/foundationmodels-dart
+repository: https://github.com/cristianoaredes/foundationmodels-dart
+issue_tracker: https://github.com/cristianoaredes/foundationmodels-dart/issues
 # Pre-release: path dependencies are replaced by hosted versions at publish time.
+# Stay private until TCK-0052 Phase 2 + human SAFETY (ADR-0002).
 publish_to: none
 
 environment:

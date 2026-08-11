@@ -11,7 +11,7 @@
 | FND-0007 | low | `publish_to: none` — só consumo git | **closed** (ADR-0002 stay-private) |
 | FND-0008 | info | AGPL-3.0-only no grafo de consumidores | open (policy awareness) |
 | FND-0009 | high | iOS Simulator: consumer `chat-on-device` não builda com mirror `foundationmodels-swift` 1.0.2 (SecTask / OCRTool / graph SPM) | **closed** (v1.0.3 guards; Core iphonesimulator build green) |
-| FND-0010 | medium | `FOUNDATIONMODELS_SWIFT_PATH` + monorepo tip ≠ mirror: CoreAI sources entram e quebram compile sem monorepo deps | open |
+| FND-0010 | medium | `FOUNDATIONMODELS_SWIFT_PATH` + monorepo tip ≠ mirror: CoreAI sources entram e quebram compile sem monorepo deps | **closed** (TCK-0047 path contract docs) |
 
 ## Detalhe
 
@@ -69,6 +69,8 @@ flutter run -d FB43F1CD-0159-4C81-B842-4A38BCED5EE4 --dart-define=USE_MOCK_LLM=t
 
 When consumer pointed SPM at monorepo-style `FoundationModelsCore` package (includes `CoreAIInferenceBackend.swift`), build failed with `Unable to resolve module dependency: 'CoreAILanguageModels'`. Distribution mirror root `Package.swift` **excludes** CoreAI sources (by design, README). Plugin docs should state: local override path must match mirror product graph **or** full monorepo with CoreAI packages.
 
+**Closed 2026-08-11 (TCK-0047):** decision table + recovery in `packages/foundationmodels_apple/README.md`, `Package.swift` comments (ios/macos), CONTINUATION §3/§6.
+
 
 
 ## Post-closeout / residual-optin findings
@@ -76,7 +78,7 @@ When consumer pointed SPM at monorepo-style `FoundationModelsCore` package (incl
 | ID | Severity | Status | Ticket |
 |----|----------|--------|--------|
 | FND-0009 | high | closed | TCK-0042 |
-| FND-0010 | medium | open | **TCK-0047** (path contract docs) |
+| FND-0010 | medium | **closed** | TCK-0047 |
 | FND-0007 | low | **closed** | TCK-0041 / ADR-0002 |
 | FND-0008 | info | open | policy awareness (AGPL) · TCK-0052 |
 

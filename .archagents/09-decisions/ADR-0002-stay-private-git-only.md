@@ -32,3 +32,16 @@ implica política de compliance de consumidores e não é gate de produto agora.
 
 - `.archagents/13-execution/runs/RUN-20260811-residual-optin/evidence/pub-dry-run-foundationmodels.log`
 - `.archagents/13-execution/runs/RUN-20260811-residual-optin/evidence/pub-dry-run-agent.log`
+
+## Prep status (TCK-0052 Phase 1 — 2026-08-11)
+
+| Item | Status |
+|------|--------|
+| LICENSE on public candidates | done (`foundationmodels`, `platform_interface`, `apple`) |
+| CHANGELOG + repository fields | done |
+| `publish_to: none` | **still present** (ADR stands) |
+| dry-run platform_interface | 0 errors (git dirty warn only) |
+| dry-run foundationmodels / apple | residual: path deps (expected until hosted publish order) |
+| Checklist | `.archagents/15-backlog/PUBLISH-CHECKLIST.md` |
+
+Phase 2 (real publish) still requires **human SAFETY** and optional ADR reopen note.

@@ -10,9 +10,10 @@ import Foundation
 // byte-identical (the file is a pure channel<->bridge translator; all logic
 // lives upstream in FoundationModelsCore). See the package README.
 //
-// Local development:
-//   export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
-// Distribution: foundationmodels-swift mirror (TCK-0015).
+// Path contract (TCK-0047 / FND-0010) — keep in sync with ios Package.swift:
+//   unset → GitHub foundationmodels-swift from: "1.0.4"
+//   set   → $ROOT/FoundationModelsCore + $ROOT/ios-bridge (mirror layout or monorepo swift/)
+//   FORBIDDEN → Core alone / incomplete path (CoreAILanguageModels missing)
 
 enum SwiftCoreDeps {
     static let useLocal = ProcessInfo.processInfo.environment["FOUNDATIONMODELS_SWIFT_PATH"] != nil

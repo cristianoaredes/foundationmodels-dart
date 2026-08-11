@@ -6,6 +6,9 @@ description: >-
   Pure Dart, testable on the VM without a Mac.
 version: 0.1.0
 publish_to: none
+homepage: https://github.com/cristianoaredes/foundationmodels-dart
+repository: https://github.com/cristianoaredes/foundationmodels-dart
+issue_tracker: https://github.com/cristianoaredes/foundationmodels-dart/issues
 
 environment:
   sdk: ^3.12.0
@@ -13,6 +16,8 @@ environment:
 resolution: workspace
 
 dependencies:
+  # Path for monorepo workspace. At pub.dev publish time replace with hosted version
+  # (see TCK-0052 / ADR-0002). Dry-run will flag path sources until then.
   foundationmodels_platform_interface:
     path: ../foundationmodels_platform_interface
 

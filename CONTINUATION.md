@@ -43,9 +43,11 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 
 ```bash
 cd foundationmodels-dart
-# Mac Swift link (full CoreAI tip):
-export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
-# Or leave unset → plugin uses GitHub foundationmodels-swift from: "1.0.4"
+# Swift core path contract (TCK-0047 / FND-0010) — see packages/foundationmodels_apple/README.md
+# Default (CI / consumers / iOS sim): leave FOUNDATIONMODELS_SWIFT_PATH unset → from: "1.0.4"
+# Optional full CoreAI tip on Mac only:
+#   export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
+# Forbidden: point env at monorepo Core alone (SPM breaks on CoreAI deps).
 
 flutter pub get
 (cd packages/foundationmodels_platform_interface && dart test && dart analyze --fatal-infos)
@@ -72,20 +74,20 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Next-wave formalized** (2026-08-11). Mirror pin: `from: "1.0.4"`. Pull: `/ops-work TCK-0047`.
+**Next-wave Wave A drained** (2026-08-11). Mirror pin: `from: "1.0.4"`.
 
-| Wave | Tickets | Executable? |
-|------|---------|--------------|
-| **A now** | TCK-0047 docs FND-0010 · TCK-0048 Runner lipo · TCK-0052 pub.dev prep | Yes |
-| **B gated** | TCK-0049 MLX · TCK-0050 CoreAI · TCK-0051 live daemon | When env/weights ready |
-| **C product** | TCK-0053 MCP · TCK-0028 PCC · 0052 publish | Product / entitlement / human |
+| Wave | Tickets | Status |
+|------|---------|--------|
+| **A** | 0047 docs · 0048 Runner lipo · 0052 pub prep | **done** |
+| **B gated** | 0049 MLX · 0050 CoreAI · 0051 live daemon | blocked until env/weights |
+| **C product** | 0053 MCP · 0028 PCC · 0052 publish | product / entitlement / human |
 
 
 ## 6. Known quirks
 
 - **Plugin `swift build` alone** needs Flutter modules; use monorepo bridge smoke or host app.
-- **`FOUNDATIONMODELS_SWIFT_PATH`** = monorepo `swift/` for full CoreAI; GitHub mirror is system+MLX with CoreAI stub.
-- **`publish_to: none`** on all workspace packages — **ADR-0002 stay-private / git-only**.
+- **`FOUNDATIONMODELS_SWIFT_PATH` (FND-0010 closed via TCK-0047):** unset = mirror `from: "1.0.4"`; set = path containing **both** `FoundationModelsCore` + `ios-bridge` (mirror layout or monorepo `swift/` with CoreAI graph). Never Core alone.
+- **`publish_to: none`** on all workspace packages — **ADR-0002 stay-private / git-only** (prep: TCK-0052).
 - **Analyzer bar:** `--fatal-infos --fatal-warnings`.
 
 ## 7. Invariants (do not violate)
@@ -99,7 +101,8 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
-- **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002. First pull: **TCK-0047**.
+- **2026-08-11** — Wave A L3 drain: TCK-0047 FND-0010 closed; TCK-0048 chat-on-device iOS sim **built** (Xcode 27 lipo multi-arch → ARCHS=arm64); TCK-0052 Phase 1 pub prep (no publish). RUN-20260811-wave-a.
+- **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002.
 - **2026-08-11** — Residual opt-in L3 drain: TCK-0038 daemon Unix-socket E2E (fake peer dual-run + live env_limit); TCK-0039 won't-ship MCP + agent tests green; TCK-0041 ADR-0002 stay-private; TCK-0028 PCC reaffirmed blocked; mirror docs pin **1.0.4**.
 - **2026-08-11** — Post-closeout L3 drain complete: VER-closeout, iOS guards, mirror v1.0.3, duplex/instructions dual-run revalidated.
 - **2026-08-11** — Post-closeout backlog formalized: epic TCK-0045, tickets 0043/0044, POST-CLOSEOUT.md, playbook 0042; next = 0043 → 0042 → 0044 → 0040.
