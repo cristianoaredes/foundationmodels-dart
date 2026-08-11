@@ -18,5 +18,6 @@ workspace:
   - packages/foundationmodels_daemon
   - packages/foundationmodels_tools
   - packages/foundationmodels_agent
+  - packages/foundationmodels_mcp
   - packages/foundationmodels_server
   - packages/foundationmodels_langchain

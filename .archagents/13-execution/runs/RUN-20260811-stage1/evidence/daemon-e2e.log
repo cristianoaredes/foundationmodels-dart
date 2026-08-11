@@ -1,0 +1,13 @@
+00:00 +0: loading test/socket_e2e_test.dart
+00:00 +0: DaemonSocketTransport live socket E2E (fake daemon peer) dual-run health + respond via Unix socket (shipped client path)
+SMOKE daemon_e2e run=1 health_ok respond=PONG-DAEMON
+SMOKE daemon_e2e run=2 health_ok respond=PONG-DAEMON
+SMOKE daemon_e2e dual_run_ok=true
+00:00 +1: DaemonSocketTransport live socket E2E (fake daemon peer) connect to missing socket fails typed (no hang)
+SMOKE daemon_e2e missing_socket failclosed_ok=true
+00:00 +2: DaemonSocketTransport live socket E2E (fake daemon peer) unknown method maps to FmTransportError with data.code
+SMOKE daemon_e2e unknown_method failclosed_ok=true
+00:00 +3: live foundationmodels-daemon binary env probe (optional)
+SMOKE live_daemon exit=-6 live_ok=false stderr_has_coreai=true
+SMOKE live_daemon env_limit=true reason=dyld_coreai_symbol_skew reaffirmed=2026-08-11 (client E2E covered by fake peer; TCK-0051 Stage 1)
+00:00 +4: All tests passed!

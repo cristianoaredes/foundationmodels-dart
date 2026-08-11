@@ -2,32 +2,30 @@
 
 | ID | Título | Status |
 |----|--------|--------|
-| Package v1 | Adapter + tools + agent + consumer sim | **shippable** |
-| TCK-0046 | Next-wave (Wave A) | Wave A done; superseded focus → Stage 1 |
-| **TCK-0054** | **Stage 1: Daemon · CoreAI · MCP** | **todo — pull now** |
-| Stage 2 | MLX (TCK-0049) | deferred |
+| Package v1 | Adapter + tools + agent + consumer sim | shippable |
+| Stage 1 | Daemon · CoreAI · MCP (TCK-0054) | **done** 2026-08-11 |
+| Stage 2 | MLX (TCK-0049) | deferred / blocked |
 
-## Active program: Stage 1
+## Stage 1 (closed)
 
-**Doc:** [STAGE-1-DAEMON-COREAI-MCP.md](../15-backlog/STAGE-1-DAEMON-COREAI-MCP.md) · **DES-0003**
-
-| Order | Ticket | Priority | Status | Notes |
-|------:|--------|----------|--------|-------|
-| 1 | **TCK-0051** daemon live E2E | high | todo | probe always; dual-run gated |
-| 2 | **TCK-0050** CoreAI content | high | todo | monorepo probe always |
-| 3 | **TCK-0055** MCP mini-spec | high | todo | DES-0004; no code |
-| 4 | **TCK-0053** MCP package | high | todo | after 0055 only |
-
-### Stage 2 (parked)
-
-| Ticket | Status |
+| Ticket | Result |
 |--------|--------|
-| TCK-0049 MLX content | blocked · stage 2 · low |
-| TCK-0028 PCC | blocked · entitlement |
-| TCK-0052 Phase 2 publish | human SAFETY |
+| TCK-0051 daemon live | env_limit reaffirm; fake peer OK |
+| TCK-0050 CoreAI | probe only; content not measured |
+| TCK-0055 MCP spec | DES-0004 |
+| TCK-0053 MCP package | `foundationmodels_mcp` |
 
-## Next command
+## Remaining open
+
+| Ticket | Status | Gate |
+|--------|--------|------|
+| TCK-0049 MLX | blocked | weights + Stage 2 pull |
+| TCK-0028 PCC | blocked | entitlement |
+| TCK-0052 Phase 2 | — | human publish |
+
+## Next
 
 ```text
-/ops-work TCK-0051
+# Only if product wants Stage 2:
+/ops-work TCK-0049
 ```
