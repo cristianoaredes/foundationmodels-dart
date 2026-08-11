@@ -1,132 +1,124 @@
 # CONTINUATION — how to pick up this project from any harness
 
-**Read this first.** This file is the handoff contract for `foundationmodels-dart`. It exists so that any future session — another machine, another agent, another harness — can continue the work **without any prior conversational context**. Everything stated here was true at the commit it was added; verify against `git log` if it drifted.
+**Read this first.** Handoff contract for `foundationmodels-dart`.  
+True at the commit that last updated this file; verify with `git log` / `OPEN-BACKLOG.md` if drifted.
 
-> **TL;DR reading order:** this file → `docs/specs/adr-0001-flutter-adapter.md` → `docs/protocol-mapping.md` → `docs/parity.md` → phase specs under `docs/specs/` for residual work.
+> **TL;DR:** this file → [`docs/PROJECT-STATUS.md`](docs/PROJECT-STATUS.md) → [`docs/parity.md`](docs/parity.md) → [`README.md`](README.md) → [`.archagents/15-backlog/OPEN-BACKLOG.md`](.archagents/15-backlog/OPEN-BACKLOG.md)
 
 ---
 
 ## 1. What this is
 
-Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js) — a bridge to **Apple Foundation Models** (on-device LLM, iOS 27+/macOS 27+, Apple Intelligence). The shared Swift core (`swift/FoundationModelsCore` + `swift/ios-bridge` in that monorepo) is the **single source of truth**; this repo is the *third adapter* over it (after the macOS JSON-RPC daemon and the React Native host). License: **AGPL-3.0-only**. Author: Cristiano Aredes.
+Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js) — **Apple Foundation Models** (on-device) via shared Swift core. Third adapter after macOS daemon and RN host. License: **AGPL-3.0-only**.
 
-## 2. Current state (snapshot, 2026-08-11)
+---
 
-| Area | Status | Evidence |
-|------|--------|----------|
-| `foundationmodels_platform_interface` | ✅ Done | RPC v2, stream events (incl. `tool_call_request`), typed errors; tests green |
-| `foundationmodels` | ✅ Done | Runtime, mock, TransportProvider, tools duplex, cancel; 84 tests |
-| `foundationmodels_apple` | ✅ Dart clean; Swift U1–U8 | `flutter analyze` clean; link via monorepo path **or** GitHub mirror |
-| ios-bridge (upstream monorepo) | ✅ U1–U8 | `swift build` + host-native smokes |
-| Host-native Apple Intelligence smokes | ✅ Measured | Mac17,9 · macOS 27 · Xcode 27 — availability, respond, stream+cancel, sessions, countTokens, guided, feedback, vision OCR+barcode, tools static (PARITY-42), instructions underA (not full A→B), multimodal honesty, MLX/CoreAI fail-closed |
-| Parity (Flutter) | ✅ Closeout complete (honest) | `supported`: availability, respond, stream+cancel, sessions, instructions, guided, countTokens, feedback, vision OCR+barcode, **tools duplex**; Flutter live macOS E2E dual-run; multimodal partial (capability); MLX/CoreAI fail-closed; PCC blocked; iOS AI unsupported class on paired A14 iPad |
-| CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
-| Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
-| `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.4"`** (stable SPM graph; CoreAI fail-closed stub) |
-| Backlog | 📋 Formalized open set | See `.archagents/15-backlog/OPEN-BACKLOG.md` |
-| README | ✅ Current | Root `README.md` — full package map, path contract, MCP/agent, status |
+## 2. Current state (2026-08-11, post L3 open drain + docs)
 
-### codebase-ops
+| Area | Status |
+|------|--------|
+| Core + interface + apple plugin | ✅ Done · parity closeout honest |
+| Tools duplex / agent | ✅ Done · duplex **supported** |
+| MCP server + client + SSE | ✅ `foundationmodels_mcp` · DES-0004/0005 · TCK-0053…0059 |
+| Daemon client | ✅ Fake-peer E2E · live binary often dyld env_limit |
+| Mirror SPM | ✅ `from: "1.0.4"` |
+| pub.dev | ⏸ ADR-0002 stay-private |
+| Backlog | **0 todo** · **2 blocked** (0049 MLX, 0028 PCC) |
+| Git | `main` only · PRs #1–#11 merged · branches cleaned |
+
+### codebase-ops map
 
 | Artefato | Path |
 |----------|------|
-| Contrato agentes | `AGENTS.md` |
+| Open backlog SoT | `.archagents/15-backlog/OPEN-BACKLOG.md` |
 | Plan board | `.archagents/12-inception/plan-board.md` |
-| Backlog | `.archagents/15-backlog/backlog.csv` + `tickets/` |
-| Residual drain run | `.archagents/13-execution/runs/RUN-20260811-residual-drain/` |
-| Closeout run | `.archagents/13-execution/runs/RUN-20260811-closeout/` |
-| Post-closeout program | `.archagents/15-backlog/POST-CLOSEOUT.md` |
-| Residual opt-in run | `.archagents/13-execution/runs/RUN-20260811-residual-optin/` |
-| Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
-| Next-wave program | `.archagents/15-backlog/NEXT-WAVE.md` · DES-0002 |
-| **Stage 1 (drained)** | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003/0004 · RUN-20260811-stage1 |
-| **Open backlog** | `.archagents/15-backlog/OPEN-BACKLOG.md` |
-| Stage 2 MCP client | `.archagents/15-backlog/STAGE-2-MCP-CLIENT-SSE.md` · DES-0005 · TCK-0056…0059 |
-| MCP package | `packages/foundationmodels_mcp` (server DES-0004 + client DES-0005) |
+| Project status | `docs/PROJECT-STATUS.md` |
+| Delivery log | `docs/DELIVERY-LOG.md` |
+| ADR stay-private | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
+| Stage 1 program | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` |
+| Stage 2 MCP client | `.archagents/15-backlog/STAGE-2-MCP-CLIENT-SSE.md` |
+| Handoff snapshot | `.archagents/13-execution/snapshots/TCK-0049-20260811-232337/` |
+| Latest runs | `RUN-20260811-l3-open-drain`, `stage1`, `wave-a`, `residual-optin`, … |
+
+---
 
 ## 3. How to validate
 
 ```bash
 cd foundationmodels-dart
-# Swift core path contract (TCK-0047 / FND-0010) — see packages/foundationmodels_apple/README.md
-# Default (CI / consumers / iOS sim): leave FOUNDATIONMODELS_SWIFT_PATH unset → from: "1.0.4"
-# Optional full CoreAI tip on Mac only:
-#   export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
-# Forbidden: point env at monorepo Core alone (SPM breaks on CoreAI deps).
+# Default Swift: leave FOUNDATIONMODELS_SWIFT_PATH unset → mirror 1.0.4
+# Full monorepo tip: export FOUNDATIONMODELS_SWIFT_PATH=…/foundationmodels-js/swift
+# Forbidden: monorepo Core alone (FND-0010 / TCK-0047)
 
-flutter pub get
+dart pub get
 (cd packages/foundationmodels_platform_interface && dart test && dart analyze --fatal-infos)
 (cd packages/foundationmodels && dart test && dart analyze --fatal-infos)
 (cd packages/foundationmodels_apple && flutter analyze --fatal-infos)
 (cd packages/foundationmodels_agent && dart test)
 (cd packages/foundationmodels_mcp && dart test)
-(cd packages/foundationmodels && dart test test/tools_e2e_test.dart)
 (cd packages/foundationmodels_daemon && dart test)
 
-# Remote SPM version resolve (mirror):
-# see README in github.com/cristianoaredes/foundationmodels-swift
+# Live MCP (optional):
+# export FM_MCP_SSE_URL=…   # or UAB_MCP_URL; optional FM_MCP_BEARER
+# (cd packages/foundationmodels_mcp && dart test test/mcp_live_env_test.dart)
 ```
 
-## 4. Unary-first + streaming (consumer guidance)
+---
+
+## 4. Consumer guidance
 
 ```dart
-final fm = await createFoundationModels(); // mock offline if no Apple provider
+final fm = await createFoundationModels(); // mock if no Apple provider
 final r = await fm.respond(input: 'Hello', instructions: 'Be brief.');
-
-// Streaming + cancel work on mock and host-native Apple (parity: supported).
-// Tools: stream(..., tools:, autoExecuteTools: true|false) — FmAgent uses false.
+// stream + tools duplex measured on Apple path — see docs/parity.md
+// FmAgent: package foundationmodels_agent
+// MCP server/client: package foundationmodels_mcp
 ```
 
-See `example/lib/main.dart`.
+Example app: `example/`.
+
+---
 
 ## 5. What to work on next
 
-**L3 open drain complete** (2026-08-11). Mirror: `from: "1.0.4"`. Source: `OPEN-BACKLOG.md`.
+| Item | When |
+|------|------|
+| **TCK-0049** MLX content | weights registered |
+| **TCK-0028** PCC | entitlement |
+| Live MCP dual-run | `FM_MCP_SSE_URL` set |
+| pub.dev | human SAFETY + ADR reopen |
+| Live daemon binary | OS/CoreAI dyld fixed upstream |
 
-| Bucket | Tickets | Status |
-|--------|---------|--------|
-| v1 / Stage 1 / Stage 2 MCP | … · 0056–0059 | **done** |
-| Blocked only | **0049** MLX · **0028** PCC | external gates |
-| Human | pub.dev Phase 2 | SAFETY |
+Nothing else is L3-executable in this repo.
 
+---
 
 ## 6. Known quirks
 
-- **Plugin `swift build` alone** needs Flutter modules; use monorepo bridge smoke or host app.
-- **`FOUNDATIONMODELS_SWIFT_PATH` (FND-0010 closed via TCK-0047):** unset = mirror `from: "1.0.4"`; set = path containing **both** `FoundationModelsCore` + `ios-bridge` (mirror layout or monorepo `swift/` with CoreAI graph). Never Core alone.
-- **`publish_to: none`** on all workspace packages — **ADR-0002 stay-private / git-only** (prep: TCK-0052).
-- **Analyzer bar:** `--fatal-infos --fatal-warnings`.
+- Plugin `swift build` alone needs Flutter modules.  
+- `FOUNDATIONMODELS_SWIFT_PATH`: both Core + ios-bridge; never Core alone.  
+- All packages `publish_to: none`.  
+- Analyzer: `--fatal-infos`.  
+- Live daemon may crash dyld CoreAIRuntime on some hosts (client path still tested).  
 
-## 7. Invariants (do not violate)
+---
 
-1. **No silent cloud fallback.** No provider → mock.
-2. **Typed errors** via `error.data.code`; never fake success.
-3. **`instructions` is a trusted channel** — never paste user/tool/web content into it.
-4. **Fail-closed image allowlist.**
-5. **Parity honesty** — `supported` only with measured evidence.
-6. **Only streaming is truly interruptible** for cancel of generation.
+## 7. Invariants
+
+1. No silent cloud → mock if no provider.  
+2. Typed errors `error.data.code`.  
+3. `instructions` trusted channel.  
+4. Fail-closed image allowlist.  
+5. Parity honesty.  
+6. Only streaming truly interruptible.  
+
+---
 
 ## 8. Session log (reverse chronological)
 
-- **2026-08-11** — L3 open drain: TCK-0059 env-gated live MCP test + reaffirm no URL; TCK-0049/0028 reaffirmed blocked; zero todo. RUN-20260811-l3-open-drain (9 MCP tests).
-- **2026-08-11** — Open backlog formalized (codebase-ops): `OPEN-BACKLOG.md`; Stage 2 MCP client tickets 0056–0058 + blocked 0059 live UAB; reaffirm 0049/0028. Package tests 8 pass.
-- **2026-08-11** — Stage 1 drain: TCK-0051 daemon env_limit reaffirm; TCK-0050 CoreAI content not measured; DES-0004 + **foundationmodels_mcp** mock dual-run; epic TCK-0054 done. RUN-20260811-stage1.
-- **2026-08-11** — Stage 1 backlog formalized: epic TCK-0054 (daemon 0051 → CoreAI 0050 → MCP 0055/0053); MLX TCK-0049 → Stage 2. Program `STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003.
-- **2026-08-11** — Wave A L3 drain: TCK-0047 FND-0010 closed; TCK-0048 chat-on-device iOS sim **built** (Xcode 27 lipo multi-arch → ARCHS=arm64); TCK-0052 Phase 1 pub prep (no publish). RUN-20260811-wave-a.
-- **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002.
-- **2026-08-11** — Residual opt-in L3 drain: TCK-0038 daemon Unix-socket E2E (fake peer dual-run + live env_limit); TCK-0039 won't-ship MCP + agent tests green; TCK-0041 ADR-0002 stay-private; TCK-0028 PCC reaffirmed blocked; mirror docs pin **1.0.4**.
-- **2026-08-11** — Post-closeout L3 drain complete: VER-closeout, iOS guards, mirror v1.0.3, duplex/instructions dual-run revalidated.
-- **2026-08-11** — Post-closeout backlog formalized: epic TCK-0045, tickets 0043/0044, POST-CLOSEOUT.md, playbook 0042; next = 0043 → 0042 → 0044 → 0040.
-- **2026-08-11** — Closeout drain complete (TCK-0029…0036): host duplex + instructions clean A→B; Flutter live macOS dual-run (avail/respond/stream-cancel/tools duplex); event alias + generationId fixes; iOS/MLX/CoreAI/multimodal honest limits; PCC blocked.
-- **2026-08-11** — Residual drain: host-native smokes (availability/respond/stream+cancel); published foundationmodels-swift **v1.0.3** with stable SPM deps (CoreAI stub for `from:` graph); fixed v1.0.0/v1.0.1 revision pin failure.
-- **2026-08-10** — Full backlog drain: pure-Dart packages phases 3–8, tools single-executor, ios-bridge U1–U8.
-- **2026-08-09** — Initial scaffold: 3 packages, specs U1–U9 + phases 2–8.
-
-## 9. Residuals closed (2026-08-11)
-
-| Ticket | Resolution |
-|--------|------------|
-| TCK-0004 / TCK-0016 | Host-native Apple Intelligence smokes on MacBook Pro M5 Pro |
-| TCK-0017 | Published foundationmodels-swift; use **v1.0.3** for SPM `from:` |
-
-- **2026-08-11** — Stage 2 MCP **client** + SSE (DES-0005, TCK-0056–0058): `FmMcpClient`, loopback dual-run, SSE parse/POST injectable; UAB consumer path for chat-on-device.
+- **2026-08-11** — Full docs wave: PROJECT-STATUS, DELIVERY-LOG, MCP package README, CONTINUATION/README sync.  
+- **2026-08-11** — Handoff snapshot PR #11; validation suite re-run (all green); gates still closed.  
+- **2026-08-11** — L3 open drain PR #9; SSE Streamable-HTTP PR #10.  
+- **2026-08-11** — Open backlog + MCP client PR #8; Stage 1 drain PR #6; README PR #7.  
+- **2026-08-11** — Wave A, residual-optin, post-closeout, closeout drains (PRs #1–#4).  
+- Earlier: full parity residual, phases 3–8 packages, U1–U8 bridge.  

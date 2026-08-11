@@ -1,34 +1,51 @@
 # Open backlog — foundationmodels-dart (repo-only)
 
-**Updated:** 2026-08-11 (L3 drain RUN-20260811-l3-open-drain)  
-**Scope:** this monorepo only
+**Updated:** 2026-08-11 (post L3 drain + full documentation)  
+**Scope:** this monorepo only  
+**SoT:** this file + `backlog.csv` + tickets/
 
-## Status after L3 drain
+## Summary
 
-| ID | Status | Notes |
-|----|--------|-------|
-| TCK-0056…0058 | **done** | MCP client + SSE on main |
-| **TCK-0059** | **done** | Env-gated live test; no URL on drain host |
-| **TCK-0049** | **blocked** | MLX weights — reaffirmed 2026-08-11 |
-| **TCK-0028** | **blocked** | PCC entitlement — reaffirmed 2026-08-11 |
+| Metric | Value |
+|--------|--------|
+| `todo` | **0** |
+| `blocked` | **2** (TCK-0049 MLX, TCK-0028 PCC) |
+| `done` | **56** |
+| Package v1 | **shippable** on `main` |
+| Default branch | `main` only |
 
-**Zero `todo`.** Executable L3 work exhausted.
+## Blocked (external gates)
+
+| ID | Priority | Title | Unblock when |
+|----|----------|-------|--------------|
+| **TCK-0049** | low | MLX content dual-run | Weights + Core registry |
+| **TCK-0028** | low | PCC U9 | Apple entitlement + profile |
 
 ## Human SAFETY (not L3)
 
 | Item | Notes |
 |------|--------|
-| pub.dev Phase 2 | ADR-0002 — real publish needs human |
+| pub.dev Phase 2 | ADR-0002 — real publish needs human confirmation |
+
+## Closed programs (reference)
+
+| Program | Doc | Outcome |
+|---------|-----|---------|
+| Stage 1 | `STAGE-1-DAEMON-COREAI-MCP.md` | drained |
+| Stage 2 MCP client | `STAGE-2-MCP-CLIENT-SSE.md` | drained (incl. TCK-0059 harness) |
+| Wave A / residual-optin / closeout | respective MD under this folder | drained |
 
 ## When gates open
 
 ```text
-export FM_MCP_SSE_URL=…   # then: dart test packages/foundationmodels_mcp
-/ops-work TCK-0049        # MLX weights
-/ops-work TCK-0028        # PCC entitlement
+export FM_MCP_SSE_URL=…          # live MCP (TCK-0059 harness already shipped)
+/ops-work TCK-0049               # MLX
+/ops-work TCK-0028               # PCC
 ```
 
-## Programs
+## Full narrative docs
 
-- Stage 1: `STAGE-1-DAEMON-COREAI-MCP.md` drained  
-- Stage 2 MCP client: `STAGE-2-MCP-CLIENT-SSE.md` drained (code + 0059 harness)  
+- `docs/PROJECT-STATUS.md`  
+- `docs/DELIVERY-LOG.md`  
+- `CONTINUATION.md`  
+- `README.md`  

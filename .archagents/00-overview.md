@@ -1,6 +1,6 @@
 # 00 — Overview
 
-> **Status:** AS-IS bootstrap 2026-08-10 · phase 0 (spike)
+> **Status:** v1 shippable (git-only) · 2026-08-11 · L3 open drain complete
 
 ## Elevator pitch
 
@@ -10,25 +10,30 @@
 
 | Camada | Estado |
 |--------|--------|
-| `foundationmodels_platform_interface` | Done (testes VM) |
-| `foundationmodels` | Done (testes VM + mock) |
-| `foundationmodels_apple` | Código escrito; **nunca compilado/rodado em device** |
-| Phases 2–8 | Spec em `docs/specs/` — não implementadas |
-| Upstream U1–U9 (ios-bridge) | Spec — depende de `foundationmodels-js` |
+| Core API + interface + apple plugin | Done · parity honest (tools duplex supported) |
+| tools / agent | Done |
+| MCP server + client + SSE | Done (`foundationmodels_mcp`) |
+| daemon / policy / rag / eval / server / langchain | Present |
+| Mirror SPM | `from: "1.0.4"` |
+| pub.dev | Stay-private (ADR-0002) |
+| Open tickets | TCK-0049 MLX blocked · TCK-0028 PCC blocked |
+
+**Narrative status:** [`docs/PROJECT-STATUS.md`](../docs/PROJECT-STATUS.md)  
+**Open backlog:** [`15-backlog/OPEN-BACKLOG.md`](15-backlog/OPEN-BACKLOG.md)
 
 ## Stack
 
 - Dart **^3.12** · Flutter **≥ 3.27** (plugin Apple)
-- Pub **workspace** (3 packages)
+- Pub **workspace** (12 packages under `packages/`)
 - Licença **AGPL-3.0-only**
-- Platform target declarado: **iOS 27+ / macOS 27+**, Xcode 27
+- Platform: **iOS 27+ / macOS 27+**, Xcode 27
 
 ## Consumidores
 
-- **chat-on-device** (`../chat-on-device`) — app de estudos que pinou este repo por git SHA e usa o adapter como primary LLM path (ADR-0004 no app).
+- **chat-on-device** (sibling) — path/git consumer; package-side sim unblocked (TCK-0048)
 
 ## Fontes
 
-- `README.md`, `CONTINUATION.md`
+- `README.md`, `CONTINUATION.md`, `docs/PROJECT-STATUS.md`, `docs/DELIVERY-LOG.md`
 - `pubspec.yaml` (workspace)
 - `packages/*`
