@@ -59,12 +59,12 @@ export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-swift
 
 | Path shape | Products | Use when |
 |------------|----------|----------|
-| GitHub mirror `from: "1.0.3"`+ / local mirror clone | Core + ios-bridge (CoreAI stubbed/excluded) | Consumers, CI, iOS sim |
+| GitHub mirror `from: "1.0.4"`+ / local mirror clone | Core + ios-bridge (CoreAI stubbed/excluded) | Consumers, CI, iOS sim |
 | Monorepo `foundationmodels-js/swift` | Core + ios-bridge + CoreAI deps | Local Apple full tip on Mac |
 
 Do **not** point `FOUNDATIONMODELS_SWIFT_PATH` at monorepo Core alone without the monorepo Package graph.
 
-Default pin until TCK-0044: `from: "1.0.3"`. After publish: `from: "1.0.3"` (duplex + iOS guards).
+Default pin: `from: "1.0.4"` (duplex + iOS guards; Package.swift iOS/macOS).
 
 ## Layout decision: `ios/` + `macos/` (not shared `darwin/`)
 

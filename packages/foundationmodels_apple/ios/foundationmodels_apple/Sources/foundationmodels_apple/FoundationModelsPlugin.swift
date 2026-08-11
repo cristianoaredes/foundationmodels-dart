@@ -57,15 +57,17 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = FoundationModelsPlugin()
 
+        // FlutterPluginRegistrar.messenger is a method in current Flutter iOS
+        // embeddings (Xcode/Swift treats bare `.messenger` as unapplied function).
         let methodChannel = FlutterMethodChannel(
             name: methodChannelName,
-            binaryMessenger: registrar.messenger
+            binaryMessenger: registrar.messenger()
         )
         registrar.addMethodCallDelegate(instance, channel: methodChannel)
 
         let eventChannel = FlutterEventChannel(
             name: eventChannelName,
-            binaryMessenger: registrar.messenger
+            binaryMessenger: registrar.messenger()
         )
         eventChannel.setStreamHandler(instance.streamHandler)
     }

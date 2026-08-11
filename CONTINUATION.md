@@ -22,8 +22,8 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Parity (Flutter) | ✅ Closeout complete (honest) | `supported`: availability, respond, stream+cancel, sessions, instructions, guided, countTokens, feedback, vision OCR+barcode, **tools duplex**; Flutter live macOS E2E dual-run; multimodal partial (capability); MLX/CoreAI fail-closed; PCC blocked; iOS AI unsupported class on paired A14 iPad |
 | CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
 | Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
-| `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.3"`** (stable SPM graph; CoreAI fail-closed stub) |
-| Backlog | ✅ Closeout drained | TCK-0001…0027 done; **TCK-0029…0036 done** (closeout); TCK-0028 PCC **blocked**; optional TCK-0038…0041 deferred — see `.archagents/15-backlog/CLOSEOUT.md` |
+| `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.4"`** (stable SPM graph; CoreAI fail-closed stub) |
+| Backlog | ✅ Residual opt-in drained | TCK-0001…0027 done; **TCK-0029…0036 done**; **TCK-0038/39/41 done**; TCK-0028 PCC **blocked** (reaffirmed); see `RESIDUAL-OPTIN.md` |
 
 ### codebase-ops
 
@@ -35,6 +35,8 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Residual drain run | `.archagents/13-execution/runs/RUN-20260811-residual-drain/` |
 | Closeout run | `.archagents/13-execution/runs/RUN-20260811-closeout/` |
 | Post-closeout program | `.archagents/15-backlog/POST-CLOSEOUT.md` |
+| Residual opt-in run | `.archagents/13-execution/runs/RUN-20260811-residual-optin/` |
+| Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
 
 ## 3. How to validate
 
@@ -42,7 +44,7 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 cd foundationmodels-dart
 # Mac Swift link (full CoreAI tip):
 export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
-# Or leave unset → plugin uses GitHub foundationmodels-swift from: "1.0.3"
+# Or leave unset → plugin uses GitHub foundationmodels-swift from: "1.0.4"
 
 flutter pub get
 (cd packages/foundationmodels_platform_interface && dart test && dart analyze --fatal-infos)
@@ -69,21 +71,21 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Post-closeout program drained** (2026-08-11). Mirror pin: `from: "1.0.3"`.
+**Post-closeout + residual opt-in drained** (2026-08-11). Mirror pin: `from: "1.0.4"`.
 
 | Residual | Notes |
 |----------|--------|
-| TCK-0038/39/41 | Opt-in product |
-| TCK-0028 | PCC blocked |
+| TCK-0028 | PCC blocked (reaffirmed) — needs entitlement |
 | chat-on-device Runner | Flutter.framework lipo tooling residual (package Core unblocked) |
 | MLX/CoreAI content | Needs registered weights/models |
+| pub.dev | ADR-0002 stay-private; reopen only with product + human gate |
 
 
 ## 6. Known quirks
 
 - **Plugin `swift build` alone** needs Flutter modules; use monorepo bridge smoke or host app.
 - **`FOUNDATIONMODELS_SWIFT_PATH`** = monorepo `swift/` for full CoreAI; GitHub mirror is system+MLX with CoreAI stub.
-- **`publish_to: none`** on several packages until phase-8 pub.dev closeout.
+- **`publish_to: none`** on all workspace packages — **ADR-0002 stay-private / git-only**.
 - **Analyzer bar:** `--fatal-infos --fatal-warnings`.
 
 ## 7. Invariants (do not violate)
@@ -97,6 +99,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Residual opt-in L3 drain: TCK-0038 daemon Unix-socket E2E (fake peer dual-run + live env_limit); TCK-0039 won't-ship MCP + agent tests green; TCK-0041 ADR-0002 stay-private; TCK-0028 PCC reaffirmed blocked; mirror docs pin **1.0.4**.
 - **2026-08-11** — Post-closeout L3 drain complete: VER-closeout, iOS guards, mirror v1.0.3, duplex/instructions dual-run revalidated.
 - **2026-08-11** — Post-closeout backlog formalized: epic TCK-0045, tickets 0043/0044, POST-CLOSEOUT.md, playbook 0042; next = 0043 → 0042 → 0044 → 0040.
 - **2026-08-11** — Closeout drain complete (TCK-0029…0036): host duplex + instructions clean A→B; Flutter live macOS dual-run (avail/respond/stream-cancel/tools duplex); event alias + generationId fixes; iOS/MLX/CoreAI/multimodal honest limits; PCC blocked.

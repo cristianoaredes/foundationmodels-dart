@@ -57,6 +57,8 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = FoundationModelsPlugin()
 
+        // Keep byte-aligned with ios/.../FoundationModelsPlugin.swift.
+        // messenger is a method on FlutterPluginRegistrar (call with ()).
         let methodChannel = FlutterMethodChannel(
             name: methodChannelName,
             binaryMessenger: registrar.messenger

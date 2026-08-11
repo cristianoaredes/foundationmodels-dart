@@ -35,10 +35,10 @@ TCK-0033,mlx-registered-content,"MLX — register model weights + content respon
 TCK-0034,coreai-registered-content,"CoreAI — monorepo registered model + content dual-run",done,medium,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
 TCK-0035,ios-device-fm-smokes-attempt,"iOS device — attempt FM smokes (respond / stream+cancel)",done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
 TCK-0036,flutter-plugin-live-macos-e2e,"Flutter plugin live macOS E2E — public Dart API → channels → Core",done,high,feature,L,closeout-backlog,,,,,2026-08-11T12:00:00-03:00,2026-08-11T14:30:00-03:00
-TCK-0038,daemon-unix-socket-e2e,"Optional — live Unix-socket daemon E2E",todo,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,
-TCK-0039,mcp-agent-client,"Optional — MCP agent client wiring",todo,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,
+TCK-0038,daemon-unix-socket-e2e,"Optional — live Unix-socket daemon E2E",done,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
+TCK-0039,mcp-agent-client,"Optional — MCP agent client wiring",done,low,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
 TCK-0040,chat-on-device-integration,"Sibling chat-on-device consumer integration",done,medium,feature,L,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T19:00:00-03:00
-TCK-0041,pubdev-publish-closeout,"Optional — pub.dev publish / remove publish_to none",todo,low,feature,M,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,
+TCK-0041,pubdev-publish-closeout,"Optional — pub.dev publish / remove publish_to none",done,low,feature,M,closeout-backlog-adjacent,,,,,2026-08-11T12:00:00-03:00,2026-08-11T20:00:00-03:00
 TCK-0042,ios-sim-consumer-build-unblocked,"iOS Simulator — unblock consumer build (upstream Core iOS guards + plugin docs)",done,high,bug,M,consumer-chat-on-device-report,,,,,2026-08-11T15:00:00-03:00,2026-08-11T19:00:00-03:00
 TCK-0043,closeout-verify-ship-hygiene,"Closeout — VER adversarial + ship hygiene (git materialization)",done,high,chore,S,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00
 TCK-0044,mirror-1-0-3-publish,"Publish foundationmodels-swift ≥1.0.3 (duplex + iOS sim guards)",done,high,feature,M,post-closeout-backlog,,,,,2026-08-11T16:00:00-03:00,2026-08-11T19:00:00-03:00

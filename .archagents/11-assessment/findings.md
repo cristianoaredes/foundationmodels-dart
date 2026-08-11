@@ -8,8 +8,8 @@
 | FND-0004 | medium | CI workflows não estão em `.github/workflows/` | **closed** (workflows present) |
 | FND-0005 | medium | Toda parity Flutter = `not measured` | **closed** (parity matrix closeout) |
 | FND-0006 | medium | Mirror `foundationmodels-swift` não existe | **closed** (v1.0.2; next bump TCK-0044) |
-| FND-0007 | low | `publish_to: none` — só consumo git | open |
-| FND-0008 | info | AGPL-3.0-only no grafo de consumidores | open |
+| FND-0007 | low | `publish_to: none` — só consumo git | **closed** (ADR-0002 stay-private) |
+| FND-0008 | info | AGPL-3.0-only no grafo de consumidores | open (policy awareness) |
 | FND-0009 | high | iOS Simulator: consumer `chat-on-device` não builda com mirror `foundationmodels-swift` 1.0.2 (SecTask / OCRTool / graph SPM) | **closed** (v1.0.3 guards; Core iphonesimulator build green) |
 | FND-0010 | medium | `FOUNDATIONMODELS_SWIFT_PATH` + monorepo tip ≠ mirror: CoreAI sources entram e quebram compile sem monorepo deps | open |
 
@@ -71,13 +71,13 @@ When consumer pointed SPM at monorepo-style `FoundationModelsCore` package (incl
 
 
 
-## Post-closeout open findings
+## Post-closeout / residual-optin findings
 
 | ID | Severity | Status | Ticket |
 |----|----------|--------|--------|
 | FND-0009 | high | closed | TCK-0042 |
 | FND-0010 | medium | open | TCK-0042 docs |
-| FND-0007 | low | open | TCK-0041 |
-| FND-0008 | info | open | TCK-0041 / policy |
+| FND-0007 | low | **closed** | TCK-0041 / ADR-0002 |
+| FND-0008 | info | open | policy awareness (AGPL) |
 
-**Program:** POST-CLOSEOUT.md · epic TCK-0045
+**Programs:** POST-CLOSEOUT.md · RESIDUAL-OPTIN.md · epic TCK-0045 · RUN-20260811-residual-optin
