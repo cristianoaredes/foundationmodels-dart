@@ -5,43 +5,38 @@ title: "Épico: next-wave — consumer polish + content backends + gated paths"
 source: next-wave-intake
 created_at: 2026-08-11T21:00:00-03:00
 status: todo
-priority: high
+priority: medium
 category: feature
 effort: L
-related: [TCK-0045, TCK-0028, TCK-0033, TCK-0034, TCK-0038, TCK-0039, TCK-0041]
+related: [TCK-0045, TCK-0054, TCK-0028, TCK-0033, TCK-0034, TCK-0038, TCK-0039, TCK-0041]
 program: NEXT-WAVE
 ---
 
 # TCK-0046 — Epic: next-wave development readiness
 
-## Goal
+## Status (2026-08-11)
 
-After residual-optin, formalize and (when unblocked) deliver:
+- **Wave A children done** (0047, 0048, 0052 Phase 1).  
+- **Active execution** moved to **Stage 1 epic [TCK-0054](TCK-0054-epic-stage1-daemon-coreai-mcp.md)** (daemon · CoreAI · MCP).  
+- MLX (**TCK-0049**) → **Stage 2**.  
+- Close this epic when Stage 1 + any remaining Wave A bookkeeping is done, or keep as umbrella for NEXT-WAVE.md.
 
-1. Docs path contract (FND-0010)  
-2. Full chat-on-device Runner sim path  
-3. MLX/CoreAI **content** when weights exist  
-4. Live daemon binary E2E when env fixed  
-5. pub.dev prep (and optional publish)  
-6. Optional MCP package  
-7. PCC when entitlement exists  
+## Goal (historical)
 
-## Children (ordered)
+After residual-optin, formalize and deliver residual tracks (docs, consumer, backends, MCP, PCC…).
 
-| Order | Ticket | Wave | Status seed |
-|------:|--------|------|-------------|
-| 1 | [TCK-0047](TCK-0047-fnd-0010-path-contract-docs.md) | A | todo |
-| 2 | [TCK-0048](TCK-0048-chat-on-device-runner-lipo.md) | A | todo |
-| 3 | [TCK-0052](TCK-0052-pubdev-prep-and-optional-publish.md) | A/C | todo |
-| 4 | [TCK-0049](TCK-0049-mlx-content-when-weights.md) | B | blocked |
-| 5 | [TCK-0050](TCK-0050-coreai-content-when-registered.md) | B | blocked |
-| 6 | [TCK-0051](TCK-0051-daemon-live-binary-e2e.md) | B | blocked |
-| 7 | [TCK-0053](TCK-0053-mcp-protocol-package.md) | C | todo |
-| 8 | [TCK-0028](TCK-0028-pcc-u9-entitlement.md) | C | blocked |
+## Children
+
+| Order | Ticket | Notes |
+|------:|--------|-------|
+| A | 0047, 0048, 0052 | **done** (Wave A) |
+| Stage 1 | 0051, 0050, 0055, 0053 | via **TCK-0054** |
+| Stage 2 | 0049 MLX | deferred |
+| Parked | 0028 PCC | entitlement |
 
 ## Program DoD
 
-See [NEXT-WAVE.md](../NEXT-WAVE.md). Epic **done** when Wave A complete and Waves B/C either done or explicitly reaffirmed blocked with dated notes.
+Wave A DoD met. Remaining tracks tracked under STAGE-1 / STAGE-2 docs.
 
 ## Out of scope
 

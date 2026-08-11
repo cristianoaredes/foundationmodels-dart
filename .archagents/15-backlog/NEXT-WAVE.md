@@ -1,7 +1,7 @@
 # Next-wave backlog — development readiness
 
 **Created:** 2026-08-11  
-**Status:** Wave A **drained** (2026-08-11) · Wave B/C gated  
+**Status:** Wave A **drained** · **Stage 1 active** → see [STAGE-1-DAEMON-COREAI-MCP.md](STAGE-1-DAEMON-COREAI-MCP.md)  
 **Epic:** [TCK-0046](tickets/TCK-0046-epic-next-wave-dev-ready.md)  
 **Predecessor:** residual-optin drained · PR #2 merged · [RESIDUAL-OPTIN.md](RESIDUAL-OPTIN.md)  
 **Design:** [DES-0002](../16-designs/DES-0002-next-wave-program.md)
@@ -22,35 +22,42 @@ work so an L2/L3 agent can `/ops-work TCK-NNNN` without re-discovery.
 | 2 | **TCK-0048** | high | M | chat-on-device Runner lipo / full sim build | **Yes** (sibling) |
 | 3 | **TCK-0052** | medium | M | pub.dev prep (LICENSE/CHANGELOG/hosted deps) — no publish | **Yes** (prep only) |
 
-### Wave B — env / weights gate (playbook ready; start when gate opens)
+### Stage 1 (active — Daemon · CoreAI · MCP)
 
-| Order | ID | Prio | Effort | Title | Unblock when |
-|------:|----|------|--------|-------|--------------|
-| 4 | **TCK-0049** | medium | L | MLX content dual-run with registered weights | MLX model root + registry |
-| 5 | **TCK-0050** | medium | L | CoreAI content dual-run (monorepo path) | monorepo tip + CoreAI model |
-| 6 | **TCK-0051** | low | M | Live `foundationmodels-daemon` binary E2E | dyld/CoreAI daemon binary runs |
+Supersedes old Wave B/C ordering for these tracks. Full program: **STAGE-1-DAEMON-COREAI-MCP.md**.
 
-### Wave C — product / entitlement gate
+| Order | ID | Prio | Title |
+|------:|----|------|-------|
+| 1 | **TCK-0051** | high | Daemon live E2E |
+| 2 | **TCK-0050** | high | CoreAI content monorepo |
+| 3 | **TCK-0055** | high | MCP mini-spec |
+| 4 | **TCK-0053** | high | MCP package (after 0055) |
 
-| Order | ID | Prio | Effort | Title | Unblock when |
-|------:|----|------|--------|-------|--------------|
-| 7 | **TCK-0053** | low | L | MCP protocol package (opt-in) | explicit product request |
-| 8 | **TCK-0028** | low | L | PCC U9 entitlement path | Apple PCC entitlement + profile |
-| 9 | **TCK-0052** publish step | medium | S | Real `dart pub publish` | human SAFETY after prep green |
+Epic: **TCK-0054**.
+
+### Stage 2 / parked
+
+| ID | Prio | Title | Notes |
+|----|------|-------|-------|
+| **TCK-0049** | low | MLX content | **Stage 2** — after Stage 1 |
+| **TCK-0028** | low | PCC U9 | entitlement |
+| **TCK-0052** publish | medium | Real pub.dev publish | human SAFETY |
 
 ## Inventory status
 
 | ID | Status | Notes |
 |----|--------|-------|
-| TCK-0046 | todo | Epic parent (Wave A children done) |
+| TCK-0046 | todo | Wave A done; Stage 1 = TCK-0054 |
 | TCK-0047 | **done** | FND-0010 closed |
 | TCK-0048 | **done** | iOS sim Runner.app built |
-| TCK-0049 | blocked | Weights gate |
-| TCK-0050 | blocked | Monorepo+model gate |
-| TCK-0051 | blocked | Daemon binary env gate |
+| TCK-0049 | blocked | **Stage 2** MLX |
+| TCK-0050 | **todo** high | Stage 1 #2 CoreAI |
+| TCK-0051 | **todo** high | Stage 1 #1 daemon |
 | TCK-0052 | **done** (Phase 1) | Phase 2 = human publish |
-| TCK-0053 | todo | Design-ready; product opt-in |
-| TCK-0028 | blocked | Playbook enriched 2026-08-11 |
+| TCK-0053 | **todo** high | Stage 1 #4 MCP impl (after 0055) |
+| TCK-0054 | **todo** high | Epic Stage 1 |
+| TCK-0055 | **todo** high | Stage 1 #3 MCP spec |
+| TCK-0028 | blocked | PCC |
 
 ## Program DoD
 
@@ -63,8 +70,7 @@ work so an L2/L3 agent can `/ops-work TCK-NNNN` without re-discovery.
 ## Pull command
 
 ```text
-# Wave A drained. Remaining:
-/ops-work TCK-0049    # when MLX weights available
-/ops-work TCK-0053    # only if product wants MCP
-/ops-work TCK-0028    # only after entitlement
+/ops-work TCK-0051    # Stage 1 first (daemon)
+# then TCK-0050 → TCK-0055 → TCK-0053
+# Stage 2 MLX: TCK-0049 only after Stage 1 or override
 ```

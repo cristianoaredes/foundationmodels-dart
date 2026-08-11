@@ -38,6 +38,7 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Residual opt-in run | `.archagents/13-execution/runs/RUN-20260811-residual-optin/` |
 | Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
 | Next-wave program | `.archagents/15-backlog/NEXT-WAVE.md` · DES-0002 |
+| **Stage 1 (active)** | `.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003 · epic TCK-0054 |
 
 ## 3. How to validate
 
@@ -74,13 +75,14 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Next-wave Wave A drained** (2026-08-11). Mirror pin: `from: "1.0.4"`.
+**Stage 1 formalized** (daemon · CoreAI · MCP). Mirror pin: `from: "1.0.4"`. Pull: `/ops-work TCK-0051`.
 
-| Wave | Tickets | Status |
-|------|---------|--------|
-| **A** | 0047 docs · 0048 Runner lipo · 0052 pub prep | **done** |
-| **B gated** | 0049 MLX · 0050 CoreAI · 0051 live daemon | blocked until env/weights |
-| **C product** | 0053 MCP · 0028 PCC · 0052 publish | product / entitlement / human |
+| Stage | Tickets | Status |
+|-------|---------|--------|
+| Wave A (done) | 0047 · 0048 · 0052 prep | done |
+| **Stage 1** | **0051 daemon → 0050 CoreAI → 0055 MCP spec → 0053 MCP pkg** | **active** |
+| Stage 2 | 0049 MLX | deferred |
+| Parked | 0028 PCC · 0052 publish | entitlement / human |
 
 
 ## 6. Known quirks
@@ -101,6 +103,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Stage 1 backlog formalized: epic TCK-0054 (daemon 0051 → CoreAI 0050 → MCP 0055/0053); MLX TCK-0049 → Stage 2. Program `STAGE-1-DAEMON-COREAI-MCP.md` · DES-0003.
 - **2026-08-11** — Wave A L3 drain: TCK-0047 FND-0010 closed; TCK-0048 chat-on-device iOS sim **built** (Xcode 27 lipo multi-arch → ARCHS=arm64); TCK-0052 Phase 1 pub prep (no publish). RUN-20260811-wave-a.
 - **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002.
 - **2026-08-11** — Residual opt-in L3 drain: TCK-0038 daemon Unix-socket E2E (fake peer dual-run + live env_limit); TCK-0039 won't-ship MCP + agent tests green; TCK-0041 ADR-0002 stay-private; TCK-0028 PCC reaffirmed blocked; mirror docs pin **1.0.4**.

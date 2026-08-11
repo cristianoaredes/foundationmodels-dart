@@ -4,68 +4,82 @@ slug: daemon-live-binary-e2e
 title: "Daemon — live foundationmodels-daemon binary Unix-socket E2E"
 source: next-wave-intake
 created_at: 2026-08-11T21:00:00-03:00
-status: blocked
-priority: low
+status: todo
+priority: high
 category: feature
 effort: M
-related: [TCK-0046, TCK-0038]
-program: NEXT-WAVE
-order: 6
-wave: B
-executable_now: false
-unblock_when: "Release foundationmodels-daemon exits 0 on --help/health (no dyld CoreAI crash)"
+related: [TCK-0054, TCK-0046, TCK-0038]
+program: STAGE-1
+stage: 1
+order: 1
+wave: stage1
+executable_now: true
+unblock_when: "Probe always executable; full dual-run needs binary exit 0"
 ---
 
-# TCK-0051 — Live daemon binary E2E
+# TCK-0051 — Live daemon binary E2E (Stage 1 #1)
 
 ## Gap
 
-TCK-0038 **done** for **client path** via fake JSON-RPC peer + documented live `env_limit` (exit=-6, CoreAI dyld). Product still lacks dual-run against **real** `foundationmodels-daemon`.
+TCK-0038 **done** for **client path** via fake JSON-RPC peer + live `env_limit` note. Stage 1 needs either:
 
-## Unblock gate
+- dual-run against **real** `foundationmodels-daemon`, or  
+- dated reaffirmation that binary remains unusable (with probe evidence).
+
+## Status note
+
+Promoted from pure `blocked` → **`todo`**: probe + documentation always executable; live dual-run still **gated** by binary health.
+
+## Phases
+
+### 1a Probe (always)
 
 ```bash
-# Must succeed (exit 0) before this ticket is executable:
-<path>/foundationmodels-daemon --help
-# and/or health over socket after start
+# Example path (adjust to monorepo checkout):
+FM_DAEMON_BIN=…/foundationmodels-daemon
+"$FM_DAEMON_BIN" --help; echo exit:$?
 ```
 
-Root cause to fix is typically **upstream** monorepo build / CoreAI link / OS skew — not Dart client.
+Record: path, exit, stderr (CoreAI/dyld?), `live_ok=true|false`.
 
-## Depends on
+### 1b Unblock env (if probe fails)
 
-- TCK-0038 done (client tests stay green as regression)  
-- foundationmodels-js Swift daemon Release build  
+- Rebuild daemon on monorepo tip / fix link  
+- Or document permanent host limit (OS skew) without claiming client bug  
 
-## Work (when unblocked)
+### 1c Dart live E2E (if probe ok)
 
-1. Start real daemon on temp Unix socket (document flags).  
-2. Point `DaemonSocketTransport.connect(socketPath:)` at it.  
-3. Dual-run health + respond (same assertions as fake peer where applicable).  
-4. Keep fake-peer tests; add `live_daemon` group gated by env var e.g. `FM_DAEMON_BIN` / `FM_DAEMON_SOCKET`.  
-5. Do **not** mark Apple matrix cells `supported` from daemon-only path.
+1. Start daemon on temp Unix socket (document flags).  
+2. `DaemonSocketTransport.connect` + dual-run health + respond.  
+3. Gate tests with env (`FM_DAEMON_BIN` / `FM_DAEMON_SOCKET`); CI keeps fake peer.  
+4. No Apple matrix `supported` from daemon-only.
 
 ## AC
 
-- [ ] Dual-run against live binary with evidence log  
-- [ ] CI remains green without requiring live binary (skip/gated)  
-- [ ] Fake peer tests still pass  
-- [ ] Or: reaffirm blocked if binary still env-limited  
+- [ ] Probe evidence logged under RUN  
+- [ ] Dual-run live **or** blocked reaffirm with date + reason (`env_limit`)  
+- [ ] Fake peer tests still green  
+- [ ] CI does not require live binary  
 
 ## Evidence template
 
 ```text
-SMOKE live_daemon_e2e run=1 health_ok respond_ok
-SMOKE live_daemon_e2e run=2 health_ok respond_ok
-SMOKE live_daemon_e2e dual_run_ok=true
+SMOKE live_daemon probe exit=… live_ok=…
+SMOKE live_daemon_e2e dual_run_ok=true   # if live_ok
+# OR
+SMOKE live_daemon env_limit=true reason=… reaffirmed=YYYY-MM-DD
 ```
 
 ## Files likely to touch
 
 - `packages/foundationmodels_daemon/test/socket_e2e_test.dart`  
-- optional README daemon section  
+- optional package README  
 
 ## Out of scope
 
+- MLX, MCP, CoreAI content path  
 - Rewriting daemon protocol  
-- Apple plugin parity claims  
+
+## Depends on
+
+- TCK-0038 done (regression baseline)  

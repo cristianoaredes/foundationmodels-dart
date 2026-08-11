@@ -58,7 +58,7 @@ Governado por **codebase-ops**. Fonte operacional: [`.archagents/README.md`](.ar
 - Validar: ver `.archagents/10-runbooks.md`.
 - Specs de fase: `docs/specs/phase-*.md` e `upstream-ios-bridge-extensions.md`.
 - Consumidor de referência: sibling `../chat-on-device`.
-- Mirror **v1.0.4**. Next-wave **Wave A done** (0047/0048/0052-prep). Wave B/C gated. See `NEXT-WAVE.md`.
+- Mirror **v1.0.4**. **Stage 1 active:** daemon → CoreAI → MCP (TCK-0054). MLX Stage 2. See `STAGE-1-DAEMON-COREAI-MCP.md`.
 
 ## Docs
 
