@@ -31,4 +31,5 @@ export 'src/runtime.dart';
 export 'src/schema.dart';
 export 'src/security.dart';
 export 'src/session.dart';
+export 'src/tools.dart';
 export 'src/transport_provider.dart';

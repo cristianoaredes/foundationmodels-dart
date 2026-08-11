@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:foundationmodels/foundationmodels.dart';
 import 'package:test/test.dart';
 
@@ -30,17 +32,31 @@ void main() {
     test('cancel token terminates the stream with typed cancellation',
         () async {
       final fm = await createFoundationModels(
-        providers: [const MockProvider(chunkDelay: Duration(milliseconds: 20))],
+        providers: [const MockProvider(chunkDelay: Duration(milliseconds: 40))],
       );
       final source = CancelTokenSource();
       final errors = <Object>[];
-      final done = fm
-          .stream(input: 'a reasonably long input to chunk', cancelToken: source.token)
-          .listen(null, onError: errors.add);
-      await Future<void>.delayed(const Duration(milliseconds: 30));
+      // Do not use StreamSubscription.asFuture with an onError handler —
+      // handled errors leave asFuture pending forever. Complete explicitly.
+      final finished = Completer<void>();
+      fm
+          .stream(
+            input: 'a reasonably long input to chunk for cancel coverage',
+            cancelToken: source.token,
+          )
+          .listen(
+            null,
+            onError: (Object error, StackTrace _) {
+              errors.add(error);
+              if (!finished.isCompleted) finished.complete();
+            },
+            onDone: () {
+              if (!finished.isCompleted) finished.complete();
+            },
+          );
+      await Future<void>.delayed(const Duration(milliseconds: 60));
       source.cancel();
-      await done.asFuture<void>().catchError((_) {});
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await finished.future.timeout(const Duration(seconds: 2));
       expect(errors, contains(isA<GenerationCancelledException>()));
     });
 

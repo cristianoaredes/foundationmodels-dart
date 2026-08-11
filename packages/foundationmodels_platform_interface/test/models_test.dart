@@ -103,6 +103,27 @@ void main() {
       expect(count.total, 0);
       expect(count.estimated, isTrue);
     });
+
+    test('accepts native Core *Tokens aliases', () {
+      final count = TokenCount.fromMap({
+        'inputTokens': 9,
+        'instructionsTokens': 12,
+        'toolTokens': 1,
+        'schemaTokens': 2,
+        'totalTokens': 24,
+        'contextWindowTokens': 8192,
+        'remainingTokens': 8168,
+        'estimated': false,
+      });
+      expect(count.input, 9);
+      expect(count.instructions, 12);
+      expect(count.tool, 1);
+      expect(count.schema, 2);
+      expect(count.total, 24);
+      expect(count.contextWindow, 8192);
+      expect(count.remaining, 8168);
+      expect(count.estimated, isFalse);
+    });
   });
 
   test('FmMethods constants match the protocol v2 names', () {

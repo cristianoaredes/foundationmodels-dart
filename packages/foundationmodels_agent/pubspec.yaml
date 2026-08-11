@@ -1,0 +1,18 @@
+name: foundationmodels_agent
+description: Agent kit — tool loops, HITL interrupts, AG-UI events, intent router (phase 7).
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  foundationmodels:
+    path: ../foundationmodels
+  foundationmodels_tools:
+    path: ../foundationmodels_tools
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0

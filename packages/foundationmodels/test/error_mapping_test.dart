@@ -32,15 +32,28 @@ void main() {
     test('transport error maps via error.data.code to the typed exception',
         () async {
       final transport = FakeTransport()
-        ..onInvoke = (_) => const FmTransportError(
-              code: -32000,
-              message: 'slow down',
-              data: {'code': 'RATE_LIMITED', 'resetDate': '2026-08-10T00:00:00Z'},
-            );
+        ..onInvoke = (envelope) {
+          // Availability must succeed so createFoundationModels selects the
+          // transport provider; only respond maps to RATE_LIMITED.
+          if (envelope['method'] == 'foundationmodels.availability') {
+            return const {
+              'available': true,
+              'features': {'streaming': true},
+            };
+          }
+          return const FmTransportError(
+            code: -32000,
+            message: 'slow down',
+            data: {
+              'code': 'RATE_LIMITED',
+              'resetDate': '2026-08-10T00:00:00Z',
+            },
+          );
+        };
       final fm =
           await createFoundationModels(providers: [TransportProvider(transport)]);
       expect(
-        () => fm.respond(input: 'hi'),
+        fm.respond(input: 'hi'),
         throwsA(isA<RateLimitedException>()
             .having((e) => e.resetDate, 'resetDate', '2026-08-10T00:00:00Z')
             .having((e) => e.isRetryable, 'isRetryable', isTrue)),
@@ -125,6 +138,43 @@ void main() {
       expect(response.usage?.totalTokens, 5);
     });
 
+    test('respond maps native Core output String to text', () async {
+      final transport = FakeTransport()
+        ..onInvoke = (envelope) => {
+              'output': 'Native core text',
+              'model': 'apple.system',
+              'usage': {
+                'inputTokens': 1,
+                'outputTokens': 2,
+                'estimated': false,
+              },
+            };
+      final provider = TransportProvider(transport);
+      final response = await provider.respond(
+        const FmRequest(id: 'rpc_out', input: 'Hi'),
+      );
+      expect(response.text, 'Native core text');
+      expect(response.structured, isNull);
+    });
+
+    test('respond maps native Core guided output Map to structured', () async {
+      final transport = FakeTransport()
+        ..onInvoke = (envelope) => {
+              'output': {'city': 'Paris', 'country': 'France'},
+              'model': 'apple.system',
+            };
+      final provider = TransportProvider(transport);
+      final response = await provider.respond(
+        const FmRequest(id: 'rpc_struct', input: 'extract'),
+      );
+      expect(response.text, isNull);
+      expect(response.structured, isA<Map<String, Object?>>());
+      expect(
+        (response.structured! as Map<String, Object?>)['city'],
+        'Paris',
+      );
+    });
+
     test('cancelGeneration sends generation.cancel with generationId', () async {
       final transport = FakeTransport();
       await TransportProvider(transport).cancelGeneration('rpc_gen');
@@ -132,11 +182,46 @@ void main() {
       expect(envelope['method'], 'foundationmodels.generation.cancel');
       expect((envelope['params']! as Map)['generationId'], 'rpc_gen');
     });
+
+    test('stream envelope params include generationId + requestId for demux',
+        () async {
+      final transport = FakeTransport()
+        ..onInvoke = (envelope) {
+          if (envelope['method'] == 'foundationmodels.sessions.stream') {
+            return const {'ok': true, 'streaming': true};
+          }
+          return const {'available': true, 'features': {'streaming': true}};
+        };
+      final provider = TransportProvider(transport);
+      // Drain: start stream so onListen fires invoke with stream method.
+      final sub = provider
+          .stream(const FmRequest(id: 'rpc_stream_gid', input: 'x'))
+          .listen((_) {});
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await sub.cancel();
+      final streamEnv = transport.envelopes.cast<Map<String, Object?>>().firstWhere(
+            (e) => e['method'] == 'foundationmodels.sessions.stream',
+          );
+      expect(streamEnv['id'], 'rpc_stream_gid');
+      final params = streamEnv['params']! as Map<String, Object?>;
+      expect(params['generationId'], 'rpc_stream_gid');
+      expect(params['requestId'], 'rpc_stream_gid');
+    });
   });
 
   group('TransportProvider — streaming (end to end)', () {
     test('demultiplexes events by requestId and maps error events', () async {
-      final transport = FakeTransport();
+      final transport = FakeTransport()
+        ..onInvoke = (envelope) {
+          if (envelope['method'] == 'foundationmodels.availability') {
+            return const {
+              'available': true,
+              'features': {'streaming': true},
+            };
+          }
+          // Stream start ack (and any other unary) succeeds.
+          return const {'ok': true};
+        };
       final fm =
           await createFoundationModels(providers: [TransportProvider(transport)]);
       final session = await fm.createSession();
@@ -148,7 +233,7 @@ void main() {
           onError: errors.add, onDone: done.complete);
 
       // Wait for the stream-start invoke so we know the requestId.
-      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
       final startEnvelope = transport.envelopes.singleWhere(
           (e) => e['method'] == 'foundationmodels.sessions.stream');
       final requestId = startEnvelope['id']! as String;
@@ -163,6 +248,7 @@ void main() {
         'requestId': requestId,
         'code': 'SESSION_BUSY',
         'message': 'session busy',
+        'data': {'code': 'SESSION_BUSY'},
       });
       await done.future;
 

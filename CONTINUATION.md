@@ -2,7 +2,7 @@
 
 **Read this first.** This file is the handoff contract for `foundationmodels-dart`. It exists so that any future session — another machine, another agent, another harness — can continue the work **without any prior conversational context**. Everything stated here was true at the commit it was added; verify against `git log` if it drifted.
 
-> **TL;DR reading order:** this file → `docs/specs/adr-0001-flutter-adapter.md` (the design) → `docs/specs/upstream-ios-bridge-extensions.md` (what the Swift side still needs) → the `docs/specs/phase-*.md` for the phase you are implementing → `docs/protocol-mapping.md`.
+> **TL;DR reading order:** this file → `docs/specs/adr-0001-flutter-adapter.md` → `docs/protocol-mapping.md` → `docs/parity.md` → phase specs under `docs/specs/` for residual work.
 
 ---
 
@@ -10,64 +10,103 @@
 
 Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js) — a bridge to **Apple Foundation Models** (on-device LLM, iOS 27+/macOS 27+, Apple Intelligence). The shared Swift core (`swift/FoundationModelsCore` + `swift/ios-bridge` in that monorepo) is the **single source of truth**; this repo is the *third adapter* over it (after the macOS JSON-RPC daemon and the React Native host). License: **AGPL-3.0-only**. Author: Cristiano Aredes.
 
-## 2. Current state (snapshot, 2026-08-09)
+## 2. Current state (snapshot, 2026-08-11)
 
 | Area | Status | Evidence |
-|---|---|---|
-| `packages/foundationmodels_platform_interface` | ✅ Done — RPC v2 envelope, 10 sealed stream events, 27 typed exceptions 1:1 with `error.data.code`, models | 53 tests green, `dart analyze` clean |
-| `packages/foundationmodels` | ✅ Done — runtime primitives (`classify/extract/rank/summarize/respond/stream`), lazy sessions, `FmSchema` (output fail-fast / tool sanitize), `CancelToken`, `contextPolicy: guard`, deterministic offline mock | 92 tests green, `dart analyze` clean |
-| `packages/foundationmodels_apple` | ⚠️ Code complete, **never compiled** — envelope router + EventChannel written against the *target* ios-bridge API (U1–U7 markers). Only `health/availability/capabilities/createSession/disposeSession/respond` exist upstream today | `flutter analyze` clean (Dart side only) |
-| CI workflows | ⚠️ **Not in `.github/`** — see §5 | files preserved in `docs/ci/` |
-| Phases 2–8 | 📋 Specified, not implemented | `docs/specs/phase-*.md` |
-| Upstream U1–U9 | 📋 Specified, not implemented | `docs/specs/upstream-ios-bridge-extensions.md` |
+|------|--------|----------|
+| `foundationmodels_platform_interface` | ✅ Done | RPC v2, stream events (incl. `tool_call_request`), typed errors; tests green |
+| `foundationmodels` | ✅ Done | Runtime, mock, TransportProvider, tools duplex, cancel; 84 tests |
+| `foundationmodels_apple` | ✅ Dart clean; Swift U1–U8 | `flutter analyze` clean; link via monorepo path **or** GitHub mirror |
+| ios-bridge (upstream monorepo) | ✅ U1–U8 | `swift build` + host-native smokes |
+| Host-native Apple Intelligence smokes | ✅ Measured | Mac17,9 · macOS 27 · Xcode 27 — availability, respond, stream+cancel, sessions, countTokens, guided, feedback, vision OCR+barcode, tools static (PARITY-42), instructions underA (not full A→B), multimodal honesty, MLX/CoreAI fail-closed |
+| Parity (Flutter) | ✅ Closeout complete (honest) | `supported`: availability, respond, stream+cancel, sessions, instructions, guided, countTokens, feedback, vision OCR+barcode, **tools duplex**; Flutter live macOS E2E dual-run; multimodal partial (capability); MLX/CoreAI fail-closed; PCC blocked; iOS AI unsupported class on paired A14 iPad |
+| CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
+| Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
+| `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.3"`** (stable SPM graph; CoreAI fail-closed stub) |
+| Backlog | ✅ Closeout drained | TCK-0001…0027 done; **TCK-0029…0036 done** (closeout); TCK-0028 PCC **blocked**; optional TCK-0038…0041 deferred — see `.archagents/15-backlog/CLOSEOUT.md` |
 
-Validated on Linux with Flutter 3.44.9 / Dart 3.12.2. No iOS/macOS build or on-device run has ever happened.
+### codebase-ops
 
-## 3. How to validate (any machine with Flutter)
+| Artefato | Path |
+|----------|------|
+| Contrato agentes | `AGENTS.md` |
+| Plan board | `.archagents/12-inception/plan-board.md` |
+| Backlog | `.archagents/15-backlog/backlog.csv` + `tickets/` |
+| Residual drain run | `.archagents/13-execution/runs/RUN-20260811-residual-drain/` |
+| Closeout run | `.archagents/13-execution/runs/RUN-20260811-closeout/` |
+| Post-closeout program | `.archagents/15-backlog/POST-CLOSEOUT.md` |
+
+## 3. How to validate
 
 ```bash
-git clone https://github.com/cristianoaredes/foundationmodels-dart.git
 cd foundationmodels-dart
-flutter pub get                     # resolves the pub workspace (REQUIRED: Flutter, not bare dart — the workspace includes the apple plugin)
-(cd packages/foundationmodels_platform_interface && dart test && dart analyze)
-(cd packages/foundationmodels && dart test && dart analyze)
-(cd packages/foundationmodels_apple && flutter analyze)   # Dart side only; Swift needs a Mac
+# Mac Swift link (full CoreAI tip):
+export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
+# Or leave unset → plugin uses GitHub foundationmodels-swift from: "1.0.3"
+
+flutter pub get
+(cd packages/foundationmodels_platform_interface && dart test && dart analyze --fatal-infos)
+(cd packages/foundationmodels && dart test && dart analyze --fatal-infos)
+(cd packages/foundationmodels_apple && flutter analyze --fatal-infos)
+(cd packages/foundationmodels_agent && dart test)
+(cd packages/foundationmodels && dart test test/tools_e2e_test.dart)
+
+# Remote SPM version resolve (mirror):
+# see README in github.com/cristianoaredes/foundationmodels-swift
 ```
 
-Expected: **145 tests green**, zero analyzer issues. If this fails on a clean checkout, something regressed — treat as a blocker before any new work.
+## 4. Unary-first + streaming (consumer guidance)
 
-## 4. What to work on next (priority order)
+```dart
+final fm = await createFoundationModels(); // mock offline if no Apple provider
+final r = await fm.respond(input: 'Hello', instructions: 'Be brief.');
 
-1. **Upstream U1 + U6** (`docs/specs/upstream-ios-bridge-extensions.md`) — `respondStream` + in-process cancel in the `foundationmodels-js` monorepo ios-bridge. Requires macOS 27 + Xcode 27 + Apple Silicon. Without this, the plugin only does unary calls.
-2. **Phase 2 validation** (`docs/specs/phase-2-streaming.md`) — first on-device streaming smoke; update `docs/parity.md` with measured evidence.
-3. Phases 3–8 per their specs. Pure-Dart phases (5 RAG/desktop, 6 eval, 8 server) can proceed on any OS **in parallel** with the Mac-gated work.
+// Streaming + cancel work on mock and host-native Apple (parity: supported).
+// Tools: stream(..., tools:, autoExecuteTools: true|false) — FmAgent uses false.
+```
 
-Development-time Swift linking: `export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift` (local monorepo checkout). Distribution uses the `foundationmodels-swift` mirror repo (still to be created — open question in ADR-0001 §18).
+See `example/lib/main.dart`.
 
-## 5. Known blockers and quirks
+## 5. What to work on next
 
-- **CI workflows are NOT in `.github/workflows/`**: the OAuth token used to publish lacked the `workflow` scope and GitHub rejected those commits. The exact files are preserved in **`docs/ci/`** — move/copy them to `.github/workflows/` on any machine with normal git push rights (or re-push once the token has the scope). `dart.yml` expects `subosito/flutter-action` (workspace resolution needs Flutter); `apple.yml` is a documented `workflow_dispatch` placeholder for a self-hosted Apple Silicon runner.
-- **Swift code was never compiled**: `FoundationModelsPlugin.swift` (byte-identical copies under `ios/` and `macos/` — SPM requires sources inside each package dir; keep them in sync with `diff`) targets the ios-bridge API of `docs/specs/upstream-ios-bridge-extensions.md`. Calls marked `// UPSTREAM(Un)` will not compile against today's bridge.
-- **`publish_to: none`** is set in `foundationmodels_apple/pubspec.yaml` (path dependency). Replace with hosted versions when publishing to pub.dev (phase 8).
-- **Transport registration pattern**: `createFoundationModelsAppleTransport()` factory (no static `.instance` holder — deliberate).
-- **Analyzer baseline**: `--fatal-infos --fatal-warnings` is the bar; keep it green.
+**Post-closeout program drained** (2026-08-11). Mirror pin: `from: "1.0.3"`.
 
-## 6. Invariants (do not violate — inherited from upstream)
+| Residual | Notes |
+|----------|--------|
+| TCK-0038/39/41 | Opt-in product |
+| TCK-0028 | PCC blocked |
+| chat-on-device Runner | Flutter.framework lipo tooling residual (package Core unblocked) |
+| MLX/CoreAI content | Needs registered weights/models |
 
-1. **No silent cloud fallback.** No provider configured → mock. Never invent a network backend.
-2. **Typed errors, never fake success.** `error.data.code` is the contract; map it or surface `UnknownModelException` with details. Never silently drop schema keywords on the output path (tools path sanitizes — see `FmSchema` modes).
-3. **`instructions` is a trusted channel.** Never concatenate user input / tool results / web content into it.
-4. **Fail-closed security.** Image paths rejected without `allowedImageRoots`; errors never carry model `rawContent`.
-5. **Parity honesty.** `docs/parity.md` only marks a capability `supported` with measured on-device evidence (date + device + smoke). `not measured` is the honest default.
-6. **Only streaming is truly interruptible.** Cancelling unary `respond` stops the wait, not the generation — documented behavior, not a bug.
 
-## 7. Upstream references (foundationmodels-js monorepo)
+## 6. Known quirks
 
-- `docs/protocol.md` — full JSON-RPC contract (methods, events, errors, auth, cancellation).
-- `docs/parity.md` — capability matrix + evidence discipline.
-- `swift/ios-bridge/.../Bridge.swift` — current in-process surface.
-- ADR-0002 (Swift core = single source of truth) · ADR-0009 (separate repos) · ADR-0012 (local-first verification) in `.archagents/09-decisions/`.
+- **Plugin `swift build` alone** needs Flutter modules; use monorepo bridge smoke or host app.
+- **`FOUNDATIONMODELS_SWIFT_PATH`** = monorepo `swift/` for full CoreAI; GitHub mirror is system+MLX with CoreAI stub.
+- **`publish_to: none`** on several packages until phase-8 pub.dev closeout.
+- **Analyzer bar:** `--fatal-infos --fatal-warnings`.
+
+## 7. Invariants (do not violate)
+
+1. **No silent cloud fallback.** No provider → mock.
+2. **Typed errors** via `error.data.code`; never fake success.
+3. **`instructions` is a trusted channel** — never paste user/tool/web content into it.
+4. **Fail-closed image allowlist.**
+5. **Parity honesty** — `supported` only with measured evidence.
+6. **Only streaming is truly interruptible** for cancel of generation.
 
 ## 8. Session log (reverse chronological)
 
-- **2026-08-09** — Initial scaffold landed: 3 packages, 145 tests, plugin code, repo meta. Specs for U1–U9 and phases 2–8 added under `docs/specs/`. Published via GitHub MCP (multiple thematic commits; workflows excluded due to token scope — see §5).
+- **2026-08-11** — Post-closeout L3 drain complete: VER-closeout, iOS guards, mirror v1.0.3, duplex/instructions dual-run revalidated.
+- **2026-08-11** — Post-closeout backlog formalized: epic TCK-0045, tickets 0043/0044, POST-CLOSEOUT.md, playbook 0042; next = 0043 → 0042 → 0044 → 0040.
+- **2026-08-11** — Closeout drain complete (TCK-0029…0036): host duplex + instructions clean A→B; Flutter live macOS dual-run (avail/respond/stream-cancel/tools duplex); event alias + generationId fixes; iOS/MLX/CoreAI/multimodal honest limits; PCC blocked.
+- **2026-08-11** — Residual drain: host-native smokes (availability/respond/stream+cancel); published foundationmodels-swift **v1.0.3** with stable SPM deps (CoreAI stub for `from:` graph); fixed v1.0.0/v1.0.1 revision pin failure.
+- **2026-08-10** — Full backlog drain: pure-Dart packages phases 3–8, tools single-executor, ios-bridge U1–U8.
+- **2026-08-09** — Initial scaffold: 3 packages, specs U1–U9 + phases 2–8.
+
+## 9. Residuals closed (2026-08-11)
+
+| Ticket | Resolution |
+|--------|------------|
+| TCK-0004 / TCK-0016 | Host-native Apple Intelligence smokes on MacBook Pro M5 Pro |
+| TCK-0017 | Published foundationmodels-swift; use **v1.0.3** for SPM `from:` |

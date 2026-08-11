@@ -88,7 +88,7 @@ void main() {
         FmSchema.object({'home': FmSchema.ref('address')}),
       );
       final json = schema.toJson();
-      expect(json['\$defs'], isA<Map>());
+      expect(json['\$defs'], isA<Map<String, Object?>>());
       expect(
         (json['properties']! as Map)['home'],
         {'\$ref': '#/\$defs/address'},

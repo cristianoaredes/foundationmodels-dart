@@ -12,3 +12,11 @@ workspace:
   - packages/foundationmodels
   - packages/foundationmodels_platform_interface
   - packages/foundationmodels_apple
+  - packages/foundationmodels_rag
+  - packages/foundationmodels_eval
+  - packages/foundationmodels_policy
+  - packages/foundationmodels_daemon
+  - packages/foundationmodels_tools
+  - packages/foundationmodels_agent
+  - packages/foundationmodels_server
+  - packages/foundationmodels_langchain
