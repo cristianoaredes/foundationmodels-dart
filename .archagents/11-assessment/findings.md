@@ -76,8 +76,8 @@ When consumer pointed SPM at monorepo-style `FoundationModelsCore` package (incl
 | ID | Severity | Status | Ticket |
 |----|----------|--------|--------|
 | FND-0009 | high | closed | TCK-0042 |
-| FND-0010 | medium | open | TCK-0042 docs |
+| FND-0010 | medium | open | **TCK-0047** (path contract docs) |
 | FND-0007 | low | **closed** | TCK-0041 / ADR-0002 |
-| FND-0008 | info | open | policy awareness (AGPL) |
+| FND-0008 | info | open | policy awareness (AGPL) · TCK-0052 |
 
-**Programs:** POST-CLOSEOUT.md · RESIDUAL-OPTIN.md · epic TCK-0045 · RUN-20260811-residual-optin
+**Programs:** POST-CLOSEOUT · RESIDUAL-OPTIN · **NEXT-WAVE** (TCK-0046) · RUN residual-optin

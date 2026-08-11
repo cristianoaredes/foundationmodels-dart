@@ -23,7 +23,7 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
 | Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
 | `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.4"`** (stable SPM graph; CoreAI fail-closed stub) |
-| Backlog | ✅ Residual opt-in drained | TCK-0001…0027 done; **TCK-0029…0036 done**; **TCK-0038/39/41 done**; TCK-0028 PCC **blocked** (reaffirmed); see `RESIDUAL-OPTIN.md` |
+| Backlog | 🟡 Next-wave ready | Residual-optin drained; **NEXT-WAVE** epic TCK-0046 formalized (0047–0053 + 0028); see `.archagents/15-backlog/NEXT-WAVE.md` |
 
 ### codebase-ops
 
@@ -37,6 +37,7 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | Post-closeout program | `.archagents/15-backlog/POST-CLOSEOUT.md` |
 | Residual opt-in run | `.archagents/13-execution/runs/RUN-20260811-residual-optin/` |
 | Stay-private ADR | `.archagents/09-decisions/ADR-0002-stay-private-git-only.md` |
+| Next-wave program | `.archagents/15-backlog/NEXT-WAVE.md` · DES-0002 |
 
 ## 3. How to validate
 
@@ -71,14 +72,13 @@ See `example/lib/main.dart`.
 
 ## 5. What to work on next
 
-**Post-closeout + residual opt-in drained** (2026-08-11). Mirror pin: `from: "1.0.4"`.
+**Next-wave formalized** (2026-08-11). Mirror pin: `from: "1.0.4"`. Pull: `/ops-work TCK-0047`.
 
-| Residual | Notes |
-|----------|--------|
-| TCK-0028 | PCC blocked (reaffirmed) — needs entitlement |
-| chat-on-device Runner | Flutter.framework lipo tooling residual (package Core unblocked) |
-| MLX/CoreAI content | Needs registered weights/models |
-| pub.dev | ADR-0002 stay-private; reopen only with product + human gate |
+| Wave | Tickets | Executable? |
+|------|---------|--------------|
+| **A now** | TCK-0047 docs FND-0010 · TCK-0048 Runner lipo · TCK-0052 pub.dev prep | Yes |
+| **B gated** | TCK-0049 MLX · TCK-0050 CoreAI · TCK-0051 live daemon | When env/weights ready |
+| **C product** | TCK-0053 MCP · TCK-0028 PCC · 0052 publish | Product / entitlement / human |
 
 
 ## 6. Known quirks
@@ -99,6 +99,7 @@ See `example/lib/main.dart`.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Next-wave intake: epic TCK-0046 + tickets 0047–0053 (DoR/playbook-ready); TCK-0028 playbook enriched; program `NEXT-WAVE.md` / DES-0002. First pull: **TCK-0047**.
 - **2026-08-11** — Residual opt-in L3 drain: TCK-0038 daemon Unix-socket E2E (fake peer dual-run + live env_limit); TCK-0039 won't-ship MCP + agent tests green; TCK-0041 ADR-0002 stay-private; TCK-0028 PCC reaffirmed blocked; mirror docs pin **1.0.4**.
 - **2026-08-11** — Post-closeout L3 drain complete: VER-closeout, iOS guards, mirror v1.0.3, duplex/instructions dual-run revalidated.
 - **2026-08-11** — Post-closeout backlog formalized: epic TCK-0045, tickets 0043/0044, POST-CLOSEOUT.md, playbook 0042; next = 0043 → 0042 → 0044 → 0040.

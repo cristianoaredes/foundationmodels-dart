@@ -58,7 +58,7 @@ Governado por **codebase-ops**. Fonte operacional: [`.archagents/README.md`](.ar
 - Validar: ver `.archagents/10-runbooks.md`.
 - Specs de fase: `docs/specs/phase-*.md` e `upstream-ios-bridge-extensions.md`.
 - Consumidor de referência: sibling `../chat-on-device`.
-- Post-closeout **done** (TCK-0045): mirror **v1.0.4**; residual opt-in 0038/39/41 **done**; PCC blocked. See `RESIDUAL-OPTIN.md`.
+- Mirror **v1.0.4**. Residual-optin **done**. **Next-wave** epic TCK-0046 ready — first pull **TCK-0047**. See `NEXT-WAVE.md`.
 
 ## Docs
 
