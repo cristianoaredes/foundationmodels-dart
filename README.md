@@ -1,173 +1,357 @@
 # foundationmodels-dart
 
-## Governance (codebase-ops)
-
-Operational backlog and AS-IS docs live under [`.archagents/`](.archagents/).  
-Agent contract: [`AGENTS.md`](AGENTS.md). Handoff: [`CONTINUATION.md`](CONTINUATION.md).
-
-Backlog drained (TCK-0001…0017). Capability status: [`docs/parity.md`](docs/parity.md).
-
-
-On-device AI primitives for Dart & Flutter — a Dart/Flutter adapter for
-[FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js),
-bridging to the **Apple Foundation Models** framework through the shared Swift
-core (`FoundationModelsCore` + `FoundationModelsIOSBridge`).
+Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js) — on-device **Apple Foundation Models** (Apple Intelligence) via the shared Swift core (`FoundationModelsCore` + `FoundationModelsIOSBridge`).
 
 [![License: AGPL-3.0-only](https://img.shields.io/badge/license-AGPL--3.0--only-blue.svg)](LICENSE)
 [![Upstream](https://img.shields.io/badge/upstream-foundationmodels--js-black.svg)](https://github.com/cristianoaredes/foundationmodels-js)
 [![Dart CI](https://github.com/cristianoaredes/foundationmodels-dart/actions/workflows/dart.yml/badge.svg)](https://github.com/cristianoaredes/foundationmodels-dart/actions/workflows/dart.yml)
-[![Status: phase 0](https://img.shields.io/badge/status-phase%200%20(spike)-orange.svg)](#roadmap)
+[![Mirror SPM](https://img.shields.io/badge/SPM-foundationmodels--swift%201.0.4-informational.svg)](https://github.com/cristianoaredes/foundationmodels-swift)
+[![Status](https://img.shields.io/badge/status-v1%20shippable%20(git--only)-brightgreen.svg)](#status-snapshot)
 
-The Swift core stays the single source of truth (upstream ADR-0002): this
-repository adds only transport (platform channels carrying the daemon's
-JSON-RPC-shaped envelopes) and an idiomatic Dart API. No model logic is
-reimplemented in Dart or in the plugin.
+The Swift core is the **single source of truth**. This repo adds:
+
+1. Idiomatic **Dart API** + deterministic **mock** (CI / no Mac)  
+2. **Flutter plugin** (iOS + macOS) over platform channels  
+3. Ecosystem packages: tools, agent, daemon client, MCP server, RAG, eval, policy, OpenAI-shaped server, LangChain adapter  
+
+No model weights and no silent cloud fallback live in Dart.
+
+---
+
+## Table of contents
+
+- [Status snapshot](#status-snapshot)
+- [Architecture](#architecture)
+- [Packages](#packages)
+- [Quick start](#quick-start)
+- [Apple / Swift path contract](#apple--swift-path-contract)
+- [Tools, agent, and MCP](#tools-agent-and-mcp)
+- [Platform requirements](#platform-requirements)
+- [Developing & validating](#developing--validating)
+- [Parity & honesty](#parity--honesty)
+- [Distribution](#distribution)
+- [Governance & backlog](#governance--backlog)
+- [Roadmap (historical vs current)](#roadmap-historical-vs-current)
+- [Invariants](#invariants)
+- [License](#license)
+- [Trademarks](#trademarks)
+- [Author](#author)
+
+---
+
+## Status snapshot
+
+| Area | Status |
+|------|--------|
+| Public API (`foundationmodels`) | ✅ Done — mock + transport; tests green |
+| Platform interface | ✅ RPC v2, stream events, typed errors |
+| Apple plugin | ✅ Live macOS E2E + host-native smokes measured |
+| Tools duplex | ✅ **supported** (host + Flutter live dual-run) |
+| Agent kit | ✅ `FmAgent` tool loop + HITL + AG-UI-shaped events |
+| MCP server | ✅ `foundationmodels_mcp` (stdio, mock dual-run) |
+| Daemon client | ✅ Fake-peer E2E; live binary often env-limited (dyld/CoreAI) |
+| SPM mirror | ✅ [foundationmodels-swift](https://github.com/cristianoaredes/foundationmodels-swift) **`from: "1.0.4"`** |
+| pub.dev | ⏸ Git-only — **ADR-0002** stay-private (`publish_to: none`) |
+| CoreAI content | ⏸ Fail-closed / not measured without registered model |
+| MLX content | ⏸ Stage 2 — needs weights (TCK-0049) |
+| PCC | ⛔ Blocked — Apple entitlement (TCK-0028) |
+
+**Handoff for agents/humans:** [`CONTINUATION.md`](CONTINUATION.md) · **Parity matrix:** [`docs/parity.md`](docs/parity.md) · **Ops:** [`.archagents/`](.archagents/) · **Agent contract:** [`AGENTS.md`](AGENTS.md)
+
+---
 
 ## Architecture
 
 ```
-┌────────────────────────────┐
-│ package:foundationmodels   │  Public Dart API + deterministic mock provider
-│  classify / extract / rank │  (no Flutter dependency — testable in a plain VM)
-│  summarize / respond /     │
-│  stream / sessions         │
-└─────────────┬──────────────┘
-              │ implements
-┌─────────────▼──────────────┐
-│ foundationmodels_platform_ │  Transport contract: invoke(envelope),
-│ interface                  │  global streamEvents, typed errors, FmMethods
-└─────────────┬──────────────┘
-              │ MethodChannel "foundationmodels/rpc"   (daemon-shaped envelopes)
-              │ EventChannel  "foundationmodels/streams" (events by requestId)
-┌─────────────▼──────────────┐
-│ foundationmodels_apple     │  Thin plugin: envelope router →
-│  (iOS + macOS, SPM)        │  FoundationModelsBridge.shared
-└─────────────┬──────────────┘
-              │ in-process [String: Any] ("daemon-shaped params")
-┌─────────────▼──────────────┐
-│ FoundationModelsCore +     │  Shared Swift core (upstream monorepo /
-│ FoundationModelsIOSBridge  │  foundationmodels-swift mirror)
-└─────────────┬──────────────┘
-              ▼
-     Apple Foundation Models (on-device, iOS 27+ / macOS 27+)
+┌──────────────────────────────────────────────────────────────────┐
+│ Apps (e.g. chat-on-device)                                        │
+│  foundationmodels  +  optional agent / tools / mcp / apple       │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+        ┌───────────────────────┼───────────────────────┐
+        ▼                       ▼                       ▼
+┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+│ foundationmodels  │  │ foundationmodels_ │  │ foundationmodels_ │
+│ (public API)      │  │ agent / tools /   │  │ mcp (stdio MCP    │
+│ mock · sessions · │  │ daemon · server · │  │  server subset)   │
+│ tools duplex ·    │  │ rag · eval · …    │  │                   │
+│ stream · cancel   │  │                   │  │                   │
+└─────────┬─────────┘  └───────────────────┘  └───────────────────┘
+          │ implements
+┌─────────▼─────────┐
+│ platform_interface│  invoke(envelope) · streamEvents · typed errors
+└─────────┬─────────┘
+          │ MethodChannel foundationmodels/rpc
+          │ EventChannel  foundationmodels/streams
+┌─────────▼─────────┐
+│ foundationmodels_ │  Thin plugin → FoundationModelsBridge
+│ apple (iOS/macOS) │
+└─────────┬─────────┘
+          │ SPM: foundationmodels-swift 1.0.4  OR  FOUNDATIONMODELS_SWIFT_PATH
+┌─────────▼─────────┐
+│ Core + ios-bridge │  Shared Swift (upstream monorepo / mirror)
+└─────────┬─────────┘
+          ▼
+   Apple Foundation Models (on-device)
 ```
+
+**Alternate transport (no Flutter):** `foundationmodels_daemon` → Unix-socket JSON-RPC → macOS `foundationmodels-daemon` binary (when the host binary runs; often blocked by OS/CoreAI dyld skew — client path is still tested via fake peer).
+
+---
 
 ## Packages
 
-| Package | Role | Status |
-|---|---|---|
-| [`foundationmodels`](packages/foundationmodels) | Public Dart API, typed errors, `FmSchema`, deterministic mock provider | phase 0 — in development |
-| [`foundationmodels_platform_interface`](packages/foundationmodels_platform_interface) | Transport contract, stream event types, error mapping | phase 0 — in development |
-| [`foundationmodels_apple`](packages/foundationmodels_apple) | iOS + macOS plugin over the Swift core | phase 0 — written, **not compiled/tested yet** (see its README) |
+Pub **workspace** (Dart 3.12+). Resolve from the **repository root**.
+
+### Core (public app surface)
+
+| Package | Role |
+|---------|------|
+| [`foundationmodels`](packages/foundationmodels) | Public Dart API: `respond`, `stream`, sessions, `FmSchema`, tools, mock, cancel |
+| [`foundationmodels_platform_interface`](packages/foundationmodels_platform_interface) | Transport contract, events, errors (pure Dart) |
+| [`foundationmodels_apple`](packages/foundationmodels_apple) | Flutter plugin iOS + macOS → Swift core |
+
+### Tools & agent
+
+| Package | Role |
+|---------|------|
+| [`foundationmodels_tools`](packages/foundationmodels_tools) | `FmToolRouter` — duplex `tool_call_*` → `submitToolResult` |
+| [`foundationmodels_agent`](packages/foundationmodels_agent) | `FmAgent` — tool loop, HITL interrupts, AG-UI-shaped events, intent router |
+| [`foundationmodels_mcp`](packages/foundationmodels_mcp) | Minimal **MCP server** (stdio NDJSON): `initialize`, `tools/list`, `tools/call`, `fm_respond` |
+
+### Transport & ecosystem
+
+| Package | Role |
+|---------|------|
+| [`foundationmodels_daemon`](packages/foundationmodels_daemon) | Unix-socket client for macOS daemon |
+| [`foundationmodels_policy`](packages/foundationmodels_policy) | Optional PII redaction |
+| [`foundationmodels_rag`](packages/foundationmodels_rag) | Local semantic index (pure Dart) |
+| [`foundationmodels_eval`](packages/foundationmodels_eval) | Eval harness + traces |
+| [`foundationmodels_server`](packages/foundationmodels_server) | OpenAI-compatible HTTP (`shelf`) |
+| [`foundationmodels_langchain`](packages/foundationmodels_langchain) | LangChain.dart-oriented adapter |
+
+All packages: **`publish_to: none`** (git consumption). License monorepo: **AGPL-3.0-only**.
+
+---
 
 ## Quick start
+
+### Mock (any machine, CI)
 
 ```dart
 import 'package:foundationmodels/foundationmodels.dart';
 
-// No provider → deterministic mock (works everywhere, no Apple hardware).
-final fm = await createFoundationModels();
+final fm = await createFoundationModels(); // no Apple provider → mock
 
-// On iOS/macOS with foundationmodels_apple registered:
-// final fm = await createFoundationModels(
-//   providers: [AppleFoundationModelsProvider()],
-// );
-
-final cls = await fm.classify(
-  input: 'I love this product!',
-  labels: ['positive', 'negative'],
+final r = await fm.respond(
+  input: 'Hello',
+  instructions: 'Be brief.', // trusted channel — never paste raw user/tool text here
 );
+print(r.text);
 
 final session = await fm.createSession(instructions: 'Answer concisely.');
 await for (final event in session.stream(input: 'One sentence on on-device AI.')) {
-  if (event is TextDelta) stdout.write(event.delta);
+  // TextDelta, tool events, terminal errors…
 }
 await session.dispose();
 ```
 
-## Platform requirements
+### Flutter + Apple plugin
 
-| | |
-|---|---|
-| iOS | 27+, Apple Intelligence enabled, eligible device (Apple Silicon-class NPU) |
-| macOS | 27+, Apple Silicon |
-| Toolchain | Xcode 27 / SDK 27, Flutter ≥ 3.27 (SPM plugin support), Dart ≥ 3.12 |
+1. Depend on `foundationmodels` + `foundationmodels_apple` (path or git).  
+2. Ensure iOS/macOS targets match [platform requirements](#platform-requirements).  
+3. Leave `FOUNDATIONMODELS_SWIFT_PATH` **unset** for published mirror **1.0.4** (default).  
+4. Call `availability()` / `capabilities()` before advanced features.
 
-Call `availability()` / `capabilities()` before using streaming, guided
-generation, multimodal, native tools, vision, or feedback — degrade by the
-stable `reasonCode`. Android/Windows/Linux: contract parity via the mock
-provider only — the Apple Foundation Models framework does not exist outside
-Apple platforms.
+Minimal host: [`example/`](example/).
 
-## Developing in this repository
+### MCP server (stdio)
 
-This repo uses a [pub workspace](https://dart.dev/tools/pub/workspaces)
-(Dart 3.12+). From the repository root:
+```dart
+import 'dart:io';
+import 'package:foundationmodels/foundationmodels.dart';
+import 'package:foundationmodels_mcp/foundationmodels_mcp.dart';
 
-```sh
-dart pub get            # resolves all three packages at once (shared lockfile at root)
-dart test -C packages/foundationmodels_platform_interface
-dart test -C packages/foundationmodels
-dart analyze            # from any package directory (or the root, covering the workspace)
+final fm = await createFoundationModels();
+final mcp = FmMcpServer(fm: fm);
+await mcp.serve(input: stdin, output: stdout.add);
 ```
 
-Note for contributors: each package's `pubspec.yaml` declares
-`resolution: workspace` — always resolve from the repository root, not from
-individual package directories.
+See [`packages/foundationmodels_mcp/README.md`](packages/foundationmodels_mcp/README.md) and [DES-0004](.archagents/16-designs/DES-0004-mcp-package.md).
 
-For native development, point the plugin at a local Swift core checkout:
-`export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-swift`
-(see [packages/foundationmodels_apple/README.md](packages/foundationmodels_apple/README.md)).
+---
 
-## Roadmap (ADR-0001 §16)
+## Apple / Swift path contract
 
-| Phase | Content |
-|---|---|
-| **0 — Spike** | Repo + `foundationmodels_apple` routing `health/availability/respond`; real on-device `respond("Hello")` |
-| **1 — Core Dart** | Contracts, typed errors, mock, `FmSchema`, core primitives; CI green without a Mac |
-| **2 — Streaming** | U1+U6 upstream; multiplexed EventChannel; `CancelToken` with cooperative cancel |
-| **3 — Full surface** | U2–U5; guided generation; multimodal; vision; feedback; `contextPolicy`; policy/redaction |
-| **4 — Tools** | U7; duplex tool calling; native tools; tool-schema sanitization |
-| **5 — RAG + desktop** | Semantic index (local RAG); daemon client over Unix socket for Flutter desktop macOS |
-| **6 — Eval + traces** | Eval harness port; end-to-end trace contract |
-| **7 — Agent kit + MLX/CoreAI** | Tool loops, HITL, intent router; U8 exposes `apple.mlx:*` / `apple.coreai:*` |
-| **8 — Ecosystem** | OpenAI-compatible server in Dart (`shelf`); Dart LLM-client adapters |
+Full table: [`packages/foundationmodels_apple/README.md`](packages/foundationmodels_apple/README.md) (TCK-0047 / FND-0010).
 
-Parity discipline mirrors upstream: no capability is reported as supported
-without on-device evidence — see [docs/parity.md](docs/parity.md) and
-[docs/protocol-mapping.md](docs/protocol-mapping.md).
+| Intent | `FOUNDATIONMODELS_SWIFT_PATH` | Result |
+|--------|-------------------------------|--------|
+| **CI / consumers / iOS sim (default)** | **unset** | GitHub SPM `from: "1.0.4"` (CoreAI stub/excluded) |
+| Local mirror clone | set → mirror layout root | Same products as published mirror |
+| Full monorepo tip (Mac) | set → `foundationmodels-js/swift` | Core + ios-bridge + CoreAI **if** deps resolve |
+| **Forbidden** | monorepo Core alone | SPM fails (e.g. missing `CoreAILanguageModels`) |
+
+```sh
+# Recommended for apps:
+unset FOUNDATIONMODELS_SWIFT_PATH
+
+# Optional full tip:
+# export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
+```
+
+---
+
+## Tools, agent, and MCP
+
+### Tools (duplex)
+
+- Define `FmTool.static` / `.callback` / `.native` on `stream(...)`.  
+- Runtime can auto-execute (`autoExecuteTools: true`) or leave execution to a host/agent (`false`).  
+- Parity: **tools duplex = supported** (measured).  
+
+### Agent (`foundationmodels_agent`)
+
+```dart
+final agent = FmAgent(fm: fm, tools: [myCallbackTool], requireHitl: false);
+await for (final e in agent.run(input: '…')) {
+  // FmAgentRunStarted, tool events, text, RunFinished / RunError
+}
+```
+
+- Always uses `autoExecuteTools: false` (single-executor: agent owns `tools.result`).  
+- Optional HITL: interrupt → approve/edit/reject.  
+- Events are **AG-UI-shaped**, not MCP.
+
+### MCP (`foundationmodels_mcp`)
+
+- **MCP server** subset: `initialize`, `tools/list`, `tools/call`, fail-closed unknown methods.  
+- Transport v1: **stdio** NDJSON JSON-RPC (DES-0004).  
+- Does **not** replace `FmAgent`. Does **not** claim Apple matrix cells.
+
+---
+
+## Platform requirements
+
+| | Requirement |
+|--|-------------|
+| iOS | 27+, Apple Intelligence where applicable, eligible device |
+| macOS | 27+, Apple Silicon preferred |
+| Toolchain | Xcode 27 / SDK 27, Flutter ≥ 3.27 (SPM plugins), Dart ≥ 3.12 |
+| Non-Apple OS | Mock / pure-Dart packages only |
+
+Always gate on `availability()` / `capabilities()` and typed `error.data.code`.
+
+---
+
+## Developing & validating
+
+```sh
+cd foundationmodels-dart
+dart pub get   # workspace root — required
+
+# Core
+(cd packages/foundationmodels_platform_interface && dart test && dart analyze --fatal-infos)
+(cd packages/foundationmodels && dart test && dart analyze --fatal-infos)
+(cd packages/foundationmodels_apple && flutter analyze --fatal-infos)
+
+# Agent / tools / MCP / daemon
+(cd packages/foundationmodels_agent && dart test)
+(cd packages/foundationmodels_mcp && dart test)
+(cd packages/foundationmodels_daemon && dart test)
+(cd packages/foundationmodels && dart test test/tools_e2e_test.dart)
+```
+
+Analyzer bar: **`--fatal-infos`** (and warnings where enforced).
+
+CI: [`.github/workflows/dart.yml`](.github/workflows/dart.yml) · optional Apple workflow docs under `docs/ci/`.
+
+---
+
+## Parity & honesty
+
+Capability status is maintained in **[`docs/parity.md`](docs/parity.md)**.
+
+Rules:
+
+1. Never mark a cell **`supported`** without measured evidence (or honest pure-Dart “measured” for offline packages).  
+2. Fail-closed for missing models / entitlements — **no silent remap** to `apple.system`.  
+3. Protocol mapping: [`docs/protocol-mapping.md`](docs/protocol-mapping.md).  
+4. Upstream extension specs: [`docs/specs/`](docs/specs/).
+
+---
+
+## Distribution
+
+| Artifact | How |
+|----------|-----|
+| This monorepo | **Git** (path or git dependency) |
+| Swift core for SPM apps | [foundationmodels-swift](https://github.com/cristianoaredes/foundationmodels-swift) tag **≥ 1.0.4** |
+| pub.dev | **Not published** — [ADR-0002](.archagents/09-decisions/ADR-0002-stay-private-git-only.md); prep checklist under `.archagents/15-backlog/PUBLISH-CHECKLIST.md` |
+
+Real `dart pub publish` requires human SAFETY approval.
+
+---
+
+## Governance & backlog
+
+This repo is operated with **codebase-ops** (tickets, runs, verify, ADRs).
+
+| Resource | Path |
+|----------|------|
+| Agent contract | [`AGENTS.md`](AGENTS.md) |
+| Session handoff | [`CONTINUATION.md`](CONTINUATION.md) |
+| Plan board | [`.archagents/12-inception/plan-board.md`](.archagents/12-inception/plan-board.md) |
+| Backlog | [`.archagents/15-backlog/backlog.csv`](.archagents/15-backlog/backlog.csv) + `tickets/` |
+| Stage 1 (daemon / CoreAI / MCP) | [STAGE-1-DAEMON-COREAI-MCP.md](.archagents/15-backlog/STAGE-1-DAEMON-COREAI-MCP.md) **drained** |
+| Open gates | **TCK-0049** MLX (Stage 2) · **TCK-0028** PCC |
+
+Recent program runs: `RUN-20260811-closeout`, `post-closeout`, `residual-optin`, `wave-a`, `stage1` under [`.archagents/13-execution/runs/`](.archagents/13-execution/runs/).
+
+---
+
+## Roadmap (historical vs current)
+
+Original phase plan (ADR-0001) is largely **implemented** in-repo:
+
+| Phase | Content | State |
+|------:|---------|--------|
+| 0–2 | Spike → streaming + cancel | ✅ Measured |
+| 3 | Full surface (sessions, guided, vision, …) | ✅ Honest parity |
+| 4 | Tools duplex | ✅ Supported |
+| 5 | RAG + daemon client | ✅ Packages present |
+| 6 | Eval + traces | ✅ Package present |
+| 7 | Agent + MLX/CoreAI exposure | ✅ Agent; MLX/CoreAI **fail-closed / Stage 2** |
+| 8 | Server + LangChain adapter | ✅ Packages present |
+| + | MCP stdio server | ✅ Stage 1 (`foundationmodels_mcp`) |
+
+Remaining product gates: **MLX weights**, **PCC entitlement**, optional **pub.dev**, optional **live daemon binary** when OS/CoreAI dyld allows.
+
+---
+
+## Invariants
+
+1. **No silent cloud fallback.** No provider → mock.  
+2. **Typed errors** via `error.data.code` — never fake success.  
+3. **`instructions` is trusted** — never paste untrusted user/tool/web/MCP content into it.  
+4. **Fail-closed image allowlist.**  
+5. **Parity honesty** — `supported` only with evidence.  
+6. **Only streaming** is truly interruptible for generation cancel.  
+
+---
 
 ## License
 
-**AGPL-3.0-only**, consistent with the upstream monorepo. See [LICENSE](LICENSE)
-and [NOTICE](NOTICE) (network clause per AGPL §13).
+**AGPL-3.0-only**, consistent with the upstream monorepo. See [LICENSE](LICENSE) and [NOTICE](NOTICE) (network clause, AGPL §13).
+
+---
 
 ## Trademarks
 
-Apple, Apple Intelligence, Foundation Models, iOS, macOS, Xcode, and Swift are
-trademarks of Apple Inc., registered in the U.S. and other countries and
-regions. This is an independent open-source project and is **not affiliated
-with, sponsored by, or endorsed by Apple Inc.**
+Apple, Apple Intelligence, Foundation Models, iOS, macOS, Xcode, and Swift are trademarks of Apple Inc., registered in the U.S. and other countries and regions. This is an independent open-source project and is **not affiliated with, sponsored by, or endorsed by Apple Inc.**
+
+---
 
 ## Author
 
 **Cristiano Aredes** — [github.com/cristianoaredes](https://github.com/cristianoaredes)
-
-## Getting started
-
-```dart
-import 'package:foundationmodels/foundationmodels.dart';
-
-final fm = await createFoundationModels(); // mock offline if no Apple provider
-final response = await fm.respond(
-  input: 'Hello',
-  instructions: 'Answer briefly.', // trusted channel — never paste user text here
-);
-print(response.text);
-
-// Streaming + cancel: host-native Apple path measured (see docs/parity.md).
-// await for (final event in fm.stream(input: '…', cancelToken: token)) { … }
-```
-
-See `example/` for a minimal host and [`docs/parity.md`](docs/parity.md) for
-honest capability cells (never invent `supported` without smoke evidence).

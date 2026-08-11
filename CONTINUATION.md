@@ -23,7 +23,8 @@ Dart/Flutter adapter for [FoundationModels JS](https://github.com/cristianoarede
 | CI workflows | ✅ Present | `.github/workflows/dart.yml` + `apple.yml` |
 | Phases 3–8 packages | ✅ Present | policy, rag, eval, daemon, tools, agent, server, langchain |
 | `foundationmodels-swift` mirror | ✅ Published | https://github.com/cristianoaredes/foundationmodels-swift **`from: "1.0.4"`** (stable SPM graph; CoreAI fail-closed stub) |
-| Backlog | 🟡 Next-wave ready | Residual-optin drained; **NEXT-WAVE** epic TCK-0046 formalized (0047–0053 + 0028); see `.archagents/15-backlog/NEXT-WAVE.md` |
+| Backlog | ✅ Stage 1 drained | Open: TCK-0049 MLX (Stage 2), TCK-0028 PCC; see `STAGE-1-DAEMON-COREAI-MCP.md` |
+| README | ✅ Current | Root `README.md` — full package map, path contract, MCP/agent, status |
 
 ### codebase-ops
 
