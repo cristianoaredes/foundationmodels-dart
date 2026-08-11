@@ -39,13 +39,15 @@ What remains is **not** reopening closed cells — it is:
 | **TCK-0044** | high | M | Mirror GitHub `1.0.2` sem duplex + sem guards iOS | Tag **1.0.3** (ou superior) publicada; plugin docs `from:` bump | After 0042 (or same PR if combined) |
 | **TCK-0040** | medium | L | Sibling chat-on-device integração | App builds + unary/stream smoke (mock e/ou Apple) | After 0042 (+ 0044 if using published mirror) |
 
-### Wave 2 — Product optional (not matrix)
+### Wave 2 — Product optional (not matrix) — **drained** 2026-08-11
 
-| ID | Prio | Effort | Gap | Done when | Executable now? |
-|----|------|--------|-----|-----------|-----------------|
-| **TCK-0038** | low | L | Daemon Unix-socket live E2E | dual-run health+respond sobre socket real **ou** env limit | Yes if daemon monorepo up |
-| **TCK-0039** | low | L | MCP agent client | smoke MCP + evidence | Yes if product wants MCP |
-| **TCK-0041** | low | M | pub.dev / `publish_to: none` | dry-run green **ou** ADR “stay private” | Dry-run yes; publish = human gate |
+| ID | Prio | Effort | Gap | Done when | Status |
+|----|------|--------|-----|-----------|--------|
+| **TCK-0038** | low | L | Daemon Unix-socket live E2E | dual-run **ou** env limit | **done** (fake peer + live env_limit) |
+| **TCK-0039** | low | L | MCP agent client | smoke MCP **ou** won't-ship | **done** (won't ship MCP; agent green) |
+| **TCK-0041** | low | M | pub.dev / `publish_to: none` | dry-run **ou** ADR stay-private | **done** (ADR-0002) |
+
+See [RESIDUAL-OPTIN.md](RESIDUAL-OPTIN.md) · RUN-20260811-residual-optin.
 
 ### Wave 3 — External / gated (park)
 
