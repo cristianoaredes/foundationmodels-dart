@@ -1,0 +1,72 @@
+name: Apple (on-device)
+
+# PLACEHOLDER — manual trigger only.
+#
+# Philosophy: local-first verification (upstream ADR-0012). Native builds and
+# on-device smokes require real Apple hardware (macOS 27, Apple Silicon, Apple
+# Intelligence enabled) and are the developer's responsibility to run locally;
+# this workflow exists to document and optionally automate the same steps on a
+# self-hosted runner. It never runs on GitHub-hosted runners and never blocks
+# PRs while in phase 0.
+#
+# To enable: register a self-hosted macOS 27 runner labeled
+# [self-hosted, macOS, apple-silicon], then trigger manually.
+
+on:
+  workflow_dispatch:
+    inputs:
+      core_ref:
+        description: 'foundationmodels-swift mirror ref/tag (e.g. swift-core/1.0.0)'
+        required: false
+        default: '1.0.0'
+
+jobs:
+  build-and-smoke:
+    # Deliberately self-hosted: simulator coverage is partial and Apple
+    # Intelligence requires eligible hardware (ADR-0001 §13).
+    runs-on: [self-hosted, macOS, apple-silicon]
+    if: false # placeholder — flip to `if: true` once the runner is registered
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Environment check
+        run: |
+          xcodebuild -version
+          swift --version
+          flutter --version
+          sw_vers
+
+      - name: Check out Swift core mirror
+        run: |
+          git clone --depth 1 --branch "${{ inputs.core_ref }}" \
+            https://github.com/cristianoaredes/foundationmodels-swift.git \
+            "$RUNNER_TEMP/foundationmodels-swift" || \
+          git clone --depth 1 \
+            https://github.com/cristianoaredes/foundationmodels-swift.git \
+            "$RUNNER_TEMP/foundationmodels-swift"
+        # If the mirror is not published yet, point FOUNDATIONMODELS_SWIFT_PATH
+        # at a monorepo subtree checkout instead (see packages/foundationmodels_apple/README.md).
+
+      - name: Resolve Dart dependencies
+        run: dart pub get
+
+      - name: Build SPM packages (iOS)
+        working-directory: packages/foundationmodels_apple/ios/foundationmodels_apple
+        env:
+          FOUNDATIONMODELS_SWIFT_PATH: ${{ runner.temp }}/foundationmodels-swift
+        run: swift build
+
+      - name: Build SPM packages (macOS)
+        working-directory: packages/foundationmodels_apple/macos/foundationmodels_apple
+        env:
+          FOUNDATIONMODELS_SWIFT_PATH: ${{ runner.temp }}/foundationmodels-swift
+        run: swift build
+
+      - name: Flutter build (macOS)
+        env:
+          FOUNDATIONMODELS_SWIFT_PATH: ${{ runner.temp }}/foundationmodels-swift
+        run: flutter build macos --debug || echo "example app not in repo yet (phase 0)"
+
+      # TODO(phase 0 acceptance): on-device smoke — real respond("Hello") on an
+      # iOS 27+ device; record evidence in docs/parity.md (smoke, date, device,
+      # OS build, core version).

@@ -1,5 +1,13 @@
 # foundationmodels-dart
 
+## Governance (codebase-ops)
+
+Operational backlog and AS-IS docs live under [`.archagents/`](.archagents/).  
+Agent contract: [`AGENTS.md`](AGENTS.md). Handoff: [`CONTINUATION.md`](CONTINUATION.md).
+
+Backlog drained (TCK-0001…0017). Capability status: [`docs/parity.md`](docs/parity.md).
+
+
 On-device AI primitives for Dart & Flutter — a Dart/Flutter adapter for
 [FoundationModels JS](https://github.com/cristianoaredes/foundationmodels-js),
 bridging to the **Apple Foundation Models** framework through the shared Swift
@@ -144,3 +152,22 @@ with, sponsored by, or endorsed by Apple Inc.**
 ## Author
 
 **Cristiano Aredes** — [github.com/cristianoaredes](https://github.com/cristianoaredes)
+
+## Getting started
+
+```dart
+import 'package:foundationmodels/foundationmodels.dart';
+
+final fm = await createFoundationModels(); // mock offline if no Apple provider
+final response = await fm.respond(
+  input: 'Hello',
+  instructions: 'Answer briefly.', // trusted channel — never paste user text here
+);
+print(response.text);
+
+// Streaming + cancel: host-native Apple path measured (see docs/parity.md).
+// await for (final event in fm.stream(input: '…', cancelToken: token)) { … }
+```
+
+See `example/` for a minimal host and [`docs/parity.md`](docs/parity.md) for
+honest capability cells (never invent `supported` without smoke evidence).

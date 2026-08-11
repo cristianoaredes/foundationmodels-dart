@@ -8,6 +8,7 @@ import 'options.dart';
 import 'provider.dart';
 import 'runtime.dart';
 import 'schema.dart';
+import 'tools.dart';
 
 /// A conversation session with the model.
 ///
@@ -74,6 +75,7 @@ class FmSession {
     String? instructions,
     GenerationOptions? options,
     FmSchema? schema,
+    List<FmTool> tools = const [],
     CancelToken? cancelToken,
   }) {
     _ensureUsable();
@@ -83,6 +85,7 @@ class FmSession {
       instructions: instructions,
       options: options,
       schema: schema,
+      tools: tools,
       cancelToken: cancelToken,
     );
   }
@@ -97,11 +100,17 @@ class FmSession {
   /// with `generationId == requestId`; the stream then terminates with a
   /// [GenerationCancelledException]. Cancelling the subscription without a
   /// token is an implicit cancel. Repeated cancels are idempotent.
+  ///
+  /// [tools] are request-scoped. Callback tools run duplex on
+  /// [ToolCallRequest] when [autoExecuteTools] is true (default);
+  /// static/native tools are always forwarded on the wire.
   Stream<FmStreamEvent> stream({
     required String input,
     String? instructions,
     GenerationOptions? options,
     FmSchema? schema,
+    List<FmTool> tools = const [],
+    bool autoExecuteTools = true,
     CancelToken? cancelToken,
   }) {
     _ensureUsable();
@@ -111,6 +120,8 @@ class FmSession {
       instructions: instructions,
       options: options,
       schema: schema,
+      tools: tools,
+      autoExecuteTools: autoExecuteTools,
       cancelToken: cancelToken,
     );
   }
@@ -131,6 +142,14 @@ class FmSession {
     if (instructions != null) {
       _instructions = instructions;
     }
+  }
+
+  /// Pre-warms the native model for this session
+  /// (`foundationmodels.sessions.prewarm`). Best-effort; may be a no-op on
+  /// the mock provider.
+  Future<Map<String, Object?>> prewarm({String? model}) {
+    _ensureUsable();
+    return _runtime.prewarmSessionInternal(sessionId: id, model: model);
   }
 
   /// Disposes the session. The native transcript is dropped; the object

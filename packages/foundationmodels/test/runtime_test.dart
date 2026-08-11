@@ -83,8 +83,8 @@ void main() {
           'country': FmSchema.string(),
         }, required: const ['city', 'country']),
       );
-      expect(result, isA<Map>());
-      final map = result! as Map;
+      expect(result, isA<Map<String, Object?>>());
+      final map = result! as Map<String, Object?>;
       expect(map.keys, containsAll(['city', 'country']));
     });
 
@@ -100,14 +100,18 @@ void main() {
         schema: FmSchema.object(const {}),
         strict: true,
       );
-      expect(result, isA<Map>());
+      expect(result, isA<Map<String, Object?>>());
     });
 
     test('rank returns all candidates exactly once', () async {
       final fm = await createFoundationModels();
       const candidates = ['a', 'b', 'c', 'd'];
       final ranked = await fm.rank(input: 'query', candidates: candidates);
-      expect(ranked..sort(), candidates..sort());
+      expect(ranked.toSet(), candidates.toSet());
+      expect(ranked, hasLength(candidates.length));
+      // Result is a growable copy callers may mutate.
+      ranked.sort();
+      expect(ranked, ['a', 'b', 'c', 'd']);
     });
 
     test('rank rejects empty candidates', () async {

@@ -45,4 +45,26 @@ class SecurityConfig {
 
   /// PII redaction mode (wired to the policy package in a later phase).
   final RedactionMode redaction;
+
+  /// Fail-closed allowlist check for path-based images.
+  ///
+  /// Returns `false` when [allowedImageRoots] is empty (nothing is allowed)
+  /// or when [path] is not under any allowed root. Base64 images never call
+  /// this method.
+  bool isPathAllowed(String path) {
+    if (allowedImageRoots.isEmpty) return false;
+    // Normalize trivial trailing slashes for prefix comparison. Full path
+    // canonicalization (symlinks, `..`) is enforced natively; this is the
+    // Dart-side first gate so we never silently forward a banned path.
+    final normalized = path.endsWith('/') ? path.substring(0, path.length - 1) : path;
+    for (final root in allowedImageRoots) {
+      final normalizedRoot =
+          root.endsWith('/') ? root.substring(0, root.length - 1) : root;
+      if (normalized == normalizedRoot ||
+          normalized.startsWith('$normalizedRoot/')) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

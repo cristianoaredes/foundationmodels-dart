@@ -54,6 +54,10 @@ class TransportProvider implements FmProvider {
 
   Map<String, Object?> _requestParams(FmRequest request) {
     return {
+      // Correlate cancel + EventChannel demux with the same id the host uses
+      // as generationId (envelope id is the fallback when this is absent).
+      'generationId': request.id,
+      'requestId': request.id,
       if (request.sessionId != null) 'sessionId': request.sessionId,
       if (request.sessionInstructions != null)
         'instructions': request.sessionInstructions,
@@ -69,16 +73,31 @@ class TransportProvider implements FmProvider {
           'type': 'json_schema',
           'schema': request.schema!.toJson(mode: request.schemaMode),
         },
+      // Phase 4: request-scoped tools on the wire (static / callback / native).
+      if (request.tools.isNotEmpty)
+        'tools': [for (final t in request.tools) t.toJson()],
     };
   }
 
   FmResponse _toResponse(String requestId, Map<String, Object?> result) {
+    // Native Core returns `output` (String for text, Map/List for guided).
+    // Some older envelopes used `content` / `structuredContent`.
+    final rawOutput = result['output'] ?? result['content'];
+    String? text;
+    Object? structured = result['structuredContent'];
+    if (rawOutput is String) {
+      text = rawOutput;
+    } else if (rawOutput != null) {
+      structured ??= rawOutput;
+    }
+    text ??= result['content'] as String?;
+
     return FmResponse(
       requestId: requestId,
-      text: result['content'] as String?,
-      structured: result['structuredContent'],
-      usage: result['usage'] is Map<String, Object?>
-          ? Usage.fromMap(result['usage']! as Map<String, Object?>)
+      text: text,
+      structured: structured,
+      usage: result['usage'] is Map
+          ? Usage.fromMap(Map<String, Object?>.from(result['usage']! as Map))
           : null,
       traceId: result['traceId'] as String?,
     );
@@ -136,8 +155,16 @@ class TransportProvider implements FmProvider {
           (raw) {
             if (raw['requestId'] != request.id) return;
             final event = FmStreamEvent.fromMap(raw);
-            if (!controller.isClosed) controller.add(event);
-            if (event is StreamDone || event is StreamError) {
+            if (controller.isClosed) return;
+            // Terminal error events become typed exceptions on the stream
+            // (phase-2 contract: never silently drop mid-stream failures).
+            if (event is StreamError) {
+              controller.addError(event.toException());
+              settle();
+              return;
+            }
+            controller.add(event);
+            if (event is StreamDone) {
               settle();
             }
           },
@@ -199,4 +226,35 @@ class TransportProvider implements FmProvider {
   @override
   Future<void> disposeSession(String sessionId) =>
       _call(FmMethods.sessionDispose, {'sessionId': sessionId}).then((_) {});
+
+  @override
+  Future<Map<String, Object?>> health() => _call(FmMethods.health, const {});
+
+  @override
+  Future<Map<String, Object?>> prewarm({
+    String? sessionId,
+    String? model,
+  }) =>
+      _call(FmMethods.sessionPrewarm, {
+        if (sessionId != null) 'sessionId': sessionId,
+        if (model != null) 'model': model,
+      });
+
+  @override
+  Future<Map<String, Object?>> visionOcr(Map<String, Object?> params) =>
+      _call(FmMethods.visionOcr, params);
+
+  @override
+  Future<Map<String, Object?>> visionBarcode(Map<String, Object?> params) =>
+      _call(FmMethods.visionBarcode, params);
+
+  @override
+  Future<Map<String, Object?>> logFeedbackAttachment(
+    Map<String, Object?> params,
+  ) =>
+      _call(FmMethods.feedbackLogAttachment, params);
+
+  @override
+  Future<Map<String, Object?>> submitToolResult(Map<String, Object?> params) =>
+      _call(FmMethods.toolsResult, params);
 }

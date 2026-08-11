@@ -149,16 +149,28 @@ class TokenCount {
   });
 
   /// Parses a protocol `countTokens` result map.
+  ///
+  /// Accepts both the compact mock keys (`input`, `total`, …) and the native
+  /// Core keys (`inputTokens`, `totalTokens`, `contextWindowTokens`, …).
   factory TokenCount.fromMap(Map<String, Object?> map) {
-    int read(String key) => (map[key] as num?)?.toInt() ?? 0;
+    int read(String key, [String? alt]) {
+      final primary = map[key];
+      if (primary is num) return primary.toInt();
+      if (alt != null) {
+        final secondary = map[alt];
+        if (secondary is num) return secondary.toInt();
+      }
+      return 0;
+    }
+
     return TokenCount(
-      input: read('input'),
-      instructions: read('instructions'),
-      tool: read('tool'),
-      schema: read('schema'),
-      total: read('total'),
-      contextWindow: read('contextWindow'),
-      remaining: read('remaining'),
+      input: read('input', 'inputTokens'),
+      instructions: read('instructions', 'instructionsTokens'),
+      tool: read('tool', 'toolTokens'),
+      schema: read('schema', 'schemaTokens'),
+      total: read('total', 'totalTokens'),
+      contextWindow: read('contextWindow', 'contextWindowTokens'),
+      remaining: read('remaining', 'remainingTokens'),
       estimated: map['estimated'] as bool? ?? true,
     );
   }

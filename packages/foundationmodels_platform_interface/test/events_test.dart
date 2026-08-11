@@ -12,6 +12,7 @@ void main() {
         'tool_call_start',
         'tool_call_delta',
         'tool_call_result',
+        'tool_call_request',
         'message_end',
         'done',
         'error',
@@ -44,6 +45,51 @@ void main() {
       final event = FmStreamEvent.fromMap(
           {'type': 'text_delta', 'requestId': 'r', 'delta': 'Hello'});
       expect((event as TextDelta).delta, 'Hello');
+    });
+
+    test('Core alias type=delta with text maps to TextDelta', () {
+      final event = FmStreamEvent.fromMap(
+          {'type': 'delta', 'requestId': 'r', 'text': 'Hello'});
+      expect(event, isA<TextDelta>());
+      expect((event as TextDelta).delta, 'Hello');
+      // Stable Dart type remains text_delta for consumers.
+      expect(event.type, 'text_delta');
+    });
+
+    test('tool_call_result accepts Core output key', () {
+      final event = FmStreamEvent.fromMap({
+        'type': 'tool_call_result',
+        'requestId': 'r',
+        'toolCallId': 'tc_1',
+        'output': {'code': 'DUPLEX-99'},
+      });
+      final res = event as ToolCallResult;
+      expect(res.result, {'code': 'DUPLEX-99'});
+    });
+
+    test('result envelope with output becomes TextDelta', () {
+      final event = FmStreamEvent.fromMap({
+        'type': 'result',
+        'requestId': 'r',
+        'output': 'final',
+      });
+      expect(event, isA<TextDelta>());
+      expect((event as TextDelta).delta, 'final');
+    });
+
+    test('tool_call_request carries arguments map', () {
+      final event = FmStreamEvent.fromMap({
+        'type': 'tool_call_request',
+        'requestId': 'r',
+        'toolCallId': 'tc_1',
+        'toolName': 'echo',
+        'arguments': {'x': 1},
+      });
+      expect(event, isA<ToolCallRequest>());
+      final req = event as ToolCallRequest;
+      expect(req.toolCallId, 'tc_1');
+      expect(req.toolName, 'echo');
+      expect(req.arguments['x'], 1);
     });
 
     test('structured_delta carries delta', () {

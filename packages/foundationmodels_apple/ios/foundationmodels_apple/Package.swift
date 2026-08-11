@@ -3,21 +3,48 @@ import PackageDescription
 import Foundation
 
 // The Swift core (FoundationModelsCore + FoundationModelsIOSBridge) is the
-// single source of truth (ADR-0002 upstream). During development, point
-// FOUNDATIONMODELS_SWIFT_PATH at a local checkout of the distribution mirror
-// (or a subtree-split of the monorepo); otherwise consume the pinned mirror
-// by URL, mirroring the daemon-darwin-arm64 distribution model (ADR-0001 §5).
-let coreDep: Package.Dependency
-let corePackageName: String
-if let local = ProcessInfo.processInfo.environment["FOUNDATIONMODELS_SWIFT_PATH"] {
-    coreDep = .package(path: local)
-    corePackageName = URL(fileURLWithPath: local).lastPathComponent
-} else {
-    coreDep = .package(
-        url: "https://github.com/cristianoaredes/foundationmodels-swift.git",
-        from: "1.0.0"
-    )
-    corePackageName = "foundationmodels-swift"
+// single source of truth (ADR-0002 upstream).
+//
+// Local development:
+//   export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-js/swift
+// which resolves:
+//   $FOUNDATIONMODELS_SWIFT_PATH/FoundationModelsCore
+//   $FOUNDATIONMODELS_SWIFT_PATH/ios-bridge
+//
+// Distribution (mirror, TCK-0015):
+//   unset FOUNDATIONMODELS_SWIFT_PATH → consumes foundationmodels-swift
+//   from GitHub (single package exporting both products).
+
+enum SwiftCoreDeps {
+    static let useLocal = ProcessInfo.processInfo.environment["FOUNDATIONMODELS_SWIFT_PATH"] != nil
+    static let root = ProcessInfo.processInfo.environment["FOUNDATIONMODELS_SWIFT_PATH"] ?? ""
+
+    static var dependencies: [Package.Dependency] {
+        if useLocal {
+            return [
+                .package(path: root + "/FoundationModelsCore"),
+                .package(path: root + "/ios-bridge"),
+            ]
+        }
+        return [
+            .package(
+                url: "https://github.com/cristianoaredes/foundationmodels-swift.git",
+                from: "1.0.4"
+            )
+        ]
+    }
+
+    static var targetDependencies: [Target.Dependency] {
+        if useLocal {
+            // Depend ONLY on the bridge product (avoids dual-class Core embedding).
+            return [
+                .product(name: "FoundationModelsIOSBridge", package: "ios-bridge"),
+            ]
+        }
+        return [
+            .product(name: "FoundationModelsIOSBridge", package: "foundationmodels-swift"),
+        ]
+    }
 }
 
 let package = Package(
@@ -28,15 +55,18 @@ let package = Package(
     products: [
         .library(name: "foundationmodels-apple", targets: ["foundationmodels_apple"])
     ],
-    dependencies: [coreDep],
+    dependencies: SwiftCoreDeps.dependencies,
     targets: [
         .target(
             name: "foundationmodels_apple",
-            dependencies: [
-                .product(name: "FoundationModelsCore", package: corePackageName),
-                .product(name: "FoundationModelsIOSBridge", package: corePackageName)
-            ],
-            path: "Sources/foundationmodels_apple"
+            dependencies: SwiftCoreDeps.targetDependencies,
+            path: "Sources/foundationmodels_apple",
+            // Plugin is a thin channel↔bridge translator; FlutterResult / dict
+            // callbacks are not Sendable. Use Swift 5 language mode so Task
+            // hops to Core stay buildable under Xcode 27 + monorepo Swift 6.4.
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
+            ]
         )
     ]
 )

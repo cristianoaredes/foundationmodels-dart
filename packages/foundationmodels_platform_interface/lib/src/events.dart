@@ -61,19 +61,22 @@ sealed class FmStreamEvent {
           sessionId: sessionId,
           traceId: traceId,
         );
+      // Core host emits type "delta" with "text"; daemon/plugin may emit
+      // "text_delta" with "delta". Accept both (parity honesty, no silent drop).
       case 'text_delta':
+      case 'delta':
         return TextDelta(
           requestId: requestId,
           sessionId: sessionId,
           traceId: traceId,
-          delta: map['delta'] as String? ?? '',
+          delta: map['delta'] as String? ?? map['text'] as String? ?? '',
         );
       case 'structured_delta':
         return StructuredDelta(
           requestId: requestId,
           sessionId: sessionId,
           traceId: traceId,
-          delta: map['delta'] as String? ?? '',
+          delta: map['delta'] as String? ?? map['text'] as String? ?? '',
         );
       case 'tool_call_start':
         return ToolCallStart(
@@ -89,7 +92,10 @@ sealed class FmStreamEvent {
           sessionId: sessionId,
           traceId: traceId,
           toolCallId: map['toolCallId'] as String?,
-          delta: map['delta'] as String? ?? '',
+          // Core may ship complete args under "arguments"; text fragments under delta/text.
+          delta: map['delta'] as String? ??
+              map['text'] as String? ??
+              (map['arguments'] != null ? map['arguments'].toString() : ''),
         );
       case 'tool_call_result':
         return ToolCallResult(
@@ -97,7 +103,17 @@ sealed class FmStreamEvent {
           sessionId: sessionId,
           traceId: traceId,
           toolCallId: map['toolCallId'] as String?,
-          result: map['result'],
+          // Core emits "output"; protocol docs also use "result".
+          result: map['result'] ?? map['output'],
+        );
+      case 'tool_call_request':
+        return ToolCallRequest(
+          requestId: requestId,
+          sessionId: sessionId,
+          traceId: traceId,
+          toolCallId: map['toolCallId'] as String?,
+          toolName: map['toolName'] as String?,
+          arguments: _asStringKeyedMap(map['arguments']),
         );
       case 'message_end':
         return MessageEnd(
@@ -111,6 +127,26 @@ sealed class FmStreamEvent {
           sessionId: sessionId,
           traceId: traceId,
           usage: map['usage'] as Map<String, Object?>?,
+        );
+      // Core sometimes emits a final "result" envelope before "done". Treat as
+      // a terminal text snapshot via TextDelta when output/content is present;
+      // otherwise ignore by mapping to MessageEnd so parsers do not throw.
+      case 'result':
+        final out = map['output'] as String? ??
+            map['content'] as String? ??
+            map['text'] as String?;
+        if (out != null && out.isNotEmpty) {
+          return TextDelta(
+            requestId: requestId,
+            sessionId: sessionId,
+            traceId: traceId,
+            delta: out,
+          );
+        }
+        return MessageEnd(
+          requestId: requestId,
+          sessionId: sessionId,
+          traceId: traceId,
         );
       case 'error':
         return StreamError(
@@ -261,6 +297,34 @@ final class ToolCallResult extends FmStreamEvent {
   String get type => 'tool_call_result';
 }
 
+/// `tool_call_request` — complete tool call ready for host execution (duplex).
+///
+/// Emitted once arguments are complete. Hosts run the registered callback and
+/// reply via `foundationmodels.tools.result` with the same [toolCallId].
+final class ToolCallRequest extends FmStreamEvent {
+  /// Creates the event.
+  const ToolCallRequest({
+    required super.requestId,
+    super.sessionId,
+    super.traceId,
+    this.toolCallId,
+    this.toolName,
+    this.arguments = const {},
+  });
+
+  /// Correlation id of the tool call, when present.
+  final String? toolCallId;
+
+  /// Name of the invoked tool, when present.
+  final String? toolName;
+
+  /// Fully decoded tool arguments (empty map when absent).
+  final Map<String, Object?> arguments;
+
+  @override
+  String get type => 'tool_call_request';
+}
+
 /// `message_end` — the model finished emitting the message.
 final class MessageEnd extends FmStreamEvent {
   /// Creates the event.
@@ -329,4 +393,14 @@ final class StreamError extends FmStreamEvent {
   @override
   String toString() =>
       'StreamError(requestId: $requestId, code: $code, message: $message)';
+}
+
+Map<String, Object?> _asStringKeyedMap(Object? raw) {
+  if (raw is Map<String, Object?>) return raw;
+  if (raw is Map) {
+    return {
+      for (final e in raw.entries) e.key.toString(): e.value,
+    };
+  }
+  return const {};
 }

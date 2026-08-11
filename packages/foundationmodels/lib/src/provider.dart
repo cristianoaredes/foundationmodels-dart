@@ -6,6 +6,7 @@ import 'package:foundationmodels_platform_interface/foundationmodels_platform_in
 
 import 'options.dart';
 import 'schema.dart';
+import 'tools.dart';
 
 /// A single generation request, normalized by the runtime.
 class FmRequest {
@@ -20,6 +21,8 @@ class FmRequest {
     this.schema,
     this.schemaMode = SchemaMode.output,
     this.model = 'apple.system',
+    this.tools = const [],
+    this.autoExecuteTools = true,
   });
 
   /// Unique correlation id (`rpc_...`). Doubles as the streaming
@@ -51,6 +54,24 @@ class FmRequest {
 
   /// Target model id (default `apple.system`).
   final String model;
+
+  /// Request-scoped tools (never persisted on the session). Callback tools
+  /// require streaming; enforced by the runtime before the provider call.
+  final List<FmTool> tools;
+
+  /// When `true` (default), the runtime executes callback tools on each
+  /// [ToolCallRequest] and submits `foundationmodels.tools.result`.
+  ///
+  /// Set `false` when an external owner (e.g. `FmAgent` / `FmToolRouter` with
+  /// HITL) is the sole executor — tools still travel on the wire and events
+  /// still yield, but the runtime will not call `submitToolResult`.
+  final bool autoExecuteTools;
+
+  /// Names of tools that require a streaming generation path.
+  List<String> get callbackToolNames => [
+        for (final t in tools)
+          if (t.requiresStreaming) t.name,
+      ];
 }
 
 /// The result of a unary generation.
@@ -144,4 +165,50 @@ abstract class FmProvider {
   /// Disposes a native session and drops its transcript
   /// (`foundationmodels.sessions.dispose`).
   Future<void> disposeSession(String sessionId);
+
+  /// Health probe (`foundationmodels.health`). Default: empty map.
+  Future<Map<String, Object?>> health() async => const {};
+
+  /// Pre-warms a model/session (`foundationmodels.sessions.prewarm`).
+  Future<Map<String, Object?>> prewarm({
+    String? sessionId,
+    String? model,
+  }) async =>
+      const {'warmed': false};
+
+  /// Vision OCR (`foundationmodels.vision.ocr`).
+  Future<Map<String, Object?>> visionOcr(Map<String, Object?> params) async {
+    throw const UnsupportedOperationException(
+      message: 'visionOcr is not implemented by this provider.',
+      capability: 'vision.ocr',
+    );
+  }
+
+  /// Vision barcode (`foundationmodels.vision.barcode`).
+  Future<Map<String, Object?>> visionBarcode(Map<String, Object?> params) async {
+    throw const UnsupportedOperationException(
+      message: 'visionBarcode is not implemented by this provider.',
+      capability: 'vision.barcode',
+    );
+  }
+
+  /// Feedback attachment (`foundationmodels.feedback.logAttachment`).
+  Future<Map<String, Object?>> logFeedbackAttachment(
+    Map<String, Object?> params,
+  ) async {
+    throw const UnsupportedOperationException(
+      message: 'logFeedbackAttachment is not implemented by this provider.',
+      capability: 'feedback',
+    );
+  }
+
+  /// Duplex tool result (`foundationmodels.tools.result`).
+  Future<Map<String, Object?>> submitToolResult(
+    Map<String, Object?> params,
+  ) async {
+    throw const UnsupportedOperationException(
+      message: 'submitToolResult is not implemented by this provider.',
+      capability: 'tools',
+    );
+  }
 }

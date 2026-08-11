@@ -72,7 +72,12 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard call.method == "invoke" else {
-            result(FlutterMethodNotImplemented)
+            // Avoid FlutterMethodNotImplemented (mutable global; Swift 6 unsafe).
+            result(FlutterError(
+                code: "not_implemented",
+                message: "Only the \"invoke\" method is supported.",
+                details: ["code": "METHOD_NOT_FOUND"]
+            ))
             return
         }
         guard
@@ -100,6 +105,8 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
         result: @escaping FlutterResult
     ) {
         let bridge = FoundationModelsBridge.shared
+        // FlutterResult is not Sendable; box for Task handoff under Swift 6.
+        nonisolated(unsafe) let finish: FlutterResult = result
 
         switch method {
         case RPCMethod.health:
@@ -112,29 +119,30 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
             result(bridge.capabilities())
 
         case RPCMethod.countTokens:
-            // UPSTREAM(U2): requires ios-bridge extension in the monorepo —
-            // `countTokens(params:)` over `SystemLanguageModel.tokenCount(for:)`.
-            // See ADR-0001 §9.
+            // U2: countTokens on the bridge → core.
             Task {
                 do {
-                    result(try await bridge.countTokens(params: params))
+                    finish(try await bridge.countTokens(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
         case RPCMethod.sessionCreate:
-            // UPSTREAM(U5): the target signature accepts the full session
-            // config, including `history` — the current bridge only takes
-            // instructions/options. See ADR-0001 §9.
-            result(bridge.createSession(config: params))
+            // U5: full session config including history is accepted by the
+            // core createSession path once the bridge forwards params.
+            do {
+                result(try bridge.createSession(config: params))
+            } catch {
+                result(Self.flutterError(from: error))
+            }
 
         case RPCMethod.sessionRespond:
             Task {
                 do {
-                    result(try await bridge.respond(params: params))
+                    finish(try await bridge.respond(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
@@ -150,27 +158,29 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
                 ))
                 return
             }
-            result(bridge.disposeSession(sessionId: sessionId))
+            do {
+                result(try bridge.disposeSession(sessionId: sessionId))
+            } catch {
+                result(Self.flutterError(from: error))
+            }
 
         case RPCMethod.sessionTransition:
-            // UPSTREAM(U5): requires `transitionSession(params:)` on the bridge
-            // (instructions change preserving transcript). See ADR-0001 §9.
+            // U5: transitionSession preserves transcript while changing instructions.
             Task {
                 do {
-                    result(try await bridge.transitionSession(params: params))
+                    finish(try await bridge.transitionSession(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
         case RPCMethod.sessionPrewarm:
-            // UPSTREAM(U5): requires `prewarm(params:)` on the bridge.
-            // See ADR-0001 §9.
+            // U5: prewarmSession best-effort warm of the model.
             Task {
                 do {
-                    result(try await bridge.prewarm(params: params))
+                    finish(try await bridge.prewarm(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
@@ -183,56 +193,48 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
                 ))
                 return
             }
-            // UPSTREAM(U6): requires `cancelGeneration(generationId:)` —
-            // cooperative cancellation of the native streaming Task. Idempotent
-            // by contract: repeated cancels are no-ops. See ADR-0001 §9/§10.
+            // U6: cancelGeneration — cooperative cancel of the native streaming Task.
             bridge.cancelGeneration(generationId: generationId)
             streamHandler.unregister(generationId: generationId)
             result(["ok": true, "generationId": generationId, "cancelled": true])
 
         case RPCMethod.toolsResult:
-            // UPSTREAM(U7): requires `submitToolResult(params:)` — duplex tool
-            // calling; the bridge completes the pending `toolCallId` completer
-            // that blocks native generation. See ADR-0001 §9/§11.
+            // U7: submitToolResult — duplex tool calling completer.
             Task {
                 do {
-                    result(try await bridge.submitToolResult(params: params))
+                    finish(try await bridge.submitToolResult(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
         case RPCMethod.visionOcr:
-            // UPSTREAM(U3): requires `visionOcr(params:)` on the bridge,
-            // backed by the core's VisionHandler (base64, EXIF-aware).
-            // See ADR-0001 §9.
+            // U3: vision OCR via core VisionHandler.
             Task {
                 do {
-                    result(try await bridge.visionOcr(params: params))
+                    finish(try await bridge.visionOcr(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
         case RPCMethod.visionBarcode:
-            // UPSTREAM(U3): requires `visionBarcode(params:)` on the bridge.
-            // See ADR-0001 §9.
+            // U3: vision barcode via core VisionHandler.
             Task {
                 do {
-                    result(try await bridge.visionBarcode(params: params))
+                    finish(try await bridge.visionBarcode(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
         case RPCMethod.feedbackLogAttachment:
-            // UPSTREAM(U4): requires `logFeedbackAttachment(params:)` on the
-            // bridge. See ADR-0001 §9.
+            // U4: feedback attachment logging.
             Task {
                 do {
-                    result(try await bridge.logFeedbackAttachment(params: params))
+                    finish(try await bridge.logFeedbackAttachment(params: params))
                 } catch {
-                    result(Self.flutterError(from: error))
+                    finish(Self.flutterError(from: error))
                 }
             }
 
@@ -267,16 +269,13 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
 
         streamHandler.register(generationId: generationId)
 
-        // UPSTREAM(U1): requires `respondStream(params:onEvent:)` — per-delta
-        // callback over the core's StreamingDelta + daemon-shaped stream
-        // events (run_started, message_start, text_delta, structured_delta,
-        // tool_call_start, tool_call_delta, tool_call_result, message_end,
-        // done, error). See ADR-0001 §9.
+        // U1: respondStream — per-delta callback over core stream events.
         let handler = streamHandler
+        nonisolated(unsafe) let streamParams = params
         Task {
             do {
-                try await FoundationModelsBridge.shared.respondStream(params: params) { event in
-                    var enriched = event
+                try await FoundationModelsBridge.shared.respondStream(params: streamParams) { event in
+                    var enriched = Self.normalizeStreamEvent(event)
                     if enriched["requestId"] == nil {
                         enriched["requestId"] = generationId
                     }
@@ -299,6 +298,31 @@ public final class FoundationModelsPlugin: NSObject, FlutterPlugin {
         }
 
         result(["ok": true, "generationId": generationId, "streaming": true])
+    }
+
+    /// Maps Core/bridge event dictionaries onto protocol-v2 stream types
+    /// expected by `FmStreamEvent.fromMap` (delta→text_delta, text→delta, …).
+    private static func normalizeStreamEvent(_ event: [String: Any]) -> [String: Any] {
+        var e = event
+        let type = e["type"] as? String
+        switch type {
+        case "delta":
+            e["type"] = "text_delta"
+            if e["delta"] == nil, let text = e["text"] {
+                e["delta"] = text
+            }
+        case "text_delta":
+            if e["delta"] == nil, let text = e["text"] {
+                e["delta"] = text
+            }
+        case "tool_call_result":
+            if e["result"] == nil, let output = e["output"] {
+                e["result"] = output
+            }
+        default:
+            break
+        }
+        return e
     }
 
     // MARK: - Error mapping
@@ -400,12 +424,19 @@ final class StreamEventHandler: NSObject, FlutterStreamHandler, @unchecked Senda
            let generationId = event["requestId"] as? String {
             unregister(generationId: generationId)
         }
-        eventQueue.async { [weak self] in
+        // Flutter platform channels must be invoked on the platform/main thread.
+        // Prefer direct emit when already on main to avoid re-entrancy deadlocks.
+        let deliver: () -> Void = { [weak self] in
             guard let self else { return }
             self.lock.lock()
             let sink = self.sink
             self.lock.unlock()
             sink?(event)
+        }
+        if Thread.isMainThread {
+            deliver()
+        } else {
+            DispatchQueue.main.async(execute: deliver)
         }
     }
 }

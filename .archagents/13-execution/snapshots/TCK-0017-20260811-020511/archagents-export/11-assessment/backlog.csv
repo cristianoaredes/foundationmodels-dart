@@ -1,0 +1,6 @@
+id,title,severity,status
+FND-0001,apple plugin never compiled,high,open
+FND-0002,streaming needs U1,high,open
+FND-0003,cancel needs U6,high,open
+FND-0004,CI not in .github,medium,open
+FND-0005,parity not measured,medium,open

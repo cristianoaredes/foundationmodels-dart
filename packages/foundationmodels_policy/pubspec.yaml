@@ -1,0 +1,12 @@
+name: foundationmodels_policy
+description: Optional PII redaction policy for foundationmodels-dart (phase 3).
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.0

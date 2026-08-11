@@ -1,0 +1,24 @@
+{
+  "ticket": "TCK-0017",
+  "session_focus": "backlog-drain-parity-push",
+  "pipeline_step": "post-drain-residual",
+  "paused_reason": "handoff",
+  "last_known_good": true,
+  "run_id": "RUN-20260810-backlog-drain",
+  "done_tickets": ["TCK-0001","TCK-0002","TCK-0003","TCK-0005","TCK-0006","TCK-0007","TCK-0008","TCK-0009","TCK-0010","TCK-0011","TCK-0012","TCK-0013","TCK-0014","TCK-0015"],
+  "blocked_tickets": ["TCK-0004","TCK-0016"],
+  "open_tickets": ["TCK-0017"],
+  "next_actions": [
+    "On-device Apple Intelligence smokes (TCK-0004/0016) when device available",
+    "Publish foundationmodels-swift (TCK-0017) with vendored monorepo sources",
+    "Optional: live daemon socket E2E; MCP client for agent kit"
+  ],
+  "key_contracts": {
+    "tools": "stream(..., tools:, autoExecuteTools: true|false) — agent uses false",
+    "swift": "FOUNDATIONMODELS_SWIFT_PATH=.../foundationmodels-js/swift",
+    "parity": "no Flutter supported without on-device evidence"
+  },
+  "harness": "grok",
+  "branch": "main",
+  "commit": "016ebba104cc9ca36a858020f324e6d94d7d4f39"
+}

@@ -7,12 +7,9 @@ shared Swift core from the upstream
 monorepo (`FoundationModelsCore` + `FoundationModelsIOSBridge`), which wraps the
 Apple Foundation Models framework.
 
-> **Status: phase 0 (spike).** The Swift and Dart code in this package has been
-> statically reviewed but **not yet compiled or tested on CI/device**. Several
-> entry points call the *target* ios-bridge API that still needs to be
-> implemented upstream — every such call site is marked with an
-> `UPSTREAM(U1)..(U7)` comment mapping to ADR-0001 §9. See the repository
-> README for the phase roadmap.
+> **Status:** host-native + Flutter live macOS measured (closeout 2026-08-11).
+> iOS **Simulator compile** requires Core guards (TCK-0042); on-device FM
+> generation remains separate evidence (not simulator-only).
 
 ## Architecture
 
@@ -50,12 +47,24 @@ The plugin consumes the Swift core as SPM products (`FoundationModelsCore`,
 the environment variable **before** resolving packages (the manifest reads it):
 
 ```sh
+# Preferred local layout: distribution-mirror tree (CoreAI sources excluded).
 export FOUNDATIONMODELS_SWIFT_PATH=/path/to/foundationmodels-swift
+# Monorepo tip (full CoreAI): point at foundationmodels-js/swift ONLY if CoreAI
+# package deps resolve; otherwise SPM fails with CoreAILanguageModels missing
+# (FND-0010). Mirror layout is the safe default for iOS consumers.
 # then: flutter build ios / flutter build macos (or xcodebuild / swift build)
 ```
 
-This mirrors the `FOUNDATIONMODELS_CORE_PATH` / `FOUNDATIONMODELS_IOS_BRIDGE_PATH`
-overrides already used by the React Native adapter upstream.
+**Layout contract (TCK-0042 / FND-0010):**
+
+| Path shape | Products | Use when |
+|------------|----------|----------|
+| GitHub mirror `from: "1.0.3"`+ / local mirror clone | Core + ios-bridge (CoreAI stubbed/excluded) | Consumers, CI, iOS sim |
+| Monorepo `foundationmodels-js/swift` | Core + ios-bridge + CoreAI deps | Local Apple full tip on Mac |
+
+Do **not** point `FOUNDATIONMODELS_SWIFT_PATH` at monorepo Core alone without the monorepo Package graph.
+
+Default pin until TCK-0044: `from: "1.0.3"`. After publish: `from: "1.0.3"` (duplex + iOS guards).
 
 ## Layout decision: `ios/` + `macos/` (not shared `darwin/`)
 
@@ -79,17 +88,13 @@ lookup without relying on fallback search order.
 | Marker | Bridge API this plugin calls | Status upstream |
 |---|---|---|
 | — | `health()`, `availability()`, `capabilities()`, `createSession(config:)`, `disposeSession(sessionId:)`, `respond(params:)` | exists today |
-| `U1` | `respondStream(params:onEvent:)` | core ready (`StreamingDelta`), bridge surface pending |
-| `U2` | `countTokens(params:)` | core ready (`tokenCount(for:)`), bridge surface pending |
-| `U3` | `visionOcr(params:)`, `visionBarcode(params:)` | core ready (`VisionHandler`), bridge surface pending |
-| `U4` | `logFeedbackAttachment(params:)` | daemon handler ready, bridge surface pending |
-| `U5` | `transitionSession(params:)`, `prewarm(params:)`, `createSession` with `history` | core ready (`SessionRegistry`), bridge surface pending |
-| `U6` | `cancelGeneration(generationId:)` | cooperative cancel ready in daemon, bridge surface pending |
-| `U7` | `submitToolResult(params:)` | duplex tool bridge (phase 4), bridge surface pending |
-
-Until these land, the package compiles only against a bridge that has the U1–U7
-surface; the method routing and wire contract above are the contract-target the
-upstream tickets will implement.
+| `U1` | `respondStream(params:onEvent:)` | **implemented** (host + Flutter live) |
+| `U2` | `countTokens(params:)` | **implemented** |
+| `U3` | `visionOcr` / `visionBarcode` | **implemented** (macOS native tools; iOS fail-closed compile path TCK-0042) |
+| `U4` | `logFeedbackAttachment(params:)` | **implemented** |
+| `U5` | `transitionSession` / `prewarm` / history | **implemented** |
+| `U6` | `cancelGeneration(generationId:)` | **implemented** |
+| `U7` | `submitToolResult(params:)` | **implemented** (duplex registry + fail-closed) |
 
 ## License
 

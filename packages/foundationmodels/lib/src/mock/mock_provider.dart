@@ -13,9 +13,9 @@ import 'dart:convert';
 
 import 'package:foundationmodels_platform_interface/foundationmodels_platform_interface.dart';
 
-import '../options.dart';
 import '../provider.dart';
 import '../schema.dart';
+import '../tools.dart';
 
 /// A deterministic, offline [FmProvider] for tests and local development.
 ///
@@ -32,6 +32,11 @@ class MockProvider implements FmProvider {
   final Duration chunkDelay;
 
   static const String _model = 'apple.system';
+
+  /// Request ids cancelled via [cancelGeneration] while a mock stream is
+  /// in flight. Shared across instances so `const MockProvider(...)` still
+  /// observes cooperative cancel (U6 contract on the offline path).
+  static final Set<String> _cancelledRequestIds = <String>{};
 
   int _hash(String input) {
     var hash = seed;
@@ -60,7 +65,9 @@ class MockProvider implements FmProvider {
           'multimodal': false,
           'vision': false,
           'feedback': false,
-          'tools': false,
+          // Static + scripted callback duplex; native tools stay false.
+          'tools': true,
+          'nativeTools': false,
         },
       );
 
@@ -75,7 +82,8 @@ class MockProvider implements FmProvider {
           'multimodal': false,
           'vision': false,
           'feedback': false,
-          'tools': false,
+          'tools': true,
+          'nativeTools': false,
         },
       };
 
@@ -103,6 +111,7 @@ class MockProvider implements FmProvider {
   @override
   Future<FmResponse> respond(FmRequest request) async {
     request.options.validate();
+    // Callback tools must never reach here — runtime enforces stream-only.
     final schema = request.schema;
     if (schema != null) {
       final structured = _structuredFor(schema, request);
@@ -111,6 +120,24 @@ class MockProvider implements FmProvider {
         requestId: request.id,
         structured: structured,
         usage: _estimate(request.input, output),
+        traceId: 'trace_mock_${_hash(request.input).toRadixString(16)}',
+      );
+    }
+    // Static tools: echo staticOutput deterministically into the text path.
+    final staticTools = [
+      for (final t in request.tools)
+        if (t.kind == FmToolKind.staticOutput) t,
+    ];
+    if (staticTools.isNotEmpty) {
+      final parts = [
+        for (final t in staticTools)
+          '${t.name}=${jsonEncode(t.staticOutput)}',
+      ];
+      final text = 'static_tools: ${parts.join('; ')}';
+      return FmResponse(
+        requestId: request.id,
+        text: text,
+        usage: _estimate(request.input, text),
         traceId: 'trace_mock_${_hash(request.input).toRadixString(16)}',
       );
     }
@@ -123,12 +150,31 @@ class MockProvider implements FmProvider {
     );
   }
 
+  bool _wasCancelled(String requestId) =>
+      _cancelledRequestIds.remove(requestId);
+
+  StreamError _cancelledEvent({
+    required String requestId,
+    String? sessionId,
+    String? traceId,
+  }) =>
+      StreamError(
+        requestId: requestId,
+        sessionId: sessionId,
+        traceId: traceId,
+        code: 'GENERATION_CANCELLED',
+        message: 'Generation $requestId was cancelled before completion.',
+        data: const {'code': 'GENERATION_CANCELLED'},
+      );
+
   @override
   Stream<FmStreamEvent> stream(FmRequest request) async* {
     request.options.validate();
     final schema = request.schema;
     final sessionId = request.sessionId;
     final traceId = 'trace_mock_${_hash(request.input).toRadixString(16)}';
+    // Clear a stale cancel mark from a prior generation with the same id.
+    _cancelledRequestIds.remove(request.id);
 
     yield RunStarted(
       requestId: request.id,
@@ -141,10 +187,85 @@ class MockProvider implements FmProvider {
       traceId: traceId,
     );
 
+    // Scripted duplex: for each callback tool, emit a complete tool_call
+    // lifecycle so the runtime can execute the host callback + tools.result.
+    final callbackTools = [
+      for (final t in request.tools)
+        if (t.kind == FmToolKind.callback) t,
+    ];
+    for (var i = 0; i < callbackTools.length; i++) {
+      final tool = callbackTools[i];
+      final toolCallId = 'tc_mock_${request.id}_$i';
+      if (_wasCancelled(request.id)) {
+        yield _cancelledEvent(
+          requestId: request.id,
+          sessionId: sessionId,
+          traceId: traceId,
+        );
+        return;
+      }
+      yield ToolCallStart(
+        requestId: request.id,
+        sessionId: sessionId,
+        traceId: traceId,
+        toolCallId: toolCallId,
+        toolName: tool.name,
+      );
+      // Complete arguments on tool_call_request (daemon shape).
+      yield ToolCallRequest(
+        requestId: request.id,
+        sessionId: sessionId,
+        traceId: traceId,
+        toolCallId: toolCallId,
+        toolName: tool.name,
+        arguments: {
+          'input': request.input,
+          'tool': tool.name,
+        },
+      );
+      // Brief yield point so the runtime can run the callback + submitToolResult.
+      if (chunkDelay > Duration.zero) {
+        await Future<void>.delayed(chunkDelay);
+      } else {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    // Static tools on the stream path: surface their outputs as text deltas.
+    final staticTools = [
+      for (final t in request.tools)
+        if (t.kind == FmToolKind.staticOutput) t,
+    ];
+    final content = schema != null
+        ? jsonEncode(_structuredFor(schema, request))
+        : staticTools.isNotEmpty
+            ? 'static_tools: ${[
+                for (final t in staticTools)
+                  '${t.name}=${jsonEncode(t.staticOutput)}',
+              ].join('; ')}'
+            : callbackTools.isNotEmpty
+                ? 'after_tools: ${_textFor(request.input)}'
+                : _textFor(request.input);
+
     if (schema != null) {
-      final output = jsonEncode(_structuredFor(schema, request));
-      for (final chunk in _chunks(output)) {
+      for (final chunk in _chunks(content)) {
+        if (_wasCancelled(request.id)) {
+          yield _cancelledEvent(
+            requestId: request.id,
+            sessionId: sessionId,
+            traceId: traceId,
+          );
+          return;
+        }
         if (chunkDelay > Duration.zero) await Future<void>.delayed(chunkDelay);
+        if (_wasCancelled(request.id)) {
+          yield _cancelledEvent(
+            requestId: request.id,
+            sessionId: sessionId,
+            traceId: traceId,
+          );
+          return;
+        }
         yield StructuredDelta(
           requestId: request.id,
           sessionId: sessionId,
@@ -153,8 +274,24 @@ class MockProvider implements FmProvider {
         );
       }
     } else {
-      for (final chunk in _chunks(_textFor(request.input))) {
+      for (final chunk in _chunks(content)) {
+        if (_wasCancelled(request.id)) {
+          yield _cancelledEvent(
+            requestId: request.id,
+            sessionId: sessionId,
+            traceId: traceId,
+          );
+          return;
+        }
         if (chunkDelay > Duration.zero) await Future<void>.delayed(chunkDelay);
+        if (_wasCancelled(request.id)) {
+          yield _cancelledEvent(
+            requestId: request.id,
+            sessionId: sessionId,
+            traceId: traceId,
+          );
+          return;
+        }
         yield TextDelta(
           requestId: request.id,
           sessionId: sessionId,
@@ -162,6 +299,15 @@ class MockProvider implements FmProvider {
           delta: chunk,
         );
       }
+    }
+
+    if (_wasCancelled(request.id)) {
+      yield _cancelledEvent(
+        requestId: request.id,
+        sessionId: sessionId,
+        traceId: traceId,
+      );
+      return;
     }
 
     yield MessageEnd(
@@ -179,7 +325,9 @@ class MockProvider implements FmProvider {
 
   @override
   Future<void> cancelGeneration(String requestId) async {
-    // No-op: the mock has no in-flight native work. Idempotent by design.
+    // Mark the id so an in-flight mock stream terminates with
+    // GENERATION_CANCELLED. Idempotent: repeated cancels are no-ops.
+    _cancelledRequestIds.add(requestId);
   }
 
   @override
@@ -193,6 +341,74 @@ class MockProvider implements FmProvider {
   @override
   Future<void> disposeSession(String sessionId) async {
     // No-op: the mock keeps no transcripts.
+  }
+
+  @override
+  Future<Map<String, Object?>> health() async => const {
+        'provider': 'mock',
+        'ok': true,
+        'stub': false,
+        'transport': 'offline-mock',
+      };
+
+  @override
+  Future<Map<String, Object?>> prewarm({
+    String? sessionId,
+    String? model,
+  }) async =>
+      {
+        'warmed': true,
+        'provider': 'mock',
+        if (sessionId != null) 'sessionId': sessionId,
+        'model': model ?? _model,
+      };
+
+  @override
+  Future<Map<String, Object?>> visionOcr(Map<String, Object?> params) async {
+    // Honest mock: no real OCR. Surfaces the stable unavailable code so
+    // consumers can feature-detect without inventing text from an image.
+    throw const VisionOcrUnavailableException(
+      message: 'Mock provider does not perform OCR.',
+    );
+  }
+
+  @override
+  Future<Map<String, Object?>> visionBarcode(Map<String, Object?> params) async {
+    throw const VisionBarcodeUnavailableException(
+      message: 'Mock provider does not scan barcodes.',
+    );
+  }
+
+  @override
+  Future<Map<String, Object?>> logFeedbackAttachment(
+    Map<String, Object?> params,
+  ) async {
+    // Accept and ack offline — feedback is best-effort telemetry.
+    return {
+      'ok': true,
+      'provider': 'mock',
+      'generationId': params['generationId'],
+      'recorded': true,
+    };
+  }
+
+  /// Accepted tool results (duplex) for observability/tests.
+  static final List<Map<String, Object?>> submittedToolResults =
+      <Map<String, Object?>>[];
+
+  @override
+  Future<Map<String, Object?>> submitToolResult(
+    Map<String, Object?> params,
+  ) async {
+    // Duplex path: runtime submits after executing the host callback.
+    // Accept and record — the mock generation does not block on results.
+    submittedToolResults.add(Map<String, Object?>.from(params));
+    return {
+      'ok': true,
+      'accepted': true,
+      'toolCallId': params['toolCallId'],
+      'provider': 'mock',
+    };
   }
 
   // ---------------------------------------------------------------------------
