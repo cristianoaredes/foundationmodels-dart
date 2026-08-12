@@ -1,0 +1,14 @@
+{
+  "run_id": "RUN-20260811-stage1",
+  "tickets": ["TCK-0051", "TCK-0050", "TCK-0055", "TCK-0053", "TCK-0054"],
+  "status": "completed",
+  "autonomy": "L3",
+  "test_result": "pass",
+  "outcomes": {
+    "TCK-0051": "done_env_limit",
+    "TCK-0050": "done_env_limit",
+    "TCK-0055": "done",
+    "TCK-0053": "done",
+    "TCK-0054": "done"
+  }
+}

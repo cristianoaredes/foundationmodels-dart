@@ -1,0 +1,12 @@
+{
+  "run_id": "RUN-20260811-l3-open-drain",
+  "tickets": ["TCK-0059", "TCK-0049", "TCK-0028"],
+  "status": "completed",
+  "autonomy": "L3",
+  "test_result": "pass",
+  "outcomes": {
+    "TCK-0059": "done_env_limit",
+    "TCK-0049": "blocked_reaffirmed",
+    "TCK-0028": "blocked_reaffirmed"
+  }
+}

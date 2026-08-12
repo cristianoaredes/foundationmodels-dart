@@ -1,0 +1,15 @@
+{
+  "run_id": "RUN-20260811-residual-optin",
+  "tickets": ["TCK-0038", "TCK-0039", "TCK-0041", "TCK-0028"],
+  "status": "completed",
+  "autonomy": "L3",
+  "current_step": 4,
+  "total_steps": 4,
+  "test_result": "pass",
+  "outcomes": {
+    "TCK-0038": "done",
+    "TCK-0039": "done",
+    "TCK-0041": "done",
+    "TCK-0028": "blocked_reaffirmed"
+  }
+}

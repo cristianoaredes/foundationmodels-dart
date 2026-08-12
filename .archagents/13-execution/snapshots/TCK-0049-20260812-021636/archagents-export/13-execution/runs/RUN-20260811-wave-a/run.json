@@ -1,0 +1,12 @@
+{
+  "run_id": "RUN-20260811-wave-a",
+  "tickets": ["TCK-0047", "TCK-0048", "TCK-0052"],
+  "status": "completed",
+  "autonomy": "L3",
+  "test_result": "pass",
+  "outcomes": {
+    "TCK-0047": "done",
+    "TCK-0048": "done",
+    "TCK-0052": "done_phase1"
+  }
+}
