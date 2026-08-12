@@ -49,7 +49,7 @@ enum SwiftCoreDeps {
 let package = Package(
     name: "foundationmodels_apple",
     platforms: [
-        .iOS("27.0")
+        .iOS("16.0")
     ],
     products: [
         .library(name: "foundationmodels-apple", targets: ["foundationmodels_apple"])

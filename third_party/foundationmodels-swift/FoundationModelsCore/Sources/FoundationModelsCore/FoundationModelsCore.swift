@@ -882,11 +882,22 @@ public final class FoundationModelsCore {
                         ]
                     )
                 }
-                output = try await generateStructuredOutputMLXDirect(
-                    prompt: prompt,
-                    params: params,
-                    modelId: mlxModelId
-                )
+                if #available(macOS 27.0, *) {
+                    output = try await generateStructuredOutputMLXDirect(
+                        prompt: prompt,
+                        params: params,
+                        modelId: mlxModelId
+                    )
+                } else {
+                    throw JsonRpcError.modelUnavailable(
+                        "Structured output (json_schema) for MLX models requires macOS 27.0 or newer (\(mlxModelId)).",
+                        data: [
+                            "code": "STRUCTURED_OUTPUT_UNAVAILABLE",
+                            "model": mlxModelId,
+                            "reasonCode": "mlx_structured_output_macos27_required"
+                        ]
+                    )
+                }
             } else if hasImageParts(params: params) {
                 // VLM (TCK-0109): a vision-capable model (registry backend "mlx-vlm") routes image
                 // parts to the VLM path; a text-only MLX model rejects images with a typed error.
@@ -1852,13 +1863,24 @@ public final class FoundationModelsCore {
                     ]
                 )
             }
-            try await streamStructuredOutputMLXDirect(
-                params: params,
-                prompt: prompt,
-                modelId: modelId,
-                traceId: traceId,
-                emit: emit
-            )
+            if #available(macOS 27.0, *) {
+                try await streamStructuredOutputMLXDirect(
+                    params: params,
+                    prompt: prompt,
+                    modelId: modelId,
+                    traceId: traceId,
+                    emit: emit
+                )
+            } else {
+                throw JsonRpcError.modelUnavailable(
+                    "Structured output (json_schema) streaming for MLX models requires macOS 27.0 or newer (\(modelId)).",
+                    data: [
+                        "code": "STRUCTURED_OUTPUT_UNAVAILABLE",
+                        "model": modelId,
+                        "reasonCode": "mlx_structured_output_macos27_required"
+                    ]
+                )
+            }
             return
         }
         if hasImageParts(params: params) {

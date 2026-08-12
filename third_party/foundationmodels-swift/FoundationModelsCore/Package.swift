@@ -5,8 +5,8 @@ import PackageDescription
 let package = Package(
     name: "FoundationModelsCore",
     platforms: [
-        .macOS(.v27),
-        .iOS(.v27)
+        .macOS(.v14),
+        .iOS(.v16)
     ],
     products: [
         .library(name: "FoundationModelsCore", targets: ["FoundationModelsCore"])
@@ -47,7 +47,11 @@ let package = Package(
                 // bundle. Mirror the FoundationModels weak pattern; runtime
                 // guards in CoreAIInferenceBackend fail closed with a typed
                 // INFERENCE_BACKEND_UNAVAILABLE when symbols are missing.
-                .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.macOS]))
+                .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.macOS])),
+                // iOS: weak-link so the binary loads on iOS 16+ even though
+                // FoundationModels/CoreAI frameworks only exist on iOS 26+.
+                .unsafeFlags(["-weak_framework", "FoundationModels"], .when(platforms: [.iOS])),
+                .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.iOS]))
             ]
         ),
         .testTarget(
