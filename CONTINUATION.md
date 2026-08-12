@@ -100,6 +100,7 @@ Nothing else is L3-executable in this repo.
 - All packages `publish_to: none`.  
 - Analyzer: `--fatal-infos`.  
 - Live daemon may crash dyld CoreAIRuntime on some hosts (client path still tested).  
+- Live MCP against UAB: use `…/mcp/` (trailing slash). Bare `/mcp` 307-redirects to a scheme-downgraded `http://` Location (UAB-side issue), which Dart's `HttpClient` won't follow for POST — see `packages/foundationmodels_mcp/README.md`.  
 
 ---
 
@@ -116,6 +117,7 @@ Nothing else is L3-executable in this repo.
 
 ## 8. Session log (reverse chronological)
 
+- **2026-08-11** — Live MCP dual-run verified against real UAB endpoint (`uab.orqo.pro`, TCK-0059 harness, previously only `env_limit`-tested); found + documented the `/mcp` trailing-slash redirect gotcha.  
 - **2026-08-11** — Full docs wave: PROJECT-STATUS, DELIVERY-LOG, MCP package README, CONTINUATION/README sync.  
 - **2026-08-11** — Handoff snapshot PR #11; validation suite re-run (all green); gates still closed.  
 - **2026-08-11** — L3 open drain PR #9; SSE Streamable-HTTP PR #10.  

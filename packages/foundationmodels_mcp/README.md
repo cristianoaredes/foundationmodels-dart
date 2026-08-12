@@ -75,6 +75,13 @@ dart test test/mcp_live_env_test.dart
 
 If URL unset → test skips with `env_limit=true` (CI safe). Ticket: TCK-0059.
 
+**UAB gotcha — use the trailing slash.** `POST …/mcp` (no trailing slash) 307-redirects to
+`…/mcp/`, and the observed `Location` header downgrades the scheme to `http://` (Cloudflare
+Access → origin app not honoring `X-Forwarded-Proto`). Dart's `HttpClient` correctly refuses to
+follow a same-request scheme downgrade on POST, so the call throws `HttpException: HTTP 307`
+instead of silently retrying insecurely. Fix: point `FM_MCP_SSE_URL`/`UAB_MCP_URL` at
+`…/mcp/` directly (verified against `uab.orqo.pro`, live dual-run 2026-08-11).
+
 ---
 
 ## Security
