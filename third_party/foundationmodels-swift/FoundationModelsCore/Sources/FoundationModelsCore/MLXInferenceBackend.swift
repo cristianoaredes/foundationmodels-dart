@@ -21,7 +21,7 @@ import Tokenizers
 /// (`Response`, `TextFragment`, etc.) não expõem initializers públicos, impedindo
 /// implementadores externos de emitir deltas no channel. A lógica de geração está
 /// implementada; a emissão será habilitada quando o SDK expuser os inits públicos.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct MLXInferenceBackend: InferenceBackend {
     /// Process-wide handle cache (injectable for tests).
     private let cache: ModelHandleCache
@@ -533,7 +533,7 @@ public struct MLXInferenceBackend: InferenceBackend {
 
 // MARK: - TokenizerLoader
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private struct TransformersTokenizerLoader: MLXLMCommon.TokenizerLoader {
     public init() {}
 
@@ -543,7 +543,7 @@ private struct TransformersTokenizerLoader: MLXLMCommon.TokenizerLoader {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private struct TokenizerBridge: MLXLMCommon.Tokenizer {
     private let upstream: any Tokenizers.Tokenizer
 
@@ -584,7 +584,7 @@ private struct TokenizerBridge: MLXLMCommon.Tokenizer {
     var unknownToken: String? { upstream.unknownToken }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private final class GuidedDeltaHandlerBox: @unchecked Sendable {
     let handler: (String) async throws -> Void
 
@@ -593,7 +593,7 @@ private final class GuidedDeltaHandlerBox: @unchecked Sendable {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private struct GuidedGenerationInputs {
     let lmInput: LMInput
     let schema: [String: Any]

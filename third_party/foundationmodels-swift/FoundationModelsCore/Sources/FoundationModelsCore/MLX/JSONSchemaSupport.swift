@@ -2,7 +2,7 @@ import Foundation
 
 /// JSON Schema keyword validation and compilation for MLX guided decoding (TCK-0110b).
 /// Mirrors the native `DynamicGenerationSchema` subset in `FoundationModelsCore.swift`.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 enum JSONSchemaSupport {
     /// Mirrors `FoundationModelsCore.unsupportedSchemaKeywords` (TCK-0215 /
     /// FND-0143, FND-0145). `const` stays listed here — unlike the native
@@ -198,14 +198,14 @@ enum JSONSchemaSupport {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 enum JSONSchemaCompileError: Error, Equatable {
     case unsupportedKeyword(String, path: String)
     case unsupportedType(String, path: String)
     case invalidSchema(String)
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 indirect enum JSONSchemaNode: Equatable {
     case object(properties: [String: JSONSchemaNode], required: Set<String>, propertyOrder: [String])
     case array(items: JSONSchemaNode, minimumElements: Int?, maximumElements: Int?)

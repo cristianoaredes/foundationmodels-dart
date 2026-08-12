@@ -16,7 +16,7 @@ import CoreAILanguageModels
 /// TCK-0258 / FND-0240 / DES-0098: the loaded `CoreAILanguageModel` is cached in
 /// `ModelHandleCache`; each request still builds a **fresh** `LanguageModelSession`
 /// so transcript state never leaks across calls.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAIInferenceBackend: InferenceBackend {
     /// Process-wide handle cache (injectable for tests).
     private let cache: ModelHandleCache
@@ -250,7 +250,7 @@ public struct CoreAIInferenceBackend: InferenceBackend {
 /// references; the handle is process-owned and only mutated by CoreAI internals, so
 /// sharing it across the actor-isolated cache is safe. Fresh `LanguageModelSession`s
 /// are built per request from `model`.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public final class CoreAIModelHandle: @unchecked Sendable {
     public let model: CoreAILanguageModels.CoreAILanguageModel
 

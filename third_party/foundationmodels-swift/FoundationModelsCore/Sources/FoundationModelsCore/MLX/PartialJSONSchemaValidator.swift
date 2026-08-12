@@ -1,7 +1,7 @@
 import Foundation
 
 /// Validates incremental JSON text against a compiled schema node (TCK-0110b).
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 struct PartialJSONSchemaValidator {
     let root: JSONSchemaNode
 
@@ -11,14 +11,14 @@ struct PartialJSONSchemaValidator {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private enum ValueParseOutcome {
     case complete
     case partial
     case invalid
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private struct PartialJSONParser {
     let input: String
     let root: JSONSchemaNode

@@ -140,7 +140,7 @@ import os
     // Static-only tools never call the bridge; attaching it is still correct.
     let toolBridge: Any? = {
       #if canImport(FoundationModels)
-      if #available(macOS 26.0, *) {
+      if #available(macOS 26.0, iOS 26.0, *) {
         let lastToolCallId = OSAllocatedUnfairLock(initialState: Optional<String>.none)
         let registry = self.generations
         return ToolCallbackBridge(

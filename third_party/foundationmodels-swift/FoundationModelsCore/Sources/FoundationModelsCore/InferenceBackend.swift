@@ -6,7 +6,7 @@ import FoundationModels
 /// Protocolo que abstrai o motor de inferência por baixo do `CoreAILanguageModelExecutor`.
 /// Cada namespace (`apple.mlx:*`, `apple.coreai:*`) tem sua implementação própria.
 /// O default é fail-closed (`INFERENCE_BACKEND_UNAVAILABLE`).
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public protocol InferenceBackend: Sendable {
     func prewarm(modelId: String, registryPath: String?, transcript: Transcript) async
 
@@ -100,7 +100,7 @@ public protocol InferenceBackend: Sendable {
 /// Swift static-dispatch-to-most-specific-implementation rules — this extension only supplies a
 /// safe fallback for a backend (e.g. the fail-closed default, or a test double) that only
 /// implements the original 3 requirements.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 extension InferenceBackend {
     public func generateTextStream(
         prompt: String,

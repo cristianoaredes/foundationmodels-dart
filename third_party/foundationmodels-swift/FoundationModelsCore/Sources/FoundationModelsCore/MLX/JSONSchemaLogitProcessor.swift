@@ -3,14 +3,14 @@ import MLX
 import MLXLMCommon
 
 /// Token lookup surface for schema-guided masking (TCK-0110b).
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public protocol JSONSchemaVocabulary: Sendable {
     var vocabSize: Int { get }
     func tokenText(for id: Int) -> String?
 }
 
 /// Masks disallowed logits so decoded output stays on a schema-valid JSON path (TCK-0110b).
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct JSONSchemaLogitProcessor: LogitProcessor {
     private let validator: PartialJSONSchemaValidator
     private let vocabulary: any JSONSchemaVocabulary

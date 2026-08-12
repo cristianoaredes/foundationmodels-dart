@@ -324,7 +324,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.4, *) {
+        if #available(macOS 26.4, iOS 26.4, *) {
             let model = try systemLanguageModel(params: params)
             // Native tokenizer per component (input, instructions, tools, schema).
             let inputTokens = try await model.tokenCount(for: prompt)
@@ -408,7 +408,7 @@ public final class FoundationModelsCore {
         if let modelId = JSON.string(params, key: "model"),
            CoreAIModelRegistry.isCoreAIModelId(modelId) {
             #if canImport(FoundationModels)
-            if #available(macOS 27.0, *) {
+            if #available(macOS 27.0, iOS 27.0, *) {
                 let sessionId = JSON.string(params, key: "sessionId") ?? "ses_swift_\(UUID().uuidString.lowercased().replacingOccurrences(of: "-", with: ""))"
                 let session = try makeSession(params: params, transcript: try Self.historyTranscript(params: params))
                 sessionRegistry.set(sessionId, session)
@@ -438,7 +438,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             let sessionId = JSON.string(params, key: "sessionId") ?? "ses_swift_\(UUID().uuidString.lowercased().replacingOccurrences(of: "-", with: ""))"
             let session = try makeSession(params: params, transcript: try Self.historyTranscript(params: params))
             sessionRegistry.set(sessionId, session)
@@ -525,7 +525,7 @@ public final class FoundationModelsCore {
         sessionOverrides.set(sessionId, overrides)
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *),
+        if #available(macOS 26.0, iOS 26.0, *),
            let instructions,
            let existingSession = existing as? LanguageModelSession {
             let buildParams = (sessionBuildParams.get(sessionId) as? [String: Any]) ?? params
@@ -580,7 +580,7 @@ public final class FoundationModelsCore {
 
         if CoreAIModelRegistry.isCoreAIModelId(modelId) {
             #if canImport(FoundationModels)
-            if #available(macOS 27.0, *) {
+            if #available(macOS 27.0, iOS 27.0, *) {
                 guard let registeredModel = CoreAIModelRegistry.model(id: modelId) else {
                     throw CoreAIModelRegistry.requestError(for: modelId)
                 }
@@ -643,7 +643,7 @@ public final class FoundationModelsCore {
             }
 
             #if canImport(FoundationModels)
-            if #available(macOS 26.0, *) {
+            if #available(macOS 26.0, iOS 26.0, *) {
                 do {
                     // `sessionFor` builds/registers a fresh session when `sessionId` is
                     // new (also tracking its build params for a later transition) or
@@ -767,7 +767,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             let sentiment = try feedbackSentiment(params: params)
             let issues = try feedbackIssues(params: params)
 
@@ -791,7 +791,7 @@ public final class FoundationModelsCore {
     }
 
     #if canImport(FoundationModels)
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func feedbackSentiment(params: [String: Any]) throws -> LanguageModelFeedback.Sentiment? {
         guard let raw = JSON.string(params, key: "sentiment") else {
             return nil
@@ -807,7 +807,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func feedbackIssues(params: [String: Any]) throws -> [LanguageModelFeedback.Issue] {
         guard let rawIssues = JSON.array(params, key: "issues") else {
             return []
@@ -823,7 +823,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func feedbackIssueCategory(_ raw: String) throws -> LanguageModelFeedback.Issue.Category {
         switch raw {
         case "unhelpful": return .unhelpful
@@ -882,7 +882,7 @@ public final class FoundationModelsCore {
                         ]
                     )
                 }
-                if #available(macOS 27.0, *) {
+                if #available(macOS 27.0, iOS 27.0, *) {
                     output = try await generateStructuredOutputMLXDirect(
                         prompt: prompt,
                         params: params,
@@ -993,7 +993,7 @@ public final class FoundationModelsCore {
         let traceId = "trc_swift_\(UUID().uuidString.lowercased().replacingOccurrences(of: "-", with: ""))"
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             // MLX-direct streaming (ADR-0006 follow-up / TCK-0106): emit real deltas from the
             // mlx-swift-lm decode loop, bypassing LanguageModelSession / the sealed channel.
             if let mlxModelId = JSON.string(params, key: "model"), mlxModelId.hasPrefix("apple.mlx:") {
@@ -1079,7 +1079,7 @@ public final class FoundationModelsCore {
     ///
     /// FND-0157 (TCK-0220): `ResponseStream.Snapshot.usage` (macOS 27+) is cumulative per
     /// snapshot; the last snapshot's usage is the final count for the turn.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func streamText(
         params: [String: Any],
         prompt: String,
@@ -1111,7 +1111,7 @@ public final class FoundationModelsCore {
                 // has more snapshots buffered.
                 try Task.checkCancellation()
 
-                if #available(macOS 27.0, *) {
+                if #available(macOS 27.0, iOS 27.0, *) {
                     lastUsage = usageDict(from: snapshot.usage)
                 }
 
@@ -1140,7 +1140,7 @@ public final class FoundationModelsCore {
         try await emit(["type": "done"])
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func streamStructuredOutput(
         params: [String: Any],
         prompt: String,
@@ -1197,7 +1197,7 @@ public final class FoundationModelsCore {
     /// TCK-0257 / FND-0239 — dedupe by raw JSON string identity (`RawJSONEmitTracker`)
     /// so identical cumulative snapshots skip `JSONSerialization` parse + the old
     /// double sortedKeys serialize equality path (O(n²) on long guided streams).
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func consumeStructuredStream(
         stream: LanguageModelSession.ResponseStream<GeneratedContent>,
         params: [String: Any],
@@ -1212,7 +1212,7 @@ public final class FoundationModelsCore {
             for try await snapshot in stream {
                 try Task.checkCancellation()
 
-                if #available(macOS 27.0, *) {
+                if #available(macOS 27.0, iOS 27.0, *) {
                     lastUsage = usageDict(from: snapshot.usage)
                 }
 
@@ -1253,7 +1253,7 @@ public final class FoundationModelsCore {
         return try JSONSerialization.jsonObject(with: data)
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func parseStructuredSnapshot(
         _ snapshot: LanguageModelSession.ResponseStream<GeneratedContent>.Snapshot
     ) throws -> Any? {
@@ -1293,7 +1293,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             let responseFormat = JSON.object(params, key: "responseFormat") ?? [:]
             // TCK-0208: see `streamStructuredOutput` — schema compilation
             // errors go through the contract mapper too.
@@ -1326,7 +1326,7 @@ public final class FoundationModelsCore {
                     options: options
                 )
                 let output = try jsonObject(fromGeneratedContent: response.content)
-                if #available(macOS 27.0, *) {
+                if #available(macOS 27.0, iOS 27.0, *) {
                     return (output, usageDict(from: response.usage))
                 }
                 return (output, estimatedUsageDict(prompt: prompt, outputText: textForTokenEstimate(output)))
@@ -1453,7 +1453,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             let session = try sessionFor(params: params, toolBridge: toolBridge)
             let options = try generationOptions(params: params)
             do {
@@ -1469,7 +1469,7 @@ public final class FoundationModelsCore {
                     return (response.content, usageDict(from: response.usage))
                 }
                 let response = try await session.respond(to: prompt, options: options)
-                if #available(macOS 27.0, *) {
+                if #available(macOS 27.0, iOS 27.0, *) {
                     return (response.content, usageDict(from: response.usage))
                 }
                 return (response.content, estimatedUsageDict(prompt: prompt, outputText: response.content))
@@ -1487,14 +1487,14 @@ public final class FoundationModelsCore {
 
     /// MLX guided-decoding respond path (TCK-0110d): validate the schema subset, generate JSON text
     /// via `MLXInferenceBackend.generateStructuredText`, and return a parsed JSON object.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func generateStructuredOutputMLXDirect(
         prompt: String,
         params: [String: Any],
         modelId: String
     ) async throws -> Any {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1529,7 +1529,7 @@ public final class FoundationModelsCore {
     /// TCK-0257 / FND-0239 — `AccumulatedJSONEmitTracker` skips `JSONSerialization` on obvious
     /// partials and compares a single canonical `Data` (not double sortedKeys serialize) so the
     /// per-token path is no longer O(n²) parse+equality on the full buffer every delta.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func streamStructuredOutputMLXDirect(
         params: [String: Any],
         prompt: String,
@@ -1538,7 +1538,7 @@ public final class FoundationModelsCore {
         emit: @escaping ([String: Any]) async throws -> Void
     ) async throws {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1611,7 +1611,7 @@ public final class FoundationModelsCore {
         )
     }
 
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func mlxGuidedSchema(from responseFormat: [String: Any]) throws -> [String: Any] {
         guard let schemaObject = responseFormat["schema"] as? [String: Any] else {
             throw JsonRpcError.invalidRequest("responseFormat.schema must be a JSON Schema object.")
@@ -1626,7 +1626,7 @@ public final class FoundationModelsCore {
         return schemaObject
     }
 
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func mapJSONSchemaCompileError(_ error: JSONSchemaCompileError) -> JsonRpcError {
         switch error {
         case .unsupportedKeyword(let keyword, let path):
@@ -1679,7 +1679,7 @@ public final class FoundationModelsCore {
     /// typed `MODEL_NOT_FOUND`; pre-macOS-27 → typed `INFERENCE_BACKEND_UNAVAILABLE`.
     private func generateTextMLXDirect(prompt: String, params: [String: Any], modelId: String) async throws -> String {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1709,7 +1709,7 @@ public final class FoundationModelsCore {
     /// models whose registry backend is `mlx-vlm`.
     private func generateVisionTextMLXDirect(prompt: String, params: [String: Any], modelId: String) async throws -> String {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1769,7 +1769,7 @@ public final class FoundationModelsCore {
         emit: ([String: Any]) async throws -> Void
     ) async throws {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1863,7 +1863,7 @@ public final class FoundationModelsCore {
                     ]
                 )
             }
-            if #available(macOS 27.0, *) {
+            if #available(macOS 27.0, iOS 27.0, *) {
                 try await streamStructuredOutputMLXDirect(
                     params: params,
                     prompt: prompt,
@@ -1901,7 +1901,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -1952,7 +1952,7 @@ public final class FoundationModelsCore {
     /// directly, returning text WITHOUT the custom executor / sealed channel. Fail-closed.
     private func generateTextCoreAIDirect(prompt: String, params: [String: Any], modelId: String) async throws -> String {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -2009,7 +2009,7 @@ public final class FoundationModelsCore {
         }
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard let registered = CoreAIModelRegistry.model(id: modelId) else {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
@@ -2082,7 +2082,7 @@ public final class FoundationModelsCore {
         let parts = try parseMultimodalInput(from: params)
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             let status = systemModelStatus()
             guard status.available else {
                 throw JsonRpcError.modelUnavailable(
@@ -2147,7 +2147,7 @@ public final class FoundationModelsCore {
         let parts = try parseMultimodalInput(from: params)
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             let status = systemModelStatus()
             guard status.available else {
                 throw JsonRpcError.modelUnavailable(
@@ -2219,7 +2219,7 @@ public final class FoundationModelsCore {
         let parts = try parseMultimodalInput(from: params)
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             let status = systemModelStatus()
             guard status.available else {
                 throw JsonRpcError.modelUnavailable(
@@ -2323,7 +2323,7 @@ public final class FoundationModelsCore {
         let parts = try parseMultimodalInput(from: params)
 
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             let status = systemModelStatus()
             guard status.available else {
                 throw JsonRpcError.modelUnavailable(
@@ -2409,7 +2409,7 @@ public final class FoundationModelsCore {
     /// An unknown `native` value is a typed error rather than a skipped tool: a
     /// silently dropped tool yields a session that answers as though the caller
     /// never asked for it, which is far harder to diagnose than a rejection.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func nativeVisionTool(kind: String, name: String?, description: String?) throws -> any Tool {
         // OCRTool / BarcodeReaderTool live in the macOS-only
         // `_Vision_FoundationModels` cross-import overlay (FND-0009 / TCK-0042).
@@ -2450,7 +2450,7 @@ public final class FoundationModelsCore {
     /// `label(_:)` is a builder that returns a NEW attachment: writing
     /// `attachment.label(x)` and discarding the result is a silent no-op, and
     /// having one place that returns the labelled copy removes that trap.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func labelled(
         _ attachment: Attachment<ImageAttachmentContent>,
         _ label: String?
@@ -2459,7 +2459,7 @@ public final class FoundationModelsCore {
         return attachment.label(label)
     }
 
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func buildNativePrompt(from parts: [MultimodalInputPart]) throws -> Prompt {
         // TCK-0279 / FND-0216: never call the weak-imported Attachment init when
         // the OS did not bind it — that is a null jump (daemon SIGSEGV), not a
@@ -2540,7 +2540,7 @@ public final class FoundationModelsCore {
 
     private func foundationModelsAPISupported() -> Bool {
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             return true
         }
         #endif
@@ -2560,10 +2560,10 @@ public final class FoundationModelsCore {
     /// behavior for macOS 26.x).
     private func structuredOutputSupported() -> Bool {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             return SystemLanguageModel.default.capabilities.contains(.guidedGeneration)
         }
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             return true
         }
         #endif
@@ -2585,7 +2585,7 @@ public final class FoundationModelsCore {
     /// then crashing in `buildNativePrompt` is worse than an honest `false`.
     private func multimodalInputSupported() -> Bool {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             guard AttachmentRuntimeAvailability.isAvailable else {
                 return false
             }
@@ -2598,7 +2598,7 @@ public final class FoundationModelsCore {
 
     private func tokenCountingAPISupported() -> Bool {
         #if canImport(FoundationModels)
-        if #available(macOS 26.4, *) {
+        if #available(macOS 26.4, iOS 26.4, *) {
             return true
         }
         #endif
@@ -2764,14 +2764,14 @@ public final class FoundationModelsCore {
     ///    depend on the host OS version.
     ///
     /// Anything else passes through unchanged.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func mapNativeGenerationError(_ error: Error, params: [String: Any] = [:]) -> Error {
         // (1) Never re-wrap an error that already carries a contract code.
         if let alreadyTyped = error as? JsonRpcError {
             return alreadyTyped
         }
 
-        if #available(macOS 27.0, *),
+        if #available(macOS 27.0, iOS 27.0, *),
            let pccError = error as? PrivateCloudComputeLanguageModel.Error {
             switch pccError {
             case .quotaLimitReached(let details):
@@ -2842,7 +2842,7 @@ public final class FoundationModelsCore {
             )
         }
 
-        if #available(macOS 27.0, *), let typed = mapTypedNativeError(error, params: params) {
+        if #available(macOS 27.0, iOS 27.0, *), let typed = mapTypedNativeError(error, params: params) {
             return typed
         }
 
@@ -2896,7 +2896,7 @@ public final class FoundationModelsCore {
     /// Only typed scalars and the native `debugDescription` are read: the
     /// untyped `metadata` bag, the raw `[Transcript.Entry]` payloads, and
     /// `ParsingError.rawContent` are never forwarded (TCK-0208 R1).
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func mapTypedNativeError(_ error: Error, params: [String: Any]) -> JsonRpcError? {
         if let modelError = error as? LanguageModelError {
             switch modelError {
@@ -3017,7 +3017,7 @@ public final class FoundationModelsCore {
     /// Stable string name for a `LanguageModelCapabilities.Capability`. The
     /// type is an opaque `Hashable` struct with static members, so the only
     /// available discriminator is `==` against the known capabilities.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func capabilityName(_ capability: LanguageModelCapabilities.Capability) -> String {
         switch capability {
         case .vision: return "vision"
@@ -3034,7 +3034,7 @@ public final class FoundationModelsCore {
     /// matched earlier in `mapNativeGenerationError` with real token counts — but
     /// this heuristic is still consulted there for errors the typed mapping does
     /// not recognise, so it is a demoted path rather than a version-gated one.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func looksLikeContextOverflow(_ error: Error) -> Bool {
         let description = "\(type(of: error)) \(error.localizedDescription) \(String(describing: error))"
             .lowercased()
@@ -3043,7 +3043,7 @@ public final class FoundationModelsCore {
             && (description.contains("context size") || description.contains("context window"))
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func sessionFor(params: [String: Any], toolBridge: Any?) throws -> LanguageModelSession {
         if hasCallbackTools(params: params) {
             return try makeSession(params: params, toolBridge: toolBridge)
@@ -3069,7 +3069,7 @@ public final class FoundationModelsCore {
         return session
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func makeSession(params: [String: Any], toolBridge: Any? = nil, transcript: Transcript? = nil) throws -> LanguageModelSession {
         let session = try buildSession(params: params, toolBridge: toolBridge, transcript: transcript)
         try applyTranscriptErrorHandlingPolicy(to: session, params: params)
@@ -3081,7 +3081,7 @@ public final class FoundationModelsCore {
     /// policy as a settable session property (`{ get set }`) — no init accepts
     /// it — so a single post-construction assignment covers the CoreAI / PCC /
     /// system branches alike.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func applyTranscriptErrorHandlingPolicy(to session: LanguageModelSession, params: [String: Any]) throws {
         guard let raw = JSON.string(params, key: "transcriptErrorHandlingPolicy") else {
             return
@@ -3098,7 +3098,7 @@ public final class FoundationModelsCore {
     }
 
     /// Internal (not `private`) as a test seam — see `contextOptionsParams`.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     static func transcriptErrorHandlingPolicy(from raw: String) throws -> TranscriptErrorHandlingPolicy {
         switch raw {
         case "revert":
@@ -3114,7 +3114,7 @@ public final class FoundationModelsCore {
     /// `includeSchemaInPromptDefault` preserves the pre-TCK-0205 behavior of
     /// the guided-generation call sites (hardcoded `true`) when the caller does
     /// not state a preference.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func nativeContextOptions(
         _ parsed: ContextOptionsParams,
         includeSchemaInPromptDefault: Bool? = nil
@@ -3145,7 +3145,7 @@ public final class FoundationModelsCore {
     /// `transitionSession` rebuilding with preserved history) controls the
     /// full prior conversation rather than starting from a blank transcript
     /// (TCK-0213 / FND-0205 / FND-0156).
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func buildSession(params: [String: Any], toolBridge: Any? = nil, transcript: Transcript? = nil) throws -> LanguageModelSession {
         if let modelId = JSON.string(params, key: "model"),
            CoreAIModelRegistry.isCoreAIModelId(modelId) {
@@ -3153,7 +3153,7 @@ public final class FoundationModelsCore {
                 throw CoreAIModelRegistry.requestError(for: modelId)
             }
 
-            if #available(macOS 27.0, *) {
+            if #available(macOS 27.0, iOS 27.0, *) {
                 let model = CoreAILanguageModel(id: modelId, registryPath: registeredModel.path)
                 let tools = try nativeTools(params: params, toolBridge: toolBridge)
                 if let transcript {
@@ -3169,7 +3169,7 @@ public final class FoundationModelsCore {
         }
 
         if JSON.string(params, key: "model") == "apple.pcc" {
-            if #available(macOS 27.0, *) {
+            if #available(macOS 27.0, iOS 27.0, *) {
                 let model = try pccLanguageModel()
                 let tools = try nativeTools(params: params, toolBridge: toolBridge)
                 if let transcript {
@@ -3205,7 +3205,7 @@ public final class FoundationModelsCore {
     /// test` can't reach a real `LanguageModelSession` (no Apple Intelligence
     /// eligibility), but this is a pure `[String: Any]` → `Transcript` mapping
     /// with no device dependency, so it's exercisable directly.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     static func historyTranscript(params: [String: Any]) throws -> Transcript? {
         guard let rawHistory = JSON.array(params, key: "history"), !rawHistory.isEmpty else {
             return nil
@@ -3252,7 +3252,7 @@ public final class FoundationModelsCore {
     /// FND-0156). Existing `toolDefinitions` are carried over unchanged: a
     /// transition only ever supplies `profile`/`instructions`, never `tools`.
     /// Internal (not `private`) as a test seam — see `historyTranscript` above.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     static func rebuildTranscript(_ transcript: Transcript, replacingInstructionsWith text: String) -> Transcript {
         var entries = Array(transcript)
 
@@ -3285,7 +3285,7 @@ public final class FoundationModelsCore {
         return Transcript(entries: entries)
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func systemLanguageModel(params: [String: Any]) throws -> SystemLanguageModel {
         try SystemLanguageModel(
             useCase: systemUseCase(params: params),
@@ -3293,7 +3293,7 @@ public final class FoundationModelsCore {
         )
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func systemUseCase(params: [String: Any]) throws -> SystemLanguageModel.UseCase {
         guard let useCase = JSON.string(params, key: "useCase") else {
             return .general
@@ -3309,7 +3309,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func systemGuardrails(params: [String: Any]) throws -> SystemLanguageModel.Guardrails {
         guard let guardrails = JSON.string(params, key: "guardrails") else {
             return .default
@@ -3325,7 +3325,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func pccLanguageModel() throws -> PrivateCloudComputeLanguageModel {
         // TCK-0105 — pre-flight entitlement guard (PCC typed-unavailable path).
         //
@@ -3394,7 +3394,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func nativeTools(params: [String: Any], toolBridge: Any?) throws -> [any Tool] {
         try (JSON.array(params, key: "tools") ?? []).map { tool in
             // TCK-0227 / FND-0147: Apple's own vision tools. These conform to
@@ -3447,7 +3447,7 @@ public final class FoundationModelsCore {
     /// without `toolCallingMode` is `@backDeployed` to macOS 26, so absent
     /// `toolCallingMode` keeps working there byte for byte; only the
     /// four-argument overload that adds `toolCallingMode:` requires macOS 27.
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func generationOptions(params: [String: Any]) throws -> GenerationOptions {
         let options = JSON.object(params, key: "options") ?? [:]
         let sampling = try samplingMode(options: options)
@@ -3482,7 +3482,7 @@ public final class FoundationModelsCore {
     /// native `Kind` cases (`.allowed`/`.required`/`.disallowed`,
     /// `FoundationModels.swiftinterface:2718-2733`). Internal (not
     /// `private`) as a test seam — see `transcriptErrorHandlingPolicy`.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     static func toolCallingMode(from raw: String) throws -> GenerationOptions.ToolCallingMode {
         switch raw {
         case "allowed":
@@ -3498,7 +3498,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func samplingMode(options: [String: Any]) throws -> GenerationOptions.SamplingMode? {
         guard let sampling = JSON.object(options, key: "sampling") else {
             return nil
@@ -3545,7 +3545,7 @@ public final class FoundationModelsCore {
     /// `const` is deliberately absent from this blanket list (TCK-0215 /
     /// FND-0146): unlike every keyword here, Apple exposes a real guide for it
     /// on strings (`GenerationGuide<String>.constant`, SDK 27 swiftinterface
-    /// L1121, `@available(macOS 26.0, *)`), so it is validated case-by-case in
+    /// L1121, `@available(macOS 26.0, iOS 26.0, *)`), so it is validated case-by-case in
     /// `ensureSupportedSchemaKeywords` below instead of always rejected.
     private static let unsupportedSchemaKeywords: [String] = [
         "$dynamicRef", "$dynamicAnchor",
@@ -3604,7 +3604,7 @@ public final class FoundationModelsCore {
         )
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private final class SchemaContext {
         let rootSchema: [String: Any]
         private unowned let runtime: FoundationModelsCore
@@ -3674,7 +3674,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func generationSchema(from rawSchema: Any?) throws -> GenerationSchema {
         guard let schemaObject = rawSchema as? [String: Any] else {
             throw JsonRpcError.invalidRequest("responseFormat.schema must be a JSON Schema object.")
@@ -3685,7 +3685,7 @@ public final class FoundationModelsCore {
         return try GenerationSchema(root: root, dependencies: context.dependencies)
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func dynamicGenerationSchema(
         from schema: [String: Any],
         name: String,
@@ -3770,7 +3770,7 @@ public final class FoundationModelsCore {
         case "null":
             // Building block for explicit `anyOf: [{type:"string"},{type:"null"}]`
             // (same SDK surface as the type-array mapping above).
-            if #available(macOS 26.4, *) {
+            if #available(macOS 26.4, iOS 26.4, *) {
                 return DynamicGenerationSchema.null
             }
             throw JsonRpcError.unsupported(
@@ -3789,7 +3789,7 @@ public final class FoundationModelsCore {
     /// `DynamicGenerationSchema(anyOf: [T, .null])` when the SDK exposes
     /// `.null` (macOS 26.4+). Rejects every other shape by name — never peels
     /// `"null"` off and returns a bare `T` schema (FND-0145 regression).
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func nullableDynamicGenerationSchema(
         from schema: [String: Any],
         types: [String],
@@ -3821,7 +3821,7 @@ public final class FoundationModelsCore {
         return DynamicGenerationSchema(name: schemaName(name), anyOf: [base, .null])
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func stringGenerationSchema(
         schema: [String: Any],
         name: String,
@@ -3859,7 +3859,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func integerGenerationSchema(
         schema: [String: Any],
         name: String,
@@ -3875,7 +3875,7 @@ public final class FoundationModelsCore {
         return DynamicGenerationSchema(type: Int.self, guides: guides)
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func numberGenerationSchema(
         schema: [String: Any],
         name: String,
@@ -3891,7 +3891,7 @@ public final class FoundationModelsCore {
         return DynamicGenerationSchema(type: Double.self, guides: guides)
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func objectGenerationSchema(
         schema: [String: Any],
         name: String,
@@ -3942,7 +3942,7 @@ public final class FoundationModelsCore {
         return allowed.isEmpty ? "Schema" : allowed
     }
 
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func jsonObject(fromGeneratedContent content: GeneratedContent) throws -> Any {
         let data = Data(content.jsonString.utf8)
         return try JSONSerialization.jsonObject(with: data)
@@ -3957,7 +3957,7 @@ public final class FoundationModelsCore {
 
     private func systemModelStatus() -> (available: Bool, reason: String?, reasonCode: String?) {
         #if canImport(FoundationModels)
-        if #available(macOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, *) {
             let model = SystemLanguageModel.default
             switch model.availability {
             case .available:
@@ -3985,7 +3985,7 @@ public final class FoundationModelsCore {
         capabilities: [String: Bool]?
     ) {
         #if canImport(FoundationModels)
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             let model = PrivateCloudComputeLanguageModel()
             let quota = model.isAvailable ? pccQuotaDict(model.quotaUsage) : nil
             // Measured, not asserted (TCK-0223 / FND-0155). Constructing the model
@@ -4041,7 +4041,7 @@ public final class FoundationModelsCore {
     // test target via `@testable import` so the case-mapping can be pinned
     // without instantiating a real `PrivateCloudComputeLanguageModel` (which
     // needs the PCC entitlement this dev machine does not have).
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     func pccUnavailableReasonCode(
         _ reason: PrivateCloudComputeLanguageModel.Availability.UnavailableReason
     ) -> String {
@@ -4061,7 +4061,7 @@ public final class FoundationModelsCore {
     /// assumptions that omitted `image` entirely — which made the TS provider
     /// reject every image sent to apple.pcc without ever asking the model
     /// whether it accepts one.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func pccCapabilityDict(_ capabilities: LanguageModelCapabilities) -> [String: Bool] {
         [
             "image": capabilities.contains(.vision),
@@ -4073,7 +4073,7 @@ public final class FoundationModelsCore {
     #endif
 
     #if canImport(FoundationModels)
-    @available(macOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, *)
     private func unavailableReasonCode(
         _ reason: SystemLanguageModel.Availability.UnavailableReason
     ) -> String {
@@ -4089,7 +4089,7 @@ public final class FoundationModelsCore {
         }
     }
 
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func pccQuotaDict(_ quota: PrivateCloudComputeLanguageModel.QuotaUsage) -> [String: Any] {
         var result: [String: Any] = [
             "isApproachingLimit": false
@@ -4128,7 +4128,7 @@ public final class FoundationModelsCore {
     /// installed SDK's `.swiftinterface`: `Usage.Input.totalTokenCount`/`cachedTokenCount` and
     /// `Usage.Output.totalTokenCount`/`reasoningTokenCount` (FND-0162) all exist exactly as named
     /// here — nothing in this dict is invented.
-    @available(macOS 27.0, *)
+    @available(macOS 27.0, iOS 27.0, *)
     private func usageDict(from usage: LanguageModelSession.Usage) -> [String: Any] {
         [
             "inputTokens": usage.input.totalTokenCount,
@@ -4201,7 +4201,7 @@ public final class FoundationModelsCore {
 }
 
 #if canImport(FoundationModels)
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 private struct BridgeTool: Tool {
     typealias Arguments = GeneratedContent
     typealias Output = String
@@ -4225,7 +4225,7 @@ private struct BridgeTool: Tool {
     }
 }
 
-@available(macOS 26.0, *)
+@available(macOS 26.0, iOS 26.0, *)
 public final class ToolCallbackBridge: @unchecked Sendable {
     private let read: () async throws -> [String: Any]
     private let emit: ([String: Any]) async throws -> Void

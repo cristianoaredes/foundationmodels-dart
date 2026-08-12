@@ -2,7 +2,7 @@ import Foundation
 import MLXLMCommon
 
 /// Adapts an MLX tokenizer to `JSONSchemaVocabulary` (TCK-0110c).
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 struct MLXTokenizerVocabulary: JSONSchemaVocabulary {
     private let tokenizer: any Tokenizer
     let vocabSize: Int

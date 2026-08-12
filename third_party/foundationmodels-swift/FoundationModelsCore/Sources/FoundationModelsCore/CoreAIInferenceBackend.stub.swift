@@ -6,7 +6,7 @@ import FoundationModels
 /// Distribution-mirror stub: full CoreAI requires apple/coreai-models which
 /// pulls xgrammar@main (unstable), breaking SPM `from:` resolution.
 /// Fail closed; monorepo path keeps the real backend.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAIInferenceBackend: InferenceBackend {
     public init() {}
 
