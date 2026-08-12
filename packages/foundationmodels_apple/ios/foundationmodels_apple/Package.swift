@@ -7,7 +7,7 @@ import Foundation
 //
 // Path contract (TCK-0047 / FND-0010):
 //   unset FOUNDATIONMODELS_SWIFT_PATH
-//     → GitHub foundationmodels-swift from: "1.0.5" (CoreAI stub/excluded)
+//     → GitHub foundationmodels-swift from: "1.0.6" (CoreAI stub/excluded)
 //   set = mirror-layout clone OR monorepo foundationmodels-js/swift
 //     → path: $ROOT/FoundationModelsCore + $ROOT/ios-bridge
 //   FORBIDDEN: monorepo Core alone / path without both packages
@@ -28,7 +28,7 @@ enum SwiftCoreDeps {
         return [
             .package(
                 url: "https://github.com/cristianoaredes/foundationmodels-swift.git",
-                from: "1.0.5"
+                from: "1.0.6"
             )
         ]
     }
@@ -49,7 +49,7 @@ enum SwiftCoreDeps {
 let package = Package(
     name: "foundationmodels_apple",
     platforms: [
-        .iOS("16.0")
+        .iOS("17.0")
     ],
     products: [
         .library(name: "foundationmodels-apple", targets: ["foundationmodels_apple"])
