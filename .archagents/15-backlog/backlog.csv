@@ -57,3 +57,4 @@ TCK-0056,epic-mcp-client-sse-uab,Épico — MCP client + SSE transport (package 
 TCK-0057,mcp-client-api,MCP client API — FmMcpClient + listToolsAsFmTools,done,high,feature,M,stage2-mcp-client,,,,,2026-08-11T20:00:00-03:00,2026-08-11T20:30:00-03:00
 TCK-0058,mcp-sse-transport,MCP SSE transport + loopback + parseSseDataFrames,done,high,feature,M,stage2-mcp-client,,,,,2026-08-11T20:00:00-03:00,2026-08-11T20:30:00-03:00
 TCK-0059,mcp-live-uab-dual-run,MCP client — live dual-run against UAB/SSE endpoint (env-gated),done,medium,feature,M,open-backlog-formalization,,,,,2026-08-11T24:00:00-03:00,2026-08-11T22:00:00-03:00
+TCK-0060,ios-macos-platform-floor-gemma-fallback,"SPM platform floor (iOS/macOS 27) is app-wide, defeats Gemma OS-version fallback",raw,medium,architecture,unknown,consumer-chat-on-device-report,,,,,2026-08-12T10:00:00-03:00,
