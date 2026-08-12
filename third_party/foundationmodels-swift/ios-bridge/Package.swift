@@ -6,7 +6,7 @@ let package = Package(
   name: "FoundationModelsIOSBridge",
   platforms: [
     .macOS(.v14),
-    .iOS(.v16)
+    .iOS(.v17)
   ],
   products: [
     .library(
