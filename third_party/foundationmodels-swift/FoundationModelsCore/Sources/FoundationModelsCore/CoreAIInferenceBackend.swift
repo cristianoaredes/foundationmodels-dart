@@ -2,7 +2,9 @@ import Foundation
 
 #if canImport(FoundationModels)
 import FoundationModels
+#if canImport(CoreAILanguageModels)
 import CoreAILanguageModels
+#endif
 
 /// Motor de inferência nativo para `apple.coreai:*` via CoreAILanguageModels
 /// (runtime de alto nível da Apple sobre CoreAI.framework).
