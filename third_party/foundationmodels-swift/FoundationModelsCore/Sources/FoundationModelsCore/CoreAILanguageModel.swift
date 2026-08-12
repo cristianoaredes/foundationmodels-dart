@@ -3,7 +3,7 @@ import Foundation
 #if canImport(FoundationModels)
 import FoundationModels
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAILanguageModel: LanguageModel {
     public typealias Executor = CoreAILanguageModelExecutor
 
@@ -32,7 +32,7 @@ public struct CoreAILanguageModel: LanguageModel {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAILanguageModelExecutor: LanguageModelExecutor {
     public struct Configuration: Hashable, Sendable {
         public let modelId: String
@@ -91,7 +91,7 @@ public struct CoreAILanguageModelExecutor: LanguageModelExecutor {
 
 // MARK: - Fallback backend (fail-closed)
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 private struct UnavailableInferenceBackend: InferenceBackend {
     func prewarm(modelId: String, registryPath: String?, transcript: Transcript) async {
         // Intentionally no-op.

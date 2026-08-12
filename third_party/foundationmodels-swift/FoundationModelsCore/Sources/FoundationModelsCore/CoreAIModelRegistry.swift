@@ -173,7 +173,7 @@ enum CoreAIModelRegistry {
     }
 
     private static func isInferencePlatformSupported() -> Bool {
-        if #available(macOS 27.0, *) {
+        if #available(macOS 27.0, iOS 27.0, *) {
             return true
         }
         return false

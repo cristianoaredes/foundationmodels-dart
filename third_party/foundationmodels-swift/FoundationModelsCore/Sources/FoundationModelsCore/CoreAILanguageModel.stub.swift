@@ -5,7 +5,7 @@ import FoundationModels
 
 /// Distribution-mirror stub for `apple.coreai:*` LanguageModel surface.
 /// Same shape as monorepo type; CoreAIInferenceBackend is fail-closed here.
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAILanguageModel: LanguageModel {
     public typealias Executor = CoreAILanguageModelExecutor
 
@@ -26,7 +26,7 @@ public struct CoreAILanguageModel: LanguageModel {
     }
 }
 
-@available(macOS 27.0, *)
+@available(macOS 27.0, iOS 27.0, *)
 public struct CoreAILanguageModelExecutor: LanguageModelExecutor {
     public struct Configuration: Hashable, Sendable {
         public let modelId: String
