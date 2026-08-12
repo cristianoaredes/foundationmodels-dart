@@ -12,6 +12,7 @@
 | FND-0008 | info | AGPL-3.0-only no grafo de consumidores | open (policy awareness) |
 | FND-0009 | high | iOS Simulator: consumer `chat-on-device` não builda com mirror `foundationmodels-swift` 1.0.2 (SecTask / OCRTool / graph SPM) | **closed** (v1.0.3 guards; Core iphonesimulator build green) |
 | FND-0010 | medium | `FOUNDATIONMODELS_SWIFT_PATH` + monorepo tip ≠ mirror: CoreAI sources entram e quebram compile sem monorepo deps | **closed** (TCK-0047 path contract docs) |
+| FND-0011 | medium | SPM platform floor (`iOS 27`/`macOS 27`) é app-wide, não por code-path — bloqueia fallback Gemma em OS mais antigo mesmo quando AFM não seria usado | open — TCK-0060 |
 
 ## Detalhe
 
@@ -71,7 +72,80 @@ When consumer pointed SPM at monorepo-style `FoundationModelsCore` package (incl
 
 **Closed 2026-08-11 (TCK-0047):** decision table + recovery in `packages/foundationmodels_apple/README.md`, `Package.swift` comments (ios/macos), CONTINUATION §3/§6.
 
+### FND-0011 — SPM platform floor is app-wide, defeats OS-version fallback (2026-08-12)
 
+**Reporter:** consumer sibling `../chat-on-device`, durante triagem de residual do backend
+Gemma (TCK-0059/TCK-0060 nesse consumer).
+
+**Observação:** `chat-on-device` implementa uma cascata AFM → Gemma → GGUF (ADR-0009
+naquele repo) para que dispositivos sem Apple Intelligence caiam num backend local
+alternativo. Isso já funciona corretamente na dimensão de **hardware** (chip sem NPU
+elegível → AFM reporta indisponível, cascata segue). **Não funciona** na dimensão de
+**versão de OS**, porque o piso de plataforma é declarado no nível do pacote SPM, não
+por code-path:
+
+```swift
+// packages/foundationmodels_apple/ios/foundationmodels_apple/Package.swift:51-53
+platforms: [.iOS("27.0")]
+
+// third_party/foundationmodels-swift/Package.swift:16-18
+platforms: [.iOS(.v27), .macOS(.v27)]
+
+// third_party/foundationmodels-swift/ios-bridge/Package.swift:7-10
+platforms: [.macOS(.v27), .iOS(.v27)]
+```
+
+Qualquer app que linke `foundationmodels_apple` via SPM **precisa** ter
+`IPHONEOS_DEPLOYMENT_TARGET >= 27.0` — o Xcode recusa resolver o grafo de pacotes
+caso contrário. Isso vale pro binário **inteiro**, incluindo code paths (como o
+adapter Gemma) que nunca tocam a API da Apple.
+
+**Comparação concreta (evidência, 2026-08-12):**
+
+| Pacote | Piso declarado |
+|---|---|
+| `foundationmodels_apple` / `foundationmodels-swift` (este repo) | iOS 27.0 / macOS 27.0 |
+| `flutter_gemma` 1.5.2 (`ios/flutter_gemma.podspec`) — o fallback real do consumidor | iOS 16.0 |
+
+**Por que não é resolvido por `@available` já:** procurei por guardas
+`@available(iOS 27, *)` + weak-link do framework `FoundationModels` no lado iOS —
+não existem. O único weak-link presente é `-weak_framework FoundationModels` em
+`FoundationModelsCore/Package.swift`, mas **só para macOS** (`.when(platforms:
+[.macOS])`) e por outro motivo (TCK-0150: mismatch Xcode-beta SDK vs framework
+instalado, não "suportar OS mais antigo em runtime").
+
+**Reprodução (chat-on-device, 2026-08-12):**
+
+```bash
+# iPhone 14 físico (iPhone14,7 — nunca terá AFM, chip < A17 Pro) em iOS 26.5.2:
+$ flutter run -d 00008110-0002303E3E01401E --debug
+Error launching application on iPhone's Husé.
+…iPhone's Husé's iOS 26.5.2 doesn't match Runner.app's iOS 27.0 deployment target.
+```
+
+O device é exatamente o cenário ideal pra validar o fallback (hardware permanentemente
+inelegível pra AFM) mas nem chega a instalar o app, por um motivo não relacionado ao
+chip.
+
+**Impacto:** qualquer consumidor que queira "AFM quando disponível, Gemma/GGUF como
+fallback universal" fica limitado ao piso de OS do AFM (27.0) pra rodar em QUALQUER
+device — inclusive os que só usariam o fallback. Isso reduz o alcance real do produto
+pra exatamente os devices que já teriam AFM, na prática anulando parte do valor do
+fallback.
+
+**Sugestão de fix (não trivial — mudança de arquitetura, não código deste finding):**
+
+| Camada | Sugestão |
+|---|---|
+| `FoundationModelsCore` / `ios-bridge` / `foundationmodels-swift` | Baixar `platforms:` pro mínimo real necessário pelos code-paths não-AFM (alinhar ao piso do maior consumidor de fallback, ex. iOS 16/macOS 13) |
+| Chamadas diretas à API `FoundationModels` da Apple | Envolver em `@available(iOS 27, *)` / `@available(macOS 27, *)` + weak-link `FoundationModels.framework` também no **iOS** (hoje só macOS, e por outro motivo) |
+| `foundationmodels_apple` (plugin) | Mesma redução de piso nos dois `Package.swift` (ios/macos); `checkAvailability()` já retorna `available:false` com reasonCode — só precisa deixar de exigir OS novo pra sequer compilar/instalar |
+
+**Related:** TCK-0042/FND-0009 (gate de build anterior, já fechado — erro de compilação,
+não de deployment target); `chat-on-device` ADR-0009 (cascata multi-backend) e
+TCK-0059/TCK-0060 (residual Gemma real, onde este finding foi descoberto).
+
+**Ticket:** TCK-0060 (intake — avaliação de arquitetura, não iniciado).
 
 ## Post-closeout / residual-optin findings
 
