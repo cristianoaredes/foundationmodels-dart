@@ -1092,7 +1092,7 @@ public final class FoundationModelsCore {
         var lastUsage: [String: Any]?
         let stream: LanguageModelSession.ResponseStream<String>
         if let contextParams = try contextOptionsParams(params: params) {
-            guard #available(macOS 27.0, *) else {
+            guard #available(macOS 27.0, iOS 27.0, *) else {
                 throw contextOptionsUnavailableError()
             }
             stream = session.streamResponse(
@@ -1162,7 +1162,7 @@ public final class FoundationModelsCore {
         }
         let stream: LanguageModelSession.ResponseStream<GeneratedContent>
         if let contextParams = try contextOptionsParams(params: params) {
-            guard #available(macOS 27.0, *) else {
+            guard #available(macOS 27.0, iOS 27.0, *) else {
                 throw contextOptionsUnavailableError()
             }
             stream = session.streamResponse(
@@ -1307,7 +1307,7 @@ public final class FoundationModelsCore {
             let options = try generationOptions(params: params)
             do {
                 if let contextParams = try contextOptionsParams(params: params) {
-                    guard #available(macOS 27.0, *) else {
+                    guard #available(macOS 27.0, iOS 27.0, *) else {
                         throw contextOptionsUnavailableError()
                     }
                     let response = try await session.respond(
@@ -1458,7 +1458,7 @@ public final class FoundationModelsCore {
             let options = try generationOptions(params: params)
             do {
                 if let contextParams = try contextOptionsParams(params: params) {
-                    guard #available(macOS 27.0, *) else {
+                    guard #available(macOS 27.0, iOS 27.0, *) else {
                         throw contextOptionsUnavailableError()
                     }
                     let response = try await session.respond(
@@ -3087,7 +3087,7 @@ public final class FoundationModelsCore {
             return
         }
 
-        guard #available(macOS 27.0, *) else {
+        guard #available(macOS 27.0, iOS 27.0, *) else {
             throw JsonRpcError.unsupported(
                 "transcriptErrorHandlingPolicy requires macOS 27 or newer.",
                 data: ["code": "UNSUPPORTED_OPTION", "option": "transcriptErrorHandlingPolicy"]
@@ -3462,7 +3462,7 @@ public final class FoundationModelsCore {
             )
         }
 
-        guard #available(macOS 27.0, *) else {
+        guard #available(macOS 27.0, iOS 27.0, *) else {
             throw JsonRpcError.unsupported(
                 "options.toolCallingMode requires macOS 27 or newer.",
                 data: ["code": "UNSUPPORTED_OPTION", "option": "toolCallingMode"]
