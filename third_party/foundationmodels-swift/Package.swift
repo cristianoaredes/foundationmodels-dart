@@ -14,8 +14,8 @@ import PackageDescription
 let package = Package(
     name: "foundationmodels-swift",
     platforms: [
-        .iOS(.v27),
-        .macOS(.v27),
+        .iOS(.v16),
+        .macOS(.v14),
     ],
     products: [
         .library(name: "FoundationModelsCore", targets: ["FoundationModelsCore"]),
@@ -45,6 +45,10 @@ let package = Package(
                 .unsafeFlags(["-weak_framework", "Vision"], .when(platforms: [.macOS])),
                 .unsafeFlags(["-weak_framework", "_Vision_FoundationModels"], .when(platforms: [.macOS])),
                 .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.macOS])),
+                // iOS: weak-link so the binary loads on iOS 16+ even though
+                // FoundationModels/CoreAI frameworks only exist on iOS 26+.
+                .unsafeFlags(["-weak_framework", "FoundationModels"], .when(platforms: [.iOS])),
+                .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.iOS])),
             ]
         ),
         .target(

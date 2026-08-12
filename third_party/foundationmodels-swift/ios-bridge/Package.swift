@@ -5,8 +5,8 @@ import PackageDescription
 let package = Package(
   name: "FoundationModelsIOSBridge",
   platforms: [
-    .macOS(.v27),
-    .iOS(.v27)
+    .macOS(.v14),
+    .iOS(.v16)
   ],
   products: [
     .library(
