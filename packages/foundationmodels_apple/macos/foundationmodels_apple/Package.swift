@@ -11,7 +11,7 @@ import Foundation
 // lives upstream in FoundationModelsCore). See the package README.
 //
 // Path contract (TCK-0047 / FND-0010) — keep in sync with ios Package.swift:
-//   unset → GitHub foundationmodels-swift from: "1.0.8"
+//   unset → GitHub foundationmodels-swift from: "1.0.9"
 //   set   → $ROOT/FoundationModelsCore + $ROOT/ios-bridge (mirror layout or monorepo swift/)
 //   FORBIDDEN → Core alone / incomplete path (CoreAILanguageModels missing)
 
@@ -29,7 +29,7 @@ enum SwiftCoreDeps {
         return [
             .package(
                 url: "https://github.com/cristianoaredes/foundationmodels-swift.git",
-                from: "1.0.8"
+                from: "1.0.9"
             )
         ]
     }

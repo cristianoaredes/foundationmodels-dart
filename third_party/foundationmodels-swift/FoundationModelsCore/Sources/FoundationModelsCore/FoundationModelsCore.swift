@@ -3802,7 +3802,7 @@ public final class FoundationModelsCore {
             throw unsupportedSchemaKeywordError("type", path: path)
         }
 
-        guard #available(macOS 26.4, *) else {
+        guard #available(macOS 26.4, iOS 26.4, *) else {
             // `.null` lands in macOS 26.4 (swiftinterface L2608–2610). Below
             // that gate there is no native per-value nullable union, so keep
             // the typed reject rather than guessing with object-scoped
