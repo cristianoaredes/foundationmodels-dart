@@ -45,10 +45,11 @@ let package = Package(
                 .unsafeFlags(["-weak_framework", "Vision"], .when(platforms: [.macOS])),
                 .unsafeFlags(["-weak_framework", "_Vision_FoundationModels"], .when(platforms: [.macOS])),
                 .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.macOS])),
-                // iOS: weak-link so the binary loads on iOS 16+ even though
-                // FoundationModels/CoreAI frameworks only exist on iOS 26+.
+                // iOS: weak-link FoundationModels so the binary loads on iOS 17+
+                // even though the framework only exists on iOS 26+.
+                // CoreAI is NOT weak-linked on iOS — it does not exist in the
+                // iPhoneSimulator SDK and the linker fails even with -weak_framework.
                 .unsafeFlags(["-weak_framework", "FoundationModels"], .when(platforms: [.iOS])),
-                .unsafeFlags(["-weak_framework", "CoreAI"], .when(platforms: [.iOS])),
             ]
         ),
         .target(
